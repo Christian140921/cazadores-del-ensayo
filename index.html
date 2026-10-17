@@ -38,10 +38,10 @@ svg.defs{position:absolute;width:0;height:0}
 
 /* Barra superior */
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px;flex-wrap:wrap}
-.logo{font-family:var(--f-marker);font-size:22px;background:none;border:0;padding:0;display:flex;align-items:center;gap:10px}
+.logo{font-family:var(--f-marker);font-size:22px;background:none;border:0;padding:5px 0;min-height:44px;display:flex;align-items:center;gap:10px}
 .logo svg{width:34px;height:34px}
 .tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.tbtn{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);background:var(--sheet);border-radius:999px;padding:5px 14px 5px 10px;font-family:var(--f-hand);font-size:21px;font-weight:700;line-height:1}
+.tbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;border:2px solid var(--ink);background:var(--sheet);border-radius:999px;padding:5px 14px 5px 10px;font-family:var(--f-hand);font-size:21px;font-weight:700;line-height:1}
 .tbtn svg{width:20px;height:20px;flex:none}
 .tbtn[aria-pressed="false"]{opacity:.6}
 .tbtn[aria-pressed="false"] .on{display:none}
@@ -181,8 +181,10 @@ button.strip:hover{transform:translateX(4px)}
 .result .sum{font-family:var(--f-hand);font-weight:700;font-size:32px;line-height:1.1;margin-top:12px}
 .result p{margin:10px 0 0;max-width:48ch;font-size:18px}
 .podium{display:grid;gap:10px;margin-top:14px}
-.podium div{display:flex;align-items:center;gap:12px;font-family:var(--f-hand);font-weight:700;font-size:30px;line-height:1}
+.podium div{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-family:var(--f-hand);font-weight:700;font-size:30px;line-height:1}
 .podium div svg{width:36px;height:44px;flex:none}
+.podium div span{flex:1 1 150px;min-width:0}
+.result .podium .horca{width:36px;max-width:36px}
 .podium div em{font-style:normal;font-family:var(--f-marker);font-size:20px;color:var(--pen);margin-left:auto;white-space:nowrap}
 .podium div.out{opacity:.55}
 .bars{display:grid;gap:10px}
@@ -217,7 +219,11 @@ button.strip:hover{transform:translateX(4px)}
   .modes{grid-template-columns:minmax(0,1fr)}
   .stage{grid-template-columns:minmax(0,1fr);gap:16px}
   .side{order:-1;position:static;grid-template-columns:120px auto;align-items:center;justify-content:center;column-gap:16px}
-  .side .horca{max-width:120px}
+  .side .horca{max-width:96px}
+  .side{grid-template-columns:96px auto}
+  .score{font-size:19px;padding:0 10px 0 2px}
+  .score svg{width:24px;height:30px}
+  .turnline{font-size:26px}
   .result{grid-template-columns:minmax(0,1fr)}
   .result .horca{max-width:190px}
   .bk{grid-template-columns:120px minmax(0,1fr) 46px;font-size:21px}
@@ -799,7 +805,7 @@ function ronda(){
         <div class="sheet clip"><div class="tema">del ensayo «${esc(q.tema)}»</div>
           <blockquote id="quote">${conCitas(esc(q.t))}</blockquote></div>
         <div class="answers" id="answers">${opts}</div>
-        <div class="tools-row"><button class="pista" id="pista"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Pista: quita 2 opciones (el acierto vale la mitad)</button></div>
+        <div class="tools-row"><button class="pista" id="pista"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Pista: quita 2 opciones (vale la mitad)</button></div>
       </div>
       <aside class="side" id="gallows">${horca(eq.err)}${vidasHTML(eq.err)}</aside>
     </div>
