@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cazadores del Ensayo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Caveat:wght@500;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+/* Mundo: una hoja de cuaderno cuadriculado. Recortes de ensayos pegados con cinta, destacadores de colores,
+   y un ahorcado dibujado a mano con plumón. Un solo tema claro a propósito: se ve como papel, también en el proyector. */
+:root{
+  color-scheme:light;
+  --paper:#FCFCF8; --grid:#DCE7F2; --sheet:#FFFFFF; --tape:rgba(226,212,170,.72);
+  --ink:#1D2740; --pencil:#4A5168; --soft:#6B7290; --pen:#2244B0; --red:#D0342C; --green:#1E8048;
+  --hl-intro:#FFE45E; --hl-tesis:#FF9DCB; --hl-arg:#86E0A3; --hl-contra:#FFB867; --hl-concl:#9BCFFF;
+  --f-marker:"Permanent Marker", "Comic Sans MS", "Segoe Print", cursive;
+  --f-hand:"Caveat", "Segoe Print", "Bradley Hand", cursive;
+  --f-read:"Literata", Georgia, "Times New Roman", serif;
+  --shadow:0 1px 1px rgba(29,39,64,.06), 0 6px 18px -6px rgba(29,39,64,.22);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0}
+img{max-width:100%}
+::selection{background:var(--hl-intro);color:var(--ink)}
+html{background:var(--paper)}
+body{background-color:var(--paper);color:var(--ink);font-family:var(--f-read);font-size:17px;line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:26px 26px;background-position:-1px -1px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 48px;min-height:100%}
+.wrap{max-width:1000px;margin:0 auto}
+h1,h2,h3{margin:0;font-weight:400;text-wrap:balance;line-height:1.05}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px dashed var(--pen);outline-offset:3px}
+svg.defs{position:absolute;width:0;height:0}
+
+/* Barra superior */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px;flex-wrap:wrap}
+.logo{font-family:var(--f-marker);font-size:22px;background:none;border:0;padding:0;display:flex;align-items:center;gap:10px}
+.logo svg{width:34px;height:34px}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tbtn{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);background:var(--sheet);border-radius:999px;padding:5px 14px 5px 10px;font-family:var(--f-hand);font-size:21px;font-weight:700;line-height:1}
+.tbtn svg{width:20px;height:20px;flex:none}
+.tbtn[aria-pressed="false"]{opacity:.6}
+.tbtn[aria-pressed="false"] .on{display:none}
+.tbtn[aria-pressed="true"] .off{display:none}
+
+/* Botones "de cuaderno" */
+.btn{position:relative;font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1;padding:12px 24px 14px;border:2.5px solid var(--ink);
+  border-radius:14px 18px 13px 20px / 18px 12px 20px 14px;background:var(--sheet);box-shadow:0 3px 0 -1px var(--ink);transition:transform .15s cubic-bezier(.2,.8,.2,1), box-shadow .15s}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 0 -1px var(--ink)}
+.btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 -1px var(--ink)}
+.btn.go{background:var(--ink);color:var(--paper)}
+.btn.go:hover:not(:disabled){box-shadow:0 5px 0 -1px var(--pen)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.small{font-size:21px;padding:8px 16px 10px}
+
+/* Destacador */
+.hl{background-image:linear-gradient(var(--c),var(--c));background-repeat:no-repeat;background-size:100% 62%;background-position:0 78%;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone;padding:0 .14em;margin:0 -.06em;border-radius:3px 6px 4px 7px}
+.hl.sweep{transition:background-size .75s cubic-bezier(.22,1,.36,1)}
+.hl.sweep.off{background-size:0% 62%}
+
+/* Hoja pegada con cinta */
+.sheet{position:relative;background:var(--sheet);box-shadow:var(--shadow);border-radius:3px;padding:26px clamp(18px,3.5vw,32px) 24px}
+.sheet::before,.sheet::after{content:"";position:absolute;top:-12px;width:86px;height:26px;background:var(--tape);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.sheet::before{left:18px;transform:rotate(-5deg)}
+.sheet::after{right:18px;transform:rotate(4deg)}
+.tilt-l{transform:rotate(-.7deg)} .tilt-r{transform:rotate(.6deg)}
+.hand{font-family:var(--f-hand);font-weight:700}
+.note{font-family:var(--f-hand);font-size:24px;color:var(--pen);line-height:1.15}
+
+/* Inicio */
+.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.9fr);gap:24px;align-items:center;padding-block:18px 26px}
+.hero h1{font-family:var(--f-marker);font-size:clamp(48px,8.6vw,92px);letter-spacing:-.01em;line-height:.98}
+.hero h1 .hl{--c:var(--hl-tesis)}
+.hero p{max-width:46ch;margin:18px 0 0;font-size:19px}
+.hero-art{position:relative;display:grid;justify-items:center}
+.hero-art .horca{width:min(100%,260px)}
+.hero-art .note{position:absolute;left:-6px;top:6px;transform:rotate(-8deg);max-width:9ch}
+.hero-art .arrow{position:absolute;left:62px;top:70px;width:70px;height:60px;color:var(--pen)}
+.pieces{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-top:22px}
+.pieces span{font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1.1}
+.pieces i{font-style:normal;color:var(--soft);font-family:var(--f-hand);font-size:22px}
+.modes{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:34px 28px;align-items:start;margin-top:14px}
+.modes h2{font-family:var(--f-marker);font-size:36px}
+.modes p{margin:8px 0 0}
+.opts{display:grid;gap:14px;margin-top:18px}
+.opt{display:grid;gap:6px}
+.opt>span{font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--pencil);line-height:1}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1;padding:6px 14px 8px;border:2px solid transparent;background:none;border-radius:40% 45% 42% 48% / 55% 45% 55% 45%}
+.seg button[aria-pressed="true"]{border-color:var(--red);color:var(--red)}
+.seg button:hover{background:rgba(29,39,64,.05)}
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:4px}
+.teams input{width:100%;font-family:var(--f-hand);font-weight:700;font-size:22px;padding:4px 2px;border:0;border-bottom:2px solid var(--pencil);background:transparent;color:var(--ink);border-radius:0}
+.teams input:focus{outline:none;border-bottom-color:var(--pen)}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px;align-items:center}
+
+/* Juego */
+.hud{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;padding-block:2px 10px}
+.prog{font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1}
+.prog small{font-size:22px;color:var(--red);margin-left:8px}
+.pencil-bar{flex:1 1 200px;height:12px;position:relative;min-width:120px}
+.pencil-bar svg{width:100%;height:12px;display:block;overflow:visible}
+.timer{font-family:var(--f-marker);font-size:28px;font-variant-numeric:tabular-nums;min-width:3.2ch;text-align:right}
+.timer.low{color:var(--red);animation:late 1s infinite}
+@keyframes late{50%{transform:scale(1.12)}}
+.scores{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+.score{display:flex;align-items:center;gap:6px;padding:2px 12px 2px 4px;border:2px solid transparent;border-radius:30px;font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1;background:var(--sheet);box-shadow:var(--shadow)}
+.score svg{width:34px;height:40px}
+.score b{font-family:var(--f-marker);font-weight:400;font-size:18px;color:var(--pen)}
+.score.turn{border-color:var(--ink)}
+.score.out{opacity:.5;text-decoration:line-through}
+.turnline{font-family:var(--f-hand);font-weight:700;font-size:30px;line-height:1.1;margin-block:4px 2px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:26px;align-items:start;margin-top:16px}
+.stage .main{min-width:0}
+.clip .tema{font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--soft);line-height:1;margin-bottom:12px}
+.clip blockquote{margin:0;font-size:clamp(21px,2.9vw,29px);line-height:1.5;font-weight:400}
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:12px 14px;margin-top:22px}
+.ans{position:relative;display:flex;align-items:center;gap:10px;text-align:left;border:0;background:var(--sheet);box-shadow:var(--shadow);border-radius:6px;padding:10px 14px 12px 10px;
+  font-family:var(--f-hand);font-weight:700;font-size:28px;line-height:1;min-width:0;transition:transform .15s cubic-bezier(.2,.8,.2,1)}
+.ans .cap{flex:none;width:30px;height:30px;border-radius:7px 9px 6px 10px;background:var(--c);display:grid;place-items:center;font-family:var(--f-marker);font-size:16px;color:var(--ink)}
+.ans .txt{min-width:0;overflow-wrap:anywhere}
+.ans:hover:not(:disabled){transform:translateY(-3px) rotate(-.8deg)}
+.ans:disabled{cursor:default}
+.ans.dim{opacity:.4}
+.ans.right::after{content:"";position:absolute;inset:-7px -6px -6px -8px;border:3px solid var(--green);border-radius:52% 46% 50% 44% / 58% 50% 54% 46%;transform:rotate(-2deg);pointer-events:none}
+.ans.wrong .txt{position:relative}
+.ans.wrong .txt::after{content:"";position:absolute;left:-4px;right:-6px;top:52%;height:4px;background:var(--red);border-radius:3px;transform:rotate(-4deg)}
+.ans.wrong{color:var(--red)}
+.side{display:grid;gap:4px;justify-items:center;position:sticky;top:12px}
+.side .horca{width:100%;max-width:220px}
+.lives{font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1;text-align:center}
+.lives .tally{display:block;font-family:var(--f-marker);font-size:22px;letter-spacing:3px;color:var(--red);margin-top:4px;min-height:1em}
+.lives.dead{color:var(--red)}
+.fb{margin-top:26px;position:relative;background:var(--sheet);box-shadow:var(--shadow);border-radius:3px;padding:20px clamp(18px,3vw,28px) 18px clamp(30px,5vw,56px);
+  background-image:linear-gradient(90deg, transparent 0 clamp(18px,3.4vw,40px), rgba(208,52,44,.45) 0 calc(clamp(18px,3.4vw,40px) + 2px), transparent 0), repeating-linear-gradient(transparent 0 31px, var(--grid) 31px 32px)}
+.fb h3{font-family:var(--f-hand);font-weight:700;font-size:clamp(30px,4vw,40px);line-height:1.05}
+.fb.ok h3{color:var(--green)} .fb.no h3{color:var(--red)}
+.fb p{margin:8px 0 0;max-width:68ch}
+.fb .def{color:var(--pencil);font-size:15.5px}
+.fb .cta{justify-content:flex-end;margin-top:12px}
+.keys{color:var(--soft);font-family:var(--f-hand);font-size:20px;margin-top:14px}
+
+/* Ordena */
+.olist{display:grid;gap:12px}
+.strip{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start;text-align:left;border:0;background:var(--sheet);box-shadow:var(--shadow);border-radius:3px;padding:14px 18px 14px 12px;font-size:17px;transition:transform .15s cubic-bezier(.2,.8,.2,1)}
+.strip:nth-child(odd){transform:rotate(-.35deg)} .strip:nth-child(even){transform:rotate(.35deg)}
+button.strip:hover{transform:translateX(4px)}
+.strip .num{width:38px;height:38px;display:grid;place-items:center;font-family:var(--f-marker);font-size:20px;color:var(--soft);border:2px dashed var(--grid);border-radius:50%}
+.strip.placed .num{color:var(--pen);border:2.5px solid var(--pen);border-radius:46% 54% 50% 48% / 52% 46% 54% 48%}
+.strip.placed{opacity:.75}
+.strip .tag{display:inline-block;margin-top:8px;font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1}
+.strip.nope{animation:nope .4s}
+.strip.nope .num{border-color:var(--red);color:var(--red);border-style:solid}
+@keyframes nope{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+.lead{font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1.15;margin:0;max-width:44ch}
+
+/* Guía */
+.guide{display:grid;gap:8px;padding-block:8px}
+.guide h2{font-family:var(--f-marker);font-size:clamp(36px,6vw,56px)}
+.guide>p{max-width:62ch;margin:6px 0 10px}
+.part{display:grid;grid-template-columns:52px minmax(0,1fr);gap:16px;padding-block:18px;border-top:2px dashed var(--grid)}
+.part .n{font-family:var(--f-marker);font-size:34px;color:var(--pen);line-height:1}
+.part h3{font-family:var(--f-hand);font-weight:700;font-size:38px;line-height:1}
+.part p{margin:8px 0 0;max-width:62ch}
+.part .where{color:var(--pencil);font-size:15.5px}
+.part .keys2{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:8px;font-family:var(--f-hand);font-size:24px;color:var(--pen);line-height:1.2}
+
+/* Final */
+.final{display:grid;gap:22px;padding-block:10px}
+.result{display:grid;grid-template-columns:240px minmax(0,1fr);gap:28px;align-items:center}
+.result .horca{width:100%}
+.result h2{font-family:var(--f-marker);font-size:clamp(46px,9vw,88px);line-height:.95}
+.result h2.win{color:var(--green)} .result h2.lose{color:var(--red)}
+.result .sum{font-family:var(--f-hand);font-weight:700;font-size:32px;line-height:1.1;margin-top:12px}
+.result p{margin:10px 0 0;max-width:48ch;font-size:18px}
+.podium{display:grid;gap:10px;margin-top:14px}
+.podium div{display:flex;align-items:center;gap:12px;font-family:var(--f-hand);font-weight:700;font-size:30px;line-height:1}
+.podium div svg{width:36px;height:44px;flex:none}
+.podium div em{font-style:normal;font-family:var(--f-marker);font-size:20px;color:var(--pen);margin-left:auto;white-space:nowrap}
+.podium div.out{opacity:.55}
+.bars{display:grid;gap:10px}
+.bars h3{font-family:var(--f-hand);font-weight:700;font-size:30px}
+.bk{display:grid;grid-template-columns:170px minmax(0,1fr) 54px;gap:12px;align-items:center;font-family:var(--f-hand);font-weight:700;font-size:24px;line-height:1}
+.bk .track{height:18px;border-bottom:2px solid var(--pencil);position:relative}
+.bk .track i{position:absolute;left:0;bottom:2px;height:14px;background:var(--c);border-radius:2px 8px 3px 6px}
+.bk .v{text-align:right;font-variant-numeric:tabular-nums}
+
+/* Ahorcado dibujado */
+.horca path,.horca circle,.horca line{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.horca .wood{stroke:var(--pencil);stroke-width:6;filter:url(#rough)}
+.horca .wood2{stroke:var(--pencil);stroke-width:1.6;opacity:.45;filter:url(#rough)}
+.horca .guy{stroke:var(--ink);stroke-width:5.5;filter:url(#rough)}
+.horca.dead .guy{stroke:var(--red)}
+.horca.saved .guy{stroke:var(--green)}
+.horca .face{stroke-width:3}
+.horca .eye{fill:currentColor;stroke:none}
+.horca .guy{color:var(--ink)} .horca.dead .guy{color:var(--red)} .horca.saved .guy{color:var(--green)}
+.horca .ground{stroke:var(--grid);stroke-width:3}
+.horca .draw{stroke-dasharray:100;stroke-dashoffset:100;animation:draw .55s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.horca .pop{animation:pop .4s cubic-bezier(.22,1,.36,1) both}
+@keyframes pop{from{opacity:0;transform:scale(.6)}}
+.horca .pop{transform-box:fill-box;transform-origin:center}
+
+#confeti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
+
+@media (max-width:760px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .hero-art{max-width:300px;justify-self:center}
+  .modes{grid-template-columns:minmax(0,1fr)}
+  .stage{grid-template-columns:minmax(0,1fr);gap:16px}
+  .side{order:-1;position:static;grid-template-columns:120px auto;align-items:center;justify-content:center;column-gap:16px}
+  .side .horca{max-width:120px}
+  .result{grid-template-columns:minmax(0,1fr)}
+  .result .horca{max-width:190px}
+  .bk{grid-template-columns:120px minmax(0,1fr) 46px;font-size:21px}
+  .tilt-l,.tilt-r{transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .hl.sweep,.btn,.ans,.strip{transition:none}
+  .horca .draw{animation:none;stroke-dashoffset:0}
+  .horca .pop,.strip.nope,.timer.low{animation:none}
+}
+</style>
+</head>
+<body>
+
+<svg class="defs" aria-hidden="true" focusable="false">
+  <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<div class="wrap">
+  <header class="top">
+    <button class="logo" id="goHome" aria-label="Ir al inicio">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 36 Q20 34 34 36 M12 36 Q10 20 13 5 M10 6 Q20 4 29 6 M29 6 Q30 10 29 13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" filter="url(#rough)"/><circle cx="29" cy="17" r="4" fill="none" stroke="#D0342C" stroke-width="3"/></svg>
+      Cazadores del Ensayo
+    </button>
+    <div class="tools">
+      <button class="tbtn" id="goGuide">Guía</button>
+      <button class="tbtn" id="tMusic" aria-pressed="true" aria-label="Música">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.6" fill="currentColor"/><circle cx="17.5" cy="16" r="2.6" fill="currentColor"/><path class="off" d="M3 3 21 21" stroke="#D0342C" stroke-width="2.6" stroke-linecap="round"/></svg>
+        <span class="on">Música</span><span class="off">Sin música</span>
+      </button>
+      <button class="tbtn" id="tSfx" aria-pressed="true" aria-label="Efectos de sonido">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="on" d="M16 8.5q2.5 3.5 0 7M18.5 6q4.5 6 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="off" d="M16.5 9.5l5 5m0-5-5 5" stroke="#D0342C" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span class="on">Sonidos</span><span class="off">Silencio</span>
+      </button>
+    </div>
+  </header>
+  <main id="app"></main>
+</div>
+<canvas id="confeti" hidden></canvas>
+
+<script>
+const PARTES = {
+  intro:  {nombre:"Introducción", c:"--hl-intro", def:"Presenta el tema y despierta el interés del lector. Da contexto: de qué se va a hablar y por qué importa.", donde:"Al comienzo del ensayo.", claves:["Hoy en día…","En la actualidad…","Cada vez más…","Una pregunta, un dato o una situación cotidiana"]},
+  tesis:  {nombre:"Tesis", c:"--hl-tesis", def:"Es la postura u opinión del autor sobre el tema. Todo el ensayo existe para defenderla, por eso debe ser clara y discutible.", donde:"Normalmente al final de la introducción.", claves:["Considero que…","En mi opinión…","Sostengo que…","Mi postura es…"]},
+  arg:    {nombre:"Argumento", c:"--hl-arg", def:"Razones, ejemplos, datos o citas que apoyan la tesis. Forman el desarrollo o cuerpo del ensayo.", donde:"En el desarrollo, uno o varios párrafos.", claves:["En primer lugar…","Además…","Por ejemplo…","Según un estudio…"]},
+  contra: {nombre:"Contraargumento", c:"--hl-contra", def:"Presenta una opinión contraria a la tesis y luego la refuta, mostrando por qué no es suficiente. Hace el ensayo más convincente.", donde:"En el desarrollo, casi siempre antes de la conclusión.", claves:["Algunos piensan que…","Es cierto que…","Sin embargo…","No obstante…"]},
+  concl:  {nombre:"Conclusión", c:"--hl-concl", def:"Cierra el ensayo: retoma la tesis, resume las ideas principales y puede dejar una reflexión o propuesta.", donde:"Al final del ensayo.", claves:["En conclusión…","En resumen…","Por todo lo anterior…","En definitiva…"]}
+};
+const ORDEN_PARTES = ["intro","tesis","arg","contra","concl"];
+
+const ENSAYOS = [
+ {tema:"El celular en clase", f:[
+  ["intro","Hoy casi todos los estudiantes llevan un celular en la mochila. Lo usamos para conversar, buscar información y entretenernos, y por eso muchos colegios se preguntan qué hacer con él durante las clases.","Presenta el tema con una situación cotidiana y plantea la pregunta del ensayo, pero todavía no da una opinión."],
+  ["tesis","En mi opinión, el celular debería permitirse en clase solo cuando el profesor lo indique para una actividad, porque bien usado es una herramienta de aprendizaje.","\"En mi opinión\" anuncia la postura del autor. Es la idea que el resto del ensayo va a defender."],
+  ["arg","Por ejemplo, con el celular podemos consultar un diccionario, revisar un mapa o responder un cuestionario en línea en pocos segundos, lo que hace la clase más dinámica.","Da ejemplos concretos (\"Por ejemplo\") que apoyan la tesis de que el celular sirve para aprender."],
+  ["arg","Además, aprender a usarlo con reglas nos prepara para el futuro, ya que en la universidad y en el trabajo tendremos que manejar la tecnología de forma responsable.","\"Además\" suma una nueva razón a favor de la tesis. Es un argumento del desarrollo."],
+  ["contra","Es cierto que algunos piensan que el celular solo sirve para distraerse con juegos y redes sociales. Sin embargo, la distracción disminuye cuando hay normas claras y el profesor decide en qué momento se usa.","Primero reconoce la opinión contraria (\"algunos piensan\") y luego la refuta con \"Sin embargo\"."],
+  ["concl","En conclusión, prohibir el celular por completo desaprovecha una herramienta útil. Lo mejor es enseñarnos a usarlo con responsabilidad dentro del aula.","\"En conclusión\" marca el cierre: retoma la tesis y deja una propuesta final."]
+ ]},
+ {tema:"Reciclaje en el colegio", f:[
+  ["intro","Cada día, en un colegio se botan cientos de botellas, hojas y envoltorios. Parecen pocas cosas, pero al final del año forman una verdadera montaña de basura.","Abre con una imagen que despierta interés y muestra el problema. Aún no dice qué opina el autor."],
+  ["tesis","Considero que todos los colegios deberían tener un programa obligatorio de reciclaje dirigido por los propios estudiantes.","\"Considero que\" expresa una postura clara y discutible: esa es la tesis."],
+  ["arg","En primer lugar, separar los residuos reduce la basura que llega a los rellenos sanitarios, y materiales como el papel y el plástico pueden volver a usarse.","\"En primer lugar\" ordena las razones del desarrollo. Esta apoya la tesis con un beneficio concreto."],
+  ["arg","En segundo lugar, cuando los estudiantes organizan el programa, aprenden a trabajar en equipo y a cuidar su entorno con acciones concretas.","\"En segundo lugar\" introduce otra razón a favor de la tesis."],
+  ["contra","Algunas personas dicen que reciclar le quita tiempo a las clases. No obstante, bastan unos minutos al día y turnos por curso para que funcione sin afectar el estudio.","Presenta la objeción (\"Algunas personas dicen\") y la responde con \"No obstante\"."],
+  ["concl","Por todo lo anterior, un programa de reciclaje es una lección práctica sobre el cuidado del planeta que cualquier colegio puede aplicar.","\"Por todo lo anterior\" resume lo dicho y cierra reafirmando la tesis."]
+ ]},
+ {tema:"Leer por gusto", f:[
+  ["intro","Vivimos rodeados de videos cortos y mensajes rápidos. En medio de tanta información, leer un libro completo parece una actividad de otra época.","Describe el contexto actual para introducir el tema de la lectura, sin dar todavía una postura."],
+  ["tesis","Pienso que leer por gusto sigue siendo uno de los mejores hábitos que puede tener un joven, porque nos ayuda a pensar y a expresarnos mejor.","\"Pienso que\" introduce la opinión central que se defenderá en el ensayo."],
+  ["arg","Diversos estudios señalan que quienes leen con frecuencia tienen un vocabulario más amplio y escriben con mayor claridad, algo que se nota en todas las asignaturas.","Usa evidencia (\"Diversos estudios señalan\") para respaldar la tesis."],
+  ["arg","Asimismo, la lectura desarrolla la empatía: al seguir la historia de un personaje, nos ponemos en el lugar de otras personas y entendemos realidades distintas.","\"Asimismo\" agrega otra razón que apoya la tesis."],
+  ["contra","Hay quienes afirman que leer es aburrido y que se aprende lo mismo viendo videos. Pero un video nos entrega todo resuelto, mientras que un libro nos obliga a imaginar y a concentrarnos por más tiempo.","Recoge una idea opuesta (\"Hay quienes afirman\") y la rebate con \"Pero\"."],
+  ["concl","En resumen, leer no pasa de moda. Dedicar aunque sea veinte minutos al día a un libro puede mejorar nuestra forma de pensar, escribir y convivir.","\"En resumen\" cierra el ensayo y deja una recomendación final."]
+ ]},
+ {tema:"Más educación física", f:[
+  ["intro","Muchos estudiantes pasan gran parte del día sentados: en la sala de clases, frente a una pantalla y luego haciendo tareas. El movimiento ocupa cada vez menos espacio en nuestra rutina.","Plantea la situación que da origen al tema. Todavía no hay opinión, solo contexto."],
+  ["tesis","Por eso, defiendo que el colegio debería aumentar las horas de educación física a la semana.","\"Defiendo que\" deja clara la postura del autor: es la tesis."],
+  ["arg","La Organización Mundial de la Salud recomienda que niños y adolescentes hagan al menos 60 minutos de actividad física al día, y el colegio es un buen lugar para lograrlo.","Cita una fuente confiable (la OMS) como prueba a favor de la tesis."],
+  ["arg","Además, hacer ejercicio ayuda a concentrarse: después de moverse, es más fácil prestar atención en las clases siguientes.","\"Además\" suma una razón más que apoya la tesis."],
+  ["contra","Se podría objetar que más horas de deporte significan menos tiempo para matemáticas o lenguaje. Aun así, un estudiante sano y descansado aprovecha mejor las horas que sí tiene en esas asignaturas.","\"Se podría objetar\" presenta la idea contraria y \"Aun así\" la refuta."],
+  ["concl","Así, sumar horas de educación física es una inversión en la salud y el rendimiento de los estudiantes, y vale la pena que el colegio lo considere.","Cierra retomando la tesis y proponiendo una acción. Es la conclusión."]
+ ]},
+ {tema:"Las redes sociales", f:[
+  ["intro","Las redes sociales forman parte de la vida diaria de los adolescentes. Allí compartimos fotos, conversamos y nos enteramos de lo que pasa en el mundo.","Introduce el tema mostrando lo presente que está en nuestra vida, sin tomar postura."],
+  ["tesis","A mi juicio, las redes sociales no son buenas ni malas por sí mismas: su efecto depende de cuánto tiempo y de cómo las usemos.","\"A mi juicio\" anuncia la opinión del autor que guiará todo el texto."],
+  ["arg","Por un lado, permiten mantener el contacto con amigos y familiares que viven lejos, y también difundir campañas solidarias en poco tiempo.","\"Por un lado\" presenta una razón que respalda la tesis con ejemplos."],
+  ["arg","Por otro lado, pasar muchas horas comparándose con otras personas puede afectar la autoestima, por lo que es importante poner límites de tiempo.","Completa el razonamiento de la tesis: el efecto depende del uso. Es otro argumento."],
+  ["contra","Algunos adultos sostienen que lo mejor sería prohibirlas a los menores de edad. Sin embargo, la prohibición no enseña a usarlas bien, y tarde o temprano los jóvenes llegarán a ellas sin preparación.","Expone la postura contraria (\"Algunos adultos sostienen\") y la refuta con \"Sin embargo\"."],
+  ["concl","En definitiva, más que alejarnos de las redes, necesitamos aprender a usarlas con criterio, cuidando nuestro tiempo y nuestro bienestar.","\"En definitiva\" señala el cierre y la idea final del ensayo."]
+ ]},
+ {tema:"El uniforme escolar", f:[
+  ["intro","El uniforme escolar es una tradición en muchos colegios de Latinoamérica. Cada año, al comprarlo, vuelve la misma pregunta: ¿es realmente necesario?","Presenta el tema y lanza una pregunta para atrapar al lector."],
+  ["tesis","Mi postura es que el uniforme sí es útil, porque reduce las diferencias entre estudiantes y facilita la vida diaria.","\"Mi postura es\" expresa directamente la tesis."],
+  ["arg","Cuando todos visten igual, disminuyen las burlas por la ropa o las marcas, y los estudiantes se fijan más en las personas que en lo que llevan puesto.","Explica una razón que apoya la tesis: el uniforme reduce diferencias."],
+  ["arg","También ahorra tiempo y dinero a las familias, porque no hay que decidir cada mañana qué ponerse ni comprar ropa distinta para cada día.","\"También\" agrega otra razón a favor de la tesis."],
+  ["contra","Quienes están en contra dicen que el uniforme limita la libertad de expresión. Es un punto válido, pero los estudiantes pueden expresar su personalidad de muchas otras formas, como en sus ideas y sus trabajos.","Reconoce la objeción (\"Quienes están en contra\") y luego la responde con \"pero\"."],
+  ["concl","Por estas razones, considero que el uniforme debe mantenerse, aunque su diseño podría revisarse con la participación de los propios estudiantes.","\"Por estas razones\" resume y reafirma la tesis para cerrar."]
+ ]}
+];
+
+
+const app = document.getElementById("app");
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const cvar = k => `--c:var(${PARTES[k].c})`;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Sonido: música y efectos con Web Audio ---------- */
+const Sonido = (() => {
+  const leer = (k,d) => { try { const v = localStorage.getItem(k); return v === null ? d : v === "1"; } catch { return d; } };
+  const guardar = (k,v) => { try { localStorage.setItem(k, v ? "1" : "0"); } catch {} };
+  const st = { musica: leer("cz-musica", true), efectos: leer("cz-efectos", true) };
+  let ctx = null, master, mus, sfx, ruidoBuf, reloj = null, paso = 0, prox = 0;
+  const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+
+  function init(){
+    if (ctx) { if (ctx.state === "suspended") ctx.resume(); return; }
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    ctx = new AC();
+    master = ctx.createGain(); master.gain.value = .85;
+    const comp = ctx.createDynamicsCompressor(); master.connect(comp); comp.connect(ctx.destination);
+    mus = ctx.createGain(); mus.gain.value = 0; mus.connect(master);
+    sfx = ctx.createGain(); sfx.gain.value = st.efectos ? 1 : 0; sfx.connect(master);
+    ruidoBuf = ctx.createBuffer(1, ctx.sampleRate * .6, ctx.sampleRate);
+    const d = ruidoBuf.getChannelData(0); for (let i=0;i<d.length;i++) d[i] = Math.random()*2-1;
+    if (st.musica) arrancar();
+  }
+  function tono(m, t, dur, {tipo="triangle", vol=.2, dest=sfx, ataque=.006, slide=0}={}){
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = tipo; o.frequency.setValueAtTime(hz(m), t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(hz(m + slide), t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + ataque); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + .03);
+  }
+  function ruido(t, dur, {vol=.1, freq=6000, q=.8, tipo="highpass", dest=sfx}={}){
+    const s = ctx.createBufferSource(); s.buffer = ruidoBuf;
+    const f = ctx.createBiquadFilter(); f.type = tipo; f.frequency.value = freq; f.Q.value = q;
+    const g = ctx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(dest); s.start(t, Math.random()*.3); s.stop(t + dur + .03);
+  }
+
+  // Canción alegre en Do mayor: Do – Sol – La menor – Fa, ritmo de ukelele
+  const OCT = 60 / 116 / 2;
+  const ACORDES = [[60,64,67],[55,59,62],[57,60,64],[53,57,60]];
+  const MEL = [
+    72,0,76,0,79,76,74,72,  74,0,71,0,67,0,71,74,  72,0,69,0,72,76,0,74,  72,0,69,0,65,0,67,0,
+    76,0,79,0,84,0,79,76,   74,76,74,71,67,0,0,0,  69,72,76,0,74,72,69,0, 65,67,69,71,72,0,0,0 ];
+  function tocar(s, t){
+    const compas = Math.floor(s / 8), b = s % 8, ch = ACORDES[compas % 4];
+    const m = MEL[s % MEL.length];
+    if (m) { tono(m, t, OCT*1.7, {tipo:"square", vol:.035, dest:mus}); tono(m+12, t, OCT*1.1, {tipo:"triangle", vol:.03, dest:mus}); }
+    if (b === 0 || b === 4) tono(ch[0]-24, t, OCT*1.9, {tipo:"triangle", vol:.26, dest:mus});
+    if (b === 6) tono(ch[2]-24, t, OCT*1.2, {tipo:"triangle", vol:.18, dest:mus});
+    if (b % 2 === 1) ch.forEach((n,i) => tono(n, t + i*.012, OCT*.9, {tipo:"triangle", vol:.04, dest:mus, ataque:.003}));
+    if (b === 2 || b === 6) ruido(t, .1, {vol:.11, freq:1700, tipo:"bandpass", q:.7, dest:mus});
+    ruido(t, .035, {vol: b % 2 ? .045 : .025, freq:8000, dest:mus});
+  }
+  function programar(){ while (prox < ctx.currentTime + .18) { tocar(paso, prox); paso++; prox += OCT; } }
+  function arrancar(){
+    if (!ctx || reloj) return;
+    paso = 0; prox = ctx.currentTime + .1;
+    mus.gain.cancelScheduledValues(ctx.currentTime); mus.gain.setTargetAtTime(1, ctx.currentTime, .4);
+    reloj = setInterval(programar, 40);
+  }
+  function parar(){ if (!reloj) return; clearInterval(reloj); reloj = null; mus.gain.setTargetAtTime(0, ctx.currentTime, .08); }
+  function bajar(seg){ if (!ctx || !reloj) return; const t = ctx.currentTime; mus.gain.cancelScheduledValues(t); mus.gain.setTargetAtTime(.25, t, .05); mus.gain.setTargetAtTime(1, t + seg, .4); }
+  document.addEventListener("visibilitychange", () => { if (!ctx) return; if (document.hidden) parar(); else if (st.musica) arrancar(); });
+
+  const fx = fn => { if (!ctx || !st.efectos) return; fn(ctx.currentTime + .01); };
+  return {
+    init, st,
+    musica(v){ st.musica = v; guardar("cz-musica", v); init(); if (!ctx) return; v ? arrancar() : parar(); },
+    efectos(v){ st.efectos = v; guardar("cz-efectos", v); init(); if (sfx) sfx.gain.value = v ? 1 : 0; },
+    acierto(){ fx(t => { [72,76,79,84].forEach((m,i) => tono(m, t+i*.07, .28, {tipo:"square", vol:.06})); tono(96, t+.28, .4, {vol:.05}); }); },
+    error(){ fx(t => { tono(50, t, .38, {tipo:"sawtooth", vol:.07, slide:-8}); tono(57, t, .3, {tipo:"square", vol:.03, slide:-6}); }); },
+    trazo(){ fx(t => { for (let i=0;i<5;i++) ruido(t + .12 + i*.07, .06, {vol:.16, freq:3600, tipo:"bandpass", q:1.4}); }); },
+    tap(){ fx(t => tono(84, t, .07, {vol:.07})); },
+    tic(){ fx(t => tono(93, t, .05, {tipo:"square", vol:.025})); },
+    victoria(){ bajar(2.2); fx(t => { [[67,0],[72,.12],[76,.24],[79,.36],[76,.6],[79,.72],[84,.84]].forEach(([m,d]) => tono(m, t+d, d > .7 ? .9 : .22, {tipo:"square", vol:.06})); }); },
+    derrota(){ bajar(2.6); fx(t => { [67,66,65].forEach((m,i) => tono(m, t+i*.38, .36, {tipo:"sawtooth", vol:.05})); tono(64, t+1.14, 1, {tipo:"sawtooth", vol:.05, slide:-1}); }); }
+  };
+})();
+document.addEventListener("pointerdown", () => Sonido.init(), {once:true});
+document.addEventListener("keydown", () => Sonido.init(), {once:true});
+function pintarToggles(){
+  $("#tMusic").setAttribute("aria-pressed", Sonido.st.musica);
+  $("#tSfx").setAttribute("aria-pressed", Sonido.st.efectos);
+}
+$("#tMusic").onclick = () => { Sonido.musica(!Sonido.st.musica); pintarToggles(); };
+$("#tSfx").onclick = () => { Sonido.efectos(!Sonido.st.efectos); pintarToggles(); };
+pintarToggles();
+
+/* ---------- El ahorcado dibujado ---------- */
+const MAX_FALLOS = 6;
+const CUERPO = [
+  `<circle cx="140" cy="72" r="20" pathLength="100"/>`,
+  `<path d="M140 92 Q138 122 141 152" pathLength="100"/>`,
+  `<path d="M140 108 Q126 118 111 134" pathLength="100"/>`,
+  `<path d="M140 108 Q154 117 169 132" pathLength="100"/>`,
+  `<path d="M141 152 Q128 172 117 195" pathLength="100"/>`,
+  `<path d="M141 152 Q153 172 165 194" pathLength="100"/>`
+];
+function cara(err, estado){
+  if (estado === "salvado") return `<g class="face pop"><circle class="eye" cx="133" cy="68" r="2.6"/><circle class="eye" cx="147" cy="68" r="2.6"/><path d="M130 77 Q140 90 150 77"/></g>`;
+  if (estado === "muerto") return `<g class="face pop"><path d="M129 64 L136 71 M136 64 L129 71 M144 64 L151 71 M151 64 L144 71"/><path d="M132 84 Q140 77 148 84"/></g>`;
+  const boca = err <= 2 ? `M132 79 Q140 86 148 79` : err <= 4 ? `M133 82 Q140 81 147 82` : `M132 84 Q140 77 148 84`;
+  const cejas = err >= 4 ? `<path d="M128 61 L136 64 M152 61 L144 64"/>` : "";
+  const gota = err >= 5 ? `<path d="M158 60 Q161 66 158 68 Q155 66 158 60" style="fill:var(--pen);stroke:var(--pen);stroke-width:1.5"/>` : "";
+  return `<g class="face"><circle class="eye" cx="133" cy="69" r="2.4"/><circle class="eye" cx="147" cy="69" r="2.4"/><path d="${boca}"/>${cejas}${gota}</g>`;
+}
+function horca(err, {animar=false, estado="jugando", mini=false}={}){
+  const salvado = estado === "salvado", muerto = estado === "muerto" || err >= MAX_FALLOS;
+  let fig = "";
+  if (salvado) {
+    fig = `<g transform="translate(0 31)">${CUERPO[0]}${CUERPO[1]}<path d="M140 108 Q126 96 113 82"/><path d="M140 108 Q154 96 167 82"/>${CUERPO[4]}${CUERPO[5]}${cara(0,"salvado")}</g>`;
+  } else {
+    fig = CUERPO.slice(0, err).map((p,i) => (animar && i === err-1) ? p.replace("/>", ` class="draw"/>`) : p).join("");
+    if (err >= 1 && !mini) fig += cara(err, muerto ? "muerto" : "jugando");
+  }
+  const cuerda = salvado ? `<path d="M140 20 Q143 28 140 36 M140 36 L136 41 M140 36 L144 40"/>` : `<path d="M140 20 Q143 36 140 52"/>`;
+  return `<svg class="horca ${muerto?"dead":""} ${salvado?"saved":""}" viewBox="0 0 200 240" role="img" aria-label="${salvado ? "Ahorcado salvado" : `Ahorcado: ${err} de ${MAX_FALLOS} fallos`}">
+    <path class="ground" d="M6 229 Q100 233 194 228"/>
+    <g class="wood"><path d="M14 226 Q80 222 156 227"/><path d="M50 228 Q47 120 52 18"/><path d="M46 22 Q100 17 144 21"/><path d="M50 58 Q66 40 86 20"/>${cuerda}</g>
+    ${mini ? "" : `<g class="wood2"><path d="M56 226 Q54 130 57 26"/><path d="M52 27 Q100 23 136 26"/></g>`}
+    <g class="guy">${fig}</g></svg>`;
+}
+function vidasHTML(err){
+  const muerto = err >= MAX_FALLOS;
+  const marcas = "/".repeat(err);
+  return `<div class="lives ${muerto?"dead":""}">${muerto ? "¡Ahorcado!" : err === 0 ? "Sin fallos" : `Fallos: ${err} de ${MAX_FALLOS}`}<span class="tally">${marcas}</span></div>`;
+}
+
+/* ---------- Confeti de papelitos ---------- */
+function confeti(){
+  if (reduce) return;
+  const cv = $("#confeti"), g = cv.getContext("2d");
+  cv.hidden = false; cv.width = innerWidth; cv.height = innerHeight;
+  const cols = ["#FFE45E","#FF9DCB","#86E0A3","#FFB867","#9BCFFF"];
+  const ps = Array.from({length:110}, () => ({x:Math.random()*cv.width, y:-20-Math.random()*cv.height*.4, w:6+Math.random()*8, h:4+Math.random()*6,
+    vy:2+Math.random()*3, vx:-1.5+Math.random()*3, r:Math.random()*6, vr:-.15+Math.random()*.3, c:cols[Math.floor(Math.random()*5)]}));
+  const t0 = performance.now();
+  (function frame(t){
+    g.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p => { p.x += p.vx; p.y += p.vy; p.r += p.vr; g.save(); g.translate(p.x,p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.w/2,-p.h/2,p.w,p.h); g.restore(); });
+    if (t - t0 < 3200) requestAnimationFrame(frame); else { g.clearRect(0,0,cv.width,cv.height); cv.hidden = true; }
+  })(t0);
+}
+
+const cfg = { equipos:false, nEquipos:2, nombres:["Los Lectores","Los Escritores","Los Críticos","Los Poetas"], rondas:10, tiempo:0 };
+let S = null, timer = null;
+function stopTimer(){ if (timer) { clearInterval(timer); timer = null; } }
+
+/* ---------- Inicio ---------- */
+function inicio(){
+  stopTimer(); S = null;
+  const piezas = ORDEN_PARTES.map((k,i) => `<span class="hl" style="${cvar(k)}">${PARTES[k].nombre}</span>${i < 4 ? `<i aria-hidden="true">→</i>` : ""}`).join("");
+  app.innerHTML = `
+  <section class="hero">
+    <div>
+      <h1>Cazadores del <span class="hl">Ensayo</span></h1>
+      <p>Lee recortes de ensayos y descubre qué parte es cada uno. Cada vez que te equivocas, se dibuja una parte más del ahorcado. Con seis fallos, pierdes.</p>
+      <div class="pieces" aria-label="Las cinco partes del ensayo, en orden">${piezas}</div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      ${horca(3)}
+      <span class="note">¡no dejes que lo cuelguen!</span>
+      <svg class="arrow" viewBox="0 0 70 60"><path d="M4 6 Q30 4 50 40 M50 40 L40 36 M50 40 L52 29" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" filter="url(#rough)"/></svg>
+    </div>
+  </section>
+  <section class="modes">
+    <div class="sheet tilt-l">
+      <h2>Clasifica</h2>
+      <p>Aparece un recorte y eliges a qué parte del ensayo pertenece. Después de cada respuesta verás por qué.</p>
+      <div class="opts">
+        <div class="opt"><span>¿Quiénes juegan?</span>
+          <div class="seg" id="segModo"><button data-v="0" aria-pressed="${!cfg.equipos}">yo solo</button><button data-v="1" aria-pressed="${cfg.equipos}">por equipos</button></div>
+        </div>
+        <div class="opt" id="rowEquipos" ${cfg.equipos?"":"hidden"}><span>¿Cuántos equipos?</span>
+          <div class="seg" id="segN">${[2,3,4].map(n=>`<button data-v="${n}" aria-pressed="${cfg.nEquipos===n}">${n}</button>`).join("")}</div>
+          <div class="teams" id="teams"></div>
+        </div>
+        <div class="opt"><span>¿Cuántos recortes?</span>
+          <div class="seg" id="segR">${[5,10,15,20].map(n=>`<button data-v="${n}" aria-pressed="${cfg.rondas===n}">${n}</button>`).join("")}</div>
+        </div>
+        <div class="opt"><span>¿Con reloj?</span>
+          <div class="seg" id="segT">${[[0,"sin reloj"],[30,"30 s"],[20,"20 s"],[12,"12 s"]].map(([v,t])=>`<button data-v="${v}" aria-pressed="${cfg.tiempo===v}">${t}</button>`).join("")}</div>
+        </div>
+      </div>
+      <div class="cta"><button class="btn go" id="playC">¡A jugar!</button></div>
+    </div>
+    <div class="sheet tilt-r">
+      <h2>Ordena</h2>
+      <p>Un ensayo completo llega desordenado. Toca los párrafos del primero al último. Un párrafo fuera de lugar también cuenta como fallo.</p>
+      <p class="note" style="margin-top:14px">ideal para jugar toda la clase con el proyector</p>
+      <div class="cta"><button class="btn" id="playO">Ordenar un ensayo</button></div>
+    </div>
+  </section>`;
+  const teams = () => { $("#teams").innerHTML = cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>`<input id="team${i}" aria-label="Nombre del equipo ${i+1}" value="${esc(n)}" maxlength="18">`).join("");
+    $("#teams").querySelectorAll("input").forEach((inp,i)=>inp.addEventListener("input",()=>cfg.nombres[i]=inp.value)); };
+  teams();
+  const seg = (id, fn) => $(id).addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return;
+    Sonido.tap(); $(id).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b)); fn(+b.dataset.v); });
+  seg("#segModo", v => { cfg.equipos = !!v; $("#rowEquipos").hidden = !v; });
+  seg("#segN", v => { cfg.nEquipos = v; teams(); });
+  seg("#segR", v => cfg.rondas = v);
+  seg("#segT", v => cfg.tiempo = v);
+  $("#playC").onclick = startClasifica;
+  $("#playO").onclick = () => startOrdena();
+  window.scrollTo(0,0);
+}
+
+/* ---------- Guía ---------- */
+function guia(){
+  stopTimer(); S = null;
+  app.innerHTML = `<section class="guide">
+    <h2>Las partes del ensayo</h2>
+    <p>Un ensayo argumentativo defiende una opinión. Estas son sus partes, en el orden en que suelen aparecer, con las palabras que ayudan a reconocerlas.</p>
+    ${ORDEN_PARTES.map((k,i)=>{const p=PARTES[k];return `<article class="part">
+      <div class="n">${i+1}</div>
+      <div><h3><span class="hl" style="${cvar(k)}">${p.nombre}</span></h3><p>${p.def}</p><p class="where">Dónde va: ${p.donde}</p>
+      <div class="keys2">${p.claves.map(c=>`<span>${c}</span>`).join("")}</div></div></article>`;}).join("")}
+    <p class="note" style="margin-top:6px">ojo: los argumentos y el contraargumento forman el desarrollo (el cuerpo) del ensayo</p>
+    <div class="cta"><button class="btn go" id="gPlay">Ir a jugar</button></div>
+  </section>`;
+  $("#gPlay").onclick = inicio;
+  window.scrollTo(0,0);
+}
+
+/* ---------- Clasifica ---------- */
+function startClasifica(){
+  const pool = [];
+  ENSAYOS.forEach(e => e.f.forEach(([k,t,w]) => pool.push({k,t,w,tema:e.tema})));
+  // Variedad: una vuelta con cada parte antes de repetir
+  const porParte = ORDEN_PARTES.map(k => shuffle(pool.filter(x=>x.k===k)));
+  let cola = [];
+  while (cola.length < cfg.rondas) {
+    const vuelta = shuffle(porParte.map(arr => arr.shift()).filter(Boolean));
+    if (!vuelta.length) break;
+    cola.push(...vuelta);
+  }
+  cola = cola.slice(0, cfg.rondas);
+  const equipos = cfg.equipos ? cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>({nombre:(n||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false})) : [{nombre:"Tú", pts:0, ok:0, n:0, err:0, out:false}];
+  S = { cola, i:0, equipos, turno:0, racha:0, respondido:false, stats:Object.fromEntries(ORDEN_PARTES.map(k=>[k,{ok:0,n:0}])) };
+  ronda();
+}
+
+function scoresHTML(){
+  if (!cfg.equipos) return "";
+  return `<div class="scores">${S.equipos.map((e,i)=>`<span class="score ${i===S.turno?"turn":""} ${e.out?"out":""}">${horca(e.err,{mini:true})}${esc(e.nombre)} <b>${e.pts}</b></span>`).join("")}</div>`;
+}
+function barra(){
+  const pct = S.i / S.cola.length;
+  return `<svg viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 Q150 4 298 7" stroke="var(--grid)" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M2 6 Q150 4 298 7" stroke="var(--pen)" stroke-width="5" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="${pct*100} 100" filter="url(#rough)"/></svg>`;
+}
+function hudHTML(){
+  return `<div class="hud">
+    <span class="prog">Recorte ${Math.min(S.i+1,S.cola.length)} de ${S.cola.length}${S.racha>=2?`<small>racha de ${S.racha}</small>`:""}</span>
+    <div class="pencil-bar">${barra()}</div>
+    <span class="timer" id="timer" ${cfg.tiempo?"":"hidden"}></span>
+    <div id="scores" style="width:100%">${scoresHTML()}</div>
+  </div>`;
+}
+
+function ronda(){
+  stopTimer();
+  const q = S.cola[S.i], eq = S.equipos[S.turno];
+  S.respondido = false;
+  const opts = ORDEN_PARTES.map((k,n)=>`<button class="ans" data-k="${k}" style="${cvar(k)}"><span class="cap">${n+1}</span><span class="txt">${PARTES[k].nombre}</span></button>`).join("");
+  app.innerHTML = `${hudHTML()}
+    ${cfg.equipos?`<div class="turnline">Turno de <span class="hl" style="${cvar("intro")}">${esc(eq.nombre)}</span></div>`:""}
+    <div class="stage">
+      <div class="main">
+        <div class="sheet clip"><div class="tema">del ensayo «${esc(q.tema)}»</div>
+          <blockquote id="quote">${esc(q.t)}</blockquote></div>
+        <div class="answers" id="answers">${opts}</div>
+      </div>
+      <aside class="side" id="gallows">${horca(eq.err)}${vidasHTML(eq.err)}</aside>
+    </div>
+    <div id="fb"></div>
+    <p class="keys">atajo: teclas 1 a 5 para responder y Enter para seguir</p>`;
+  $("#answers").addEventListener("click", e => { const b = e.target.closest(".ans"); if (b) responder(b.dataset.k); });
+  if (cfg.tiempo) {
+    S.restante = cfg.tiempo; pintarTimer();
+    timer = setInterval(() => { S.restante--; pintarTimer(); if (S.restante <= 5 && S.restante > 0) Sonido.tic(); if (S.restante <= 0) { stopTimer(); responder(null); } }, 1000);
+  }
+}
+function pintarTimer(){ const t = $("#timer"); if (!t) return; t.textContent = S.restante + "s"; t.classList.toggle("low", S.restante <= 5); }
+
+const vivos = () => S.equipos.filter(e => !e.out);
+const terminado = () => S.i >= S.cola.length - 1 || vivos().length === 0;
+
+function responder(k){
+  if (!S || S.respondido) return;
+  S.respondido = true; stopTimer();
+  const q = S.cola[S.i], ok = k === q.k, eq = S.equipos[S.turno];
+  eq.n++; S.stats[q.k].n++;
+  let ganados = 0;
+  if (ok) {
+    S.racha++; eq.ok++; S.stats[q.k].ok++;
+    ganados = 10 + (cfg.tiempo ? Math.round(S.restante / cfg.tiempo * 5) : 0) + (S.racha >= 3 ? 5 : 0);
+    eq.pts += ganados;
+    Sonido.acierto();
+  } else {
+    S.racha = 0; eq.err++;
+    if (eq.err >= MAX_FALLOS) eq.out = true;
+    $("#gallows").innerHTML = horca(eq.err, {animar:true}) + vidasHTML(eq.err);
+    Sonido.error(); Sonido.trazo();
+    if (eq.out) setTimeout(() => Sonido.derrota(), 450);
+  }
+  document.querySelectorAll(".ans").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.k === q.k) b.classList.add("right");
+    else if (b.dataset.k === k) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  const quote = $("#quote");
+  quote.innerHTML = `<span class="hl sweep off" style="${cvar(q.k)}">${esc(q.t)}</span>`;
+  requestAnimationFrame(() => requestAnimationFrame(() => quote.firstChild.classList.remove("off")));
+  const p = PARTES[q.k];
+  let titulo = ok ? (S.racha >= 3 ? `¡Correcto! +${ganados} (racha de ${S.racha})` : `¡Correcto! +${ganados}`)
+    : k === null ? `Se acabó el tiempo. Era ${p.nombre}.` : `No era ${PARTES[k].nombre}: es ${p.nombre}.`;
+  if (eq.out) titulo += cfg.equipos ? ` ${eq.nombre} quedó ahorcado.` : " Quedaste ahorcado.";
+  const fin = terminado();
+  $("#fb").innerHTML = `<div class="fb ${ok?"ok":"no"}" role="status">
+    <h3>${esc(titulo)}</h3>
+    <p>${esc(q.w)}</p>
+    <p class="def"><b>${p.nombre}:</b> ${p.def}</p>
+    <div class="cta"><button class="btn go small" id="next">${fin?"Ver resultados":"Siguiente recorte"}</button></div>
+  </div>`;
+  $("#next").onclick = siguiente;
+  $("#next").focus({preventScroll:true});
+  $("#fb").scrollIntoView({behavior: reduce ? "auto" : "smooth", block:"nearest"});
+  $("#scores").innerHTML = scoresHTML();
+}
+
+function siguiente(){
+  if (terminado()) return final();
+  S.i++;
+  if (cfg.equipos) { do { S.turno = (S.turno + 1) % S.equipos.length; } while (S.equipos[S.turno].out); }
+  ronda(); window.scrollTo(0,0);
+}
+
+function final(){
+  stopTimer();
+  let cabecera, gano = false;
+  if (cfg.equipos) {
+    const rank = S.equipos.slice().sort((a,b)=>(a.out-b.out) || (b.pts-a.pts));
+    const g = rank[0];
+    const empate = rank.length > 1 && rank[1].out === g.out && rank[1].pts === g.pts;
+    gano = !g.out;
+    const titulo = g.out ? "¡Todos ahorcados!" : empate ? "¡Empate!" : `¡Gana ${esc(g.nombre)}!`;
+    cabecera = `<div class="result"><div>${horca(g.err, {estado: g.out ? "muerto" : "salvado"})}</div><div>
+      <h2 class="${gano?"win":"lose"}">${titulo}</h2>
+      <div class="podium">${rank.map((e,i)=>`<div class="${e.out?"out":""}">${horca(e.err,{mini:true})}<span>${i+1}. ${esc(e.nombre)}${e.out?" (ahorcado)":""}</span><em>${e.pts} pts · ${e.ok}/${e.n}</em></div>`).join("")}</div></div></div>`;
+  } else {
+    const e = S.equipos[0];
+    gano = !e.out;
+    const msg = e.out ? "Te faltaron recortes por resolver. Repasa la guía y vuelve a intentarlo."
+      : e.err === 0 ? "Perfecto: no se dibujó ni una sola línea del muñeco."
+      : `Llegaste al final con ${e.err} ${e.err===1?"fallo":"fallos"}. El muñeco se salvó por poco.`;
+    cabecera = `<div class="result"><div>${horca(e.err, {estado: e.out ? "muerto" : "salvado"})}</div><div>
+      <h2 class="${gano?"win":"lose"}">${e.out ? "¡Ahorcado!" : "¡Lo salvaste!"}</h2>
+      <div class="sum">${e.ok} de ${e.n} correctas · ${e.pts} puntos</div>
+      <p>${msg}</p></div></div>`;
+  }
+  const bk = ORDEN_PARTES.filter(k=>S.stats[k].n).map(k=>{const s=S.stats[k];return `<div class="bk" style="${cvar(k)}"><span>${PARTES[k].nombre}</span><span class="track"><i style="width:${s.ok/s.n*100}%"></i></span><span class="v">${s.ok}/${s.n}</span></div>`;}).join("");
+  app.innerHTML = `<section class="final">
+    ${cabecera}
+    <div class="sheet bars"><h3>Aciertos por parte del ensayo</h3>${bk}</div>
+    <div class="cta"><button class="btn go" id="again">Jugar otra vez</button><button class="btn" id="ord">Ordenar un ensayo</button><button class="btn" id="home">Volver al inicio</button></div>
+  </section>`;
+  S.respondido = true;
+  $("#again").onclick = startClasifica; $("#ord").onclick = () => startOrdena(); $("#home").onclick = inicio;
+  if (gano) { Sonido.victoria(); confeti(); }
+  window.scrollTo(0,0);
+}
+
+/* ---------- Ordena ---------- */
+let ultimoEnsayo = -1;
+function startOrdena(){
+  stopTimer(); S = null;
+  let idx; do { idx = Math.floor(Math.random()*ENSAYOS.length); } while (ENSAYOS.length > 1 && idx === ultimoEnsayo);
+  ultimoEnsayo = idx;
+  const e = ENSAYOS[idx];
+  const items = shuffle(e.f.map(([k,t],i)=>({k,t,i})));
+  const O = { orden:[], err:0, malo:-1, nuevoErr:false, celebrado:false };
+  const pintar = () => {
+    const perdio = O.err >= MAX_FALLOS, gano = O.orden.length === items.length, fin = perdio || gano;
+    const msg = fin ? (gano ? "Así queda el ensayo, de principio a fin." : "Quedaste ahorcado. Este era el orden correcto.")
+      : O.orden.length === 0 ? "¿Cuál párrafo va primero?" : `Bien. ¿Cuál va en el lugar ${O.orden.length+1}?`;
+    app.innerHTML = `<div class="hud"><span class="prog">Ordena «${esc(e.tema)}»</span></div>
+      <div class="stage">
+        <div class="main"><p class="lead">${msg}</p><div class="olist" id="olist" style="margin-top:14px"></div></div>
+        <aside class="side">${horca(O.err, {animar:O.nuevoErr, estado: gano ? "salvado" : "jugando"})}${gano ? `<div class="lives" style="color:var(--green)">¡Salvado!</div>` : vidasHTML(O.err)}</aside>
+      </div>
+      <div id="ofb"></div>
+      <div class="cta">${fin
+        ? `<button class="btn go" id="otro">Otro ensayo</button><button class="btn" id="home">Volver al inicio</button>`
+        : `<button class="btn small" id="reset">Empezar de nuevo</button>`}</div>`;
+    O.nuevoErr = false;
+    const list = $("#olist");
+    if (fin) {
+      e.f.forEach(([k,t],j) => {
+        const d = document.createElement("div");
+        d.className = "strip placed"; d.style.opacity = 1;
+        d.innerHTML = `<span class="num">${j+1}</span><span>${esc(t)}<br><span class="tag hl" style="${cvar(k)}">${PARTES[k].nombre}</span></span>`;
+        list.appendChild(d);
+      });
+      $("#ofb").innerHTML = `<div class="fb ${gano?"ok":"no"}"><h3>${gano ? (O.err===0 ? "¡Orden perfecto, sin fallos!" : `¡Lo lograste con ${O.err} ${O.err===1?"fallo":"fallos"}!`) : "¡Ahorcado!"}</h3>
+        <p>Un ensayo sigue esta ruta: introducción, tesis, argumentos, contraargumento y conclusión. Los argumentos pueden ir en cualquier orden entre sí.</p></div>`;
+      $("#otro").onclick = () => startOrdena(); $("#home").onclick = inicio;
+      if (!O.celebrado) { O.celebrado = true; if (gano) { Sonido.victoria(); confeti(); } }
+      return;
+    }
+    items.forEach((it, n) => {
+      const pos = O.orden.indexOf(n);
+      const b = document.createElement("button");
+      b.className = "strip" + (pos>=0 ? " placed" : "") + (n===O.malo ? " nope" : "");
+      b.innerHTML = `<span class="num">${pos>=0?pos+1:""}</span><span>${esc(it.t)}${pos>=0?`<br><span class="tag hl" style="${cvar(it.k)}">${PARTES[it.k].nombre}</span>`:""}</span>`;
+      if (pos >= 0) b.disabled = true;
+      else b.onclick = () => {
+        const esperado = e.f[O.orden.length][0];
+        if (it.k === esperado) { O.orden.push(n); O.malo = -1; Sonido.acierto(); }
+        else { O.err++; O.malo = n; O.nuevoErr = true; Sonido.error(); Sonido.trazo(); if (O.err >= MAX_FALLOS) setTimeout(() => Sonido.derrota(), 450); }
+        pintar();
+      };
+      list.appendChild(b);
+    });
+    $("#reset").onclick = () => { O.orden = []; O.err = 0; O.malo = -1; pintar(); };
+  };
+  pintar(); window.scrollTo(0,0);
+}
+
+document.addEventListener("keydown", e => {
+  if (!S || !$("#answers") || e.target.matches("input")) return;
+  if (!S.respondido && /^[1-5]$/.test(e.key)) responder(ORDEN_PARTES[+e.key-1]);
+  else if (S.respondido && e.key === "Enter" && document.activeElement?.id !== "next") { e.preventDefault(); siguiente(); }
+});
+$("#goHome").onclick = inicio;
+$("#goGuide").onclick = guia;
+inicio();
+</script>
+
+</body>
+</html>
