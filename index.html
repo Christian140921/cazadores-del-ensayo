@@ -255,7 +255,7 @@ button.strip:hover{transform:translateX(4px)}
 .board{display:grid;gap:8px}
 .vrow{display:grid;grid-template-columns:40px 34px minmax(0,1.3fr) minmax(80px,2fr) auto 4.5ch;gap:12px;align-items:center;background:var(--sheet);box-shadow:var(--shadow);border-radius:4px;padding:4px 16px 4px 8px;font-family:var(--f-hand);font-weight:700;font-size:28px;line-height:1}
 .vrow .pos{font-family:var(--f-marker);font-weight:400;font-size:24px;color:var(--soft);text-align:center}
-.vrow.lead{outline:3px solid var(--ink)} .vrow.lead .pos{color:var(--red)}
+.vrow.top{outline:3px solid var(--ink)} .vrow.top .pos{color:var(--red)}
 .vrow svg{width:34px;height:42px}
 .vrow .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vrow .bar{height:16px;border-bottom:2px solid var(--pencil);position:relative}
@@ -549,6 +549,7 @@ const Sonido = (() => {
     trazo(){ fx(t => { for (let i=0;i<5;i++) ruido(t + .12 + i*.07, .06, {vol:.16, freq:3600, tipo:"bandpass", q:1.4}); }); },
     tap(){ fx(t => tono(84, t, .07, {vol:.07})); },
     tic(){ fx(t => tono(93, t, .05, {tipo:"square", vol:.025})); },
+    bajar,
     victoria(){ bajar(2.2); fx(t => { [[67,0],[72,.12],[76,.24],[79,.36],[76,.6],[79,.72],[84,.84]].forEach(([m,d]) => tono(m, t+d, d > .7 ? .9 : .22, {tipo:"square", vol:.06})); }); },
     derrota(){ bajar(2.6); fx(t => { [67,66,65].forEach((m,i) => tono(m, t+i*.38, .36, {tipo:"sawtooth", vol:.05})); tono(64, t+1.14, 1, {tipo:"sawtooth", vol:.05, slide:-1}); }); }
   };
@@ -1043,6 +1044,7 @@ const TS = () => firebase.database.ServerValue.TIMESTAMP;
 const errorVivo = e => e && e.message === "config" ? "El modo en vivo todavía no está conectado a la base de datos." : "No se pudo conectar. Revisa que haya internet y vuelve a intentarlo.";
 const rankingVivo = js => Object.entries(js || {}).map(([id, j]) => ({ id, ...j })).sort((a,b) => (!!a.out - !!b.out) || ((b.pts||0) - (a.pts||0)) || ((b.ok||0) - (a.ok||0)));
 function salirVivo(){
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
   if (!VIVO) return;
   VIVO.off.forEach(f => { try { f(); } catch {} });
   if (VIVO.rol === "jugador" && VIVO.yo) VIVO.yo.update({ conectado:false }).catch(() => {});
@@ -1056,7 +1058,7 @@ function pantallaMsg(titulo, texto, boton = true){
 function publicarVivo(extra = {}){
   if (!S || !S.vivo || !VIVO) return;
   const e = S.equipos[0];
-  VIVO.yo.update({ pts:e.pts, ok:e.ok, n:e.n, err:e.err, out:e.out, i:S.i, ...extra, actualizado:TS() }).catch(() => {});
+  VIVO.yo.update({ pts:e.pts, ok:e.ok, n:e.n, err:e.err, out:e.out, i:S.i, racha:S.racha, ...extra, actualizado:TS() }).catch(() => {});
 }
 
 /* El proyector: crea la sala, muestra quién entra y la carrera en vivo */
@@ -1079,6 +1081,52 @@ async function crearSala(){
   } catch (e) { pantallaMsg("No se pudo crear la sala", errorVivo(e)); }
 }
 function urlSala(){ return URL_JUEGO + "?sala=" + VIVO.code; }
+/* Voz del proyector: anuncia rachas, cambios de líder y ahorcados */
+const Voz = (() => {
+  const ok = "speechSynthesis" in window;
+  let on = (() => { try { return localStorage.getItem("cz-voz") !== "0"; } catch { return true; } })();
+  let voz = null;
+  const elegir = () => {
+    const vs = ok ? speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang)) : [];
+    voz = vs.find(v => /es[-_](419|MX|US|CO)/i.test(v.lang) && /google|natural|online/i.test(v.name)) || vs.find(v => /google|natural|online/i.test(v.name)) || vs.find(v => /es[-_](419|MX|US|CO)/i.test(v.lang)) || vs[0] || null;
+  };
+  if (ok) { elegir(); speechSynthesis.onvoiceschanged = elegir; }
+  return {
+    ok, get on(){ return on; },
+    set(v){ on = v; try { localStorage.setItem("cz-voz", v ? "1" : "0"); } catch {} if (!v && ok) speechSynthesis.cancel(); },
+    decir(txt, urgente){
+      if (!ok || !on) return;
+      if (urgente || speechSynthesis.pending) speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(txt);
+      u.lang = voz ? voz.lang : "es-ES"; if (voz) u.voice = voz; u.rate = 1.05; u.pitch = 1.05;
+      Sonido.bajar(Math.min(6, 1.2 + txt.length / 14));
+      speechSynthesis.speak(u);
+    }
+  };
+})();
+const PUESTOS = ["primer","segundo","tercer","cuarto","quinto"];
+function narrar(js){
+  const v = VIVO.voz || (VIVO.voz = { racha:{}, out:{}, lider:null, tLider:0 });
+  const frases = [];
+  js.forEach((j, i) => {
+    const r = j.racha || 0, nom = j.nombre;
+    if (r < 5) v.racha[j.id] = 0;
+    else if (r % 5 === 0 && v.racha[j.id] !== r) {
+      v.racha[j.id] = r;
+      if (i === 0) v.rachaTop = r;
+      frases.push(i < 5 ? `¡${nom} lleva ${r} seguidas y está en ${PUESTOS[i]} puesto!` : `¡${nom} lleva ${r} respuestas seguidas!`);
+    }
+    if (j.out && !v.out[j.id]) { v.out[j.id] = true; frases.push(`¡Ay no! Ahorcaron a ${nom}.`); }
+  });
+  const top = js[0], rTop = v.rachaTop; v.rachaTop = 0;
+  if (top && (top.pts || 0) > 0 && top.id !== v.lider && Date.now() - v.tLider > 7000) {
+    const con = rTop ? ` con ${rTop} seguidas` : "";
+    if (rTop) frases.shift();
+    frases.unshift(v.lider ? `¡${top.nombre} pasa al primer puesto${con}!` : `¡${top.nombre} toma la delantera${con}!`);
+    v.lider = top.id; v.tLider = Date.now();
+  }
+  if (frases.length) Voz.decir(frases.slice(0, 2).join(" "));
+}
 function pintarHost(){
   if (!VIVO || VIVO.rol !== "host") return;
   const est = VIVO.estado, js = rankingVivo(VIVO.jugadores);
@@ -1101,12 +1149,14 @@ function pintarHost(){
     } else if (est === "jugando") {
       app.innerHTML = `<section class="vivo">
         <div class="hud"><span class="prog">Sala <span class="hl" style="${cvar("tesis")}">${VIVO.code}</span> · en vivo</span><span class="prog" id="vCount"></span>
-          <div class="cta" style="margin:0"><button class="btn small" id="vFin">Terminar partida</button></div></div>
+          <div class="cta" style="margin:0">${Voz.ok ? `<button class="btn small" id="vVoz" aria-pressed="${Voz.on}">${Voz.on ? "Voz: sí" : "Voz: no"}</button>` : ""}<button class="btn small" id="vFin">Terminar partida</button></div></div>
         <div class="board" id="vList"></div>
         <div class="mini-join"><div class="qr" id="qrSala"></div><span class="note">¿llegaste tarde? escanea y entra con el código <b>${VIVO.code}</b></span></div>
       </section>`;
       pintarQR($("#qrSala"), 96, urlSala());
       $("#vFin").onclick = () => VIVO.ref.update({ estado:"fin" });
+      if ($("#vVoz")) $("#vVoz").onclick = e => { Voz.set(!Voz.on); e.currentTarget.textContent = Voz.on ? "Voz: sí" : "Voz: no"; e.currentTarget.setAttribute("aria-pressed", Voz.on); };
+      VIVO.voz = null; Voz.decir("¡Que empiece el juego! Mucha suerte a todos.", true);
     } else {
       const [p1, p2, p3] = js;
       const col = (j, n, c, h) => j ? `<div><span>${esc(j.nombre)}</span><small>${j.pts||0} pts</small><div class="step" style="--c:var(${c});height:${h}px">${n}</div></div>` : `<div></div>`;
@@ -1122,7 +1172,7 @@ function pintarHost(){
         VIVO.celebrado = false; VIVO.ref.update(upd);
       };
       $("#vSalir").onclick = inicio;
-      if (!VIVO.celebrado) { VIVO.celebrado = true; Sonido.victoria(); confeti(); }
+      if (!VIVO.celebrado) { VIVO.celebrado = true; Sonido.victoria(); confeti(); if (p1) setTimeout(() => Voz.decir(`¡${p1.nombre} gana la partida con ${p1.pts || 0} puntos!${p2 ? ` Segundo lugar para ${p2.nombre}.` : ""}${p3 ? ` Y tercero, ${p3.nombre}.` : ""}`, true), 900); }
     }
   }
   const conectados = js.filter(j => j.conectado !== false);
@@ -1134,13 +1184,14 @@ function pintarHost(){
     return;
   }
   const total = (VIVO.rondasActual || cfg.rondas);
-  $("#vList").innerHTML = js.map((j,i) => `<div class="vrow ${j.out?"out":""} ${j.conectado===false?"off":""} ${i===0&&!j.out?"lead":""}">
+  $("#vList").innerHTML = js.map((j,i) => `<div class="vrow ${j.out?"out":""} ${j.conectado===false?"off":""} ${i===0&&!j.out?"top":""}">
     <span class="pos">${i+1}</span>${horca(j.err||0,{mini:true})}<span class="nm">${esc(j.nombre)}</span>
     <span class="bar"><i style="width:${Math.min(100,(j.n||0)/total*100)}%"></i></span>
     <span class="estado">${j.out ? "ahorcado" : j.terminado ? "terminó" : `${j.n||0}/${total}`}</span><span class="pts">${j.pts||0}</span></div>`).join("");
   if (est === "jugando") {
     const enJuego = js.filter(j => !j.out && !j.terminado).length;
     $("#vCount").textContent = `${js.length} jugando · ${enJuego} sin terminar`;
+    narrar(js);
     if (js.length && !enJuego) VIVO.ref.update({ estado:"fin" });
   }
 }
