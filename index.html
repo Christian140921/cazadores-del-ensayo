@@ -607,7 +607,7 @@ function recordsHTML(lista, yo){
   return `<ol>${lista.slice(0,5).map((r,i)=>`<li class="${yo && r.id===yo ? "me" : ""}"><span class="pos">${i+1}.</span><span>${esc(r.nombre)}</span><span class="p">${r.pts} pts · ${r.ok}/${r.n}</span></li>`).join("")}</ol>`;
 }
 
-const cfg = { equipos:false, nEquipos:2, nombres:["Los Lectores","Los Escritores","Los Críticos","Los Poetas"], rondas:10, tiempo:0 };
+const cfg = { equipos:false, nEquipos:2, nombres:["Los Lectores","Los Escritores","Los Críticos","Los Poetas"], rondas:10, tiempo:0, jugador:"" };
 let S = null, timer = null;
 function stopTimer(){ if (timer) { clearInterval(timer); timer = null; } }
 
@@ -636,6 +636,10 @@ function inicio(){
         <div class="opt"><span>¿Quiénes juegan?</span>
           <div class="seg" id="segModo"><button data-v="0" aria-pressed="${!cfg.equipos}">yo solo</button><button data-v="1" aria-pressed="${cfg.equipos}">por equipos</button></div>
         </div>
+        <div class="opt" id="rowNombre" ${cfg.equipos?"hidden":""}><span>¿Cómo te llamas?</span>
+          <div class="teams"><input id="playerName" maxlength="18" placeholder="Escribe tu nombre" aria-label="Tu nombre" autocomplete="off"></div>
+          <span class="note" id="nombreAviso" style="font-size:20px;color:var(--red)" hidden>escribe tu nombre para entrar a la tabla de récords</span>
+        </div>
         <div class="opt" id="rowEquipos" ${cfg.equipos?"":"hidden"}><span>¿Cuántos equipos?</span>
           <div class="seg" id="segN">${[2,3,4].map(n=>`<button data-v="${n}" aria-pressed="${cfg.nEquipos===n}">${n}</button>`).join("")}</div>
           <div class="teams" id="teams"></div>
@@ -663,7 +667,7 @@ function inicio(){
     <div class="sheet tilt-l records">
       <h3>Mejores puntajes</h3>
       ${recordsHTML(leerRecords())}
-      <p class="note" style="font-size:20px;margin:0">se guardan en este aparato · juega "yo solo" para entrar a la tabla</p>
+      <p class="note" style="font-size:20px;margin:0">se guardan en este aparato · en modo "yo solo" tu puntaje entra solo a la tabla</p>
     </div>
   </section>`;
   pintarQR($("#qrSmall"), 132);
@@ -673,11 +677,18 @@ function inicio(){
   teams();
   const seg = (id, fn) => $(id).addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return;
     Sonido.tap(); $(id).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b)); fn(+b.dataset.v); });
-  seg("#segModo", v => { cfg.equipos = !!v; $("#rowEquipos").hidden = !v; });
+  seg("#segModo", v => { cfg.equipos = !!v; $("#rowEquipos").hidden = !v; $("#rowNombre").hidden = !!v; });
+  $("#playerName").addEventListener("input", e => { cfg.jugador = e.target.value; $("#nombreAviso").hidden = true; });
   seg("#segN", v => { cfg.nEquipos = v; teams(); });
   seg("#segR", v => cfg.rondas = v);
   seg("#segT", v => cfg.tiempo = v);
-  $("#playC").onclick = startClasifica;
+  $("#playC").onclick = () => {
+    if (!cfg.equipos) {
+      cfg.jugador = $("#playerName").value.trim();
+      if (!cfg.jugador) { $("#nombreAviso").hidden = false; $("#playerName").focus(); Sonido.error(); return; }
+    }
+    startClasifica();
+  };
   $("#playO").onclick = () => startOrdena();
   window.scrollTo(0,0);
 }
@@ -712,7 +723,7 @@ function startClasifica(){
     cola.push(...vuelta);
   }
   cola = cola.slice(0, cfg.rondas);
-  const equipos = cfg.equipos ? cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>({nombre:(n||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false})) : [{nombre:"Tú", pts:0, ok:0, n:0, err:0, out:false}];
+  const equipos = cfg.equipos ? cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>({nombre:(n||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false})) : [{nombre:cfg.jugador || "Tú", pts:0, ok:0, n:0, err:0, out:false}];
   S = { cola, i:0, equipos, turno:0, racha:0, respondido:false, stats:Object.fromEntries(ORDEN_PARTES.map(k=>[k,{ok:0,n:0}])) };
   ronda();
 }
@@ -741,7 +752,7 @@ function ronda(){
   S.respondido = false;
   const opts = ORDEN_PARTES.map((k,n)=>`<button class="ans" data-k="${k}" style="${cvar(k)}"><span class="cap">${n+1}</span><span class="txt">${PARTES[k].nombre}</span></button>`).join("");
   app.innerHTML = `${hudHTML()}
-    ${cfg.equipos?`<div class="turnline">Turno de <span class="hl" style="${cvar("intro")}">${esc(eq.nombre)}</span></div>`:""}
+    <div class="turnline">${cfg.equipos ? "Turno de" : "Juega"} <span class="hl" style="${cvar("intro")}">${esc(eq.nombre)}</span></div>
     <div class="stage">
       <div class="main">
         <div class="sheet clip"><div class="tema">del ensayo «${esc(q.tema)}»</div>
@@ -858,9 +869,7 @@ function final(){
       <h2 class="${gano?"win":"lose"}">${e.out ? "¡Ahorcado!" : "¡Lo salvaste!"}</h2>
       <div class="sum">${e.ok} de ${e.n} correctas · ${e.pts} puntos</div>
       <p>${msg}</p></div></div>
-      <div class="sheet records" id="recBox"><h3>Guarda tu puntaje</h3>
-        <form class="save-row" id="recForm"><input id="recName" maxlength="18" placeholder="Escribe tu nombre" aria-label="Tu nombre" autocomplete="off"><button class="btn go small" type="submit">Guardar</button></form>
-        <div id="recList">${recordsHTML(leerRecords())}</div></div>`;
+      <div class="sheet records" id="recBox"><h3>Mejores puntajes</h3><div id="recList"></div></div>`;
   }
   const bk = ORDEN_PARTES.filter(k=>S.stats[k].n).map(k=>{const s=S.stats[k];return `<div class="bk" style="${cvar(k)}"><span>${PARTES[k].nombre}</span><span class="track"><i style="width:${s.ok/s.n*100}%"></i></span><span class="v">${s.ok}/${s.n}</span></div>`;}).join("");
   app.innerHTML = `<section class="final">
@@ -870,15 +879,15 @@ function final(){
   </section>`;
   S.respondido = true;
   $("#again").onclick = startClasifica; $("#ord").onclick = () => startOrdena(); $("#home").onclick = inicio;
-  const form = $("#recForm");
-  if (form) form.addEventListener("submit", ev => {
-    ev.preventDefault();
-    const e = S.equipos[0], nombre = $("#recName").value.trim() || "Anónimo", id = Date.now() + "-" + Math.random().toString(36).slice(2,6);
-    const lista = guardarRecord({ id, nombre, pts: e.pts, ok: e.ok, n: e.n });
-    $("#recList").innerHTML = recordsHTML(lista, id);
-    form.remove(); $("#recBox h3").textContent = lista.findIndex(r => r.id === id) === 0 ? "¡Nuevo récord!" : "Mejores puntajes";
-    Sonido.acierto();
-  });
+  // En modo individual el puntaje se guarda solo, con el nombre que se escribió al empezar
+  if (!cfg.equipos && !S.guardado) {
+    S.guardado = true;
+    const e = S.equipos[0], id = Date.now() + "-" + Math.random().toString(36).slice(2,6);
+    const lista = guardarRecord({ id, nombre: e.nombre, pts: e.pts, ok: e.ok, n: e.n });
+    const pos = lista.findIndex(r => r.id === id);
+    $("#recList").innerHTML = recordsHTML(lista, id) + (pos >= 5 || pos < 0 ? `<p class="note" style="font-size:20px;margin:6px 0 0">esta vez no entraste al top 5. ¡Inténtalo otra vez!</p>` : "");
+    if (pos === 0 && lista.length > 1) $("#recBox h3").textContent = "¡Nuevo récord!";
+  }
   if (gano) { Sonido.victoria(); confeti(); }
   window.scrollTo(0,0);
 }
