@@ -41,6 +41,8 @@ svg.defs{position:absolute;width:0;height:0}
 .logo{font-family:var(--f-marker);font-size:22px;background:none;border:0;padding:5px 0;min-height:44px;display:flex;align-items:center;gap:10px}
 .logo svg{width:34px;height:34px}
 .tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#goMenu .ancho{font-weight:inherit}
+@media (max-width:520px){ #goMenu .ancho{display:none} .top .tools{gap:6px} .top .tbtn{font-size:18px;padding:4px 10px 4px 8px;gap:4px} .top .tbtn svg{width:18px;height:18px} }
 .tbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;border:2px solid var(--ink);background:var(--sheet);border-radius:999px;padding:5px 14px 5px 10px;font-family:var(--f-hand);font-size:21px;font-weight:700;line-height:1}
 .tbtn svg{width:20px;height:20px;flex:none}
 .tbtn[aria-pressed="false"]{opacity:.6}
@@ -326,6 +328,10 @@ button.strip:hover{transform:translateX(4px)}
       Cazadores del Ensayo
     </button>
     <div class="tools">
+      <button class="tbtn" id="goMenu" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M6 9.5V20h12V9.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Menú<b class="ancho"> principal</b></span>
+      </button>
       <button class="tbtn" id="goGuide">Guía</button>
       <button class="tbtn" id="tMusic" aria-pressed="true" aria-label="Música">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.6" fill="currentColor"/><circle cx="17.5" cy="16" r="2.6" fill="currentColor"/><path class="off" d="M3 3 21 21" stroke="#D0342C" stroke-width="2.6" stroke-linecap="round"/></svg>
@@ -1085,20 +1091,28 @@ function urlSala(){ return URL_JUEGO + "?sala=" + VIVO.code; }
 const Voz = (() => {
   const ok = "speechSynthesis" in window;
   let on = (() => { try { return localStorage.getItem("cz-voz") !== "0"; } catch { return true; } })();
-  let voz = null;
+  let voz = null, lista = [], alCambiar = null;
+  let preferida = (() => { try { return localStorage.getItem("cz-voz-nombre") || ""; } catch { return ""; } })();
+  // las voces "Natural"/"Online" (Edge) y las de Google (Chrome) suenan mucho menos robóticas que las de Windows
+  const puntaje = v => (/natural/i.test(v.name) ? 8 : 0) + (/online/i.test(v.name) ? 4 : 0) + (/google/i.test(v.name) ? 3 : 0)
+    + (/es[-_](419|MX|US|CO)/i.test(v.lang) ? 1 : 0) - (v.localService && !/google/i.test(v.name) ? 2 : 0);
   const elegir = () => {
-    const vs = ok ? speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang)) : [];
-    voz = vs.find(v => /es[-_](419|MX|US|CO)/i.test(v.lang) && /google|natural|online/i.test(v.name)) || vs.find(v => /google|natural|online/i.test(v.name)) || vs.find(v => /es[-_](419|MX|US|CO)/i.test(v.lang)) || vs[0] || null;
+    lista = ok ? speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang)).sort((a,b) => puntaje(b) - puntaje(a)) : [];
+    voz = lista.find(v => v.name === preferida) || lista[0] || null;
+    if (alCambiar) alCambiar();
   };
   if (ok) { elegir(); speechSynthesis.onvoiceschanged = elegir; }
   return {
     ok, get on(){ return on; },
+    get lista(){ return lista; }, get actual(){ return voz; },
+    onCambio(fn){ alCambiar = fn; },
+    usar(nombre){ preferida = nombre; try { localStorage.setItem("cz-voz-nombre", nombre); } catch {} elegir(); },
     set(v){ on = v; try { localStorage.setItem("cz-voz", v ? "1" : "0"); } catch {} if (!v && ok) speechSynthesis.cancel(); },
     decir(txt, urgente){
       if (!ok || !on) return;
       if (urgente || speechSynthesis.pending) speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(txt);
-      u.lang = voz ? voz.lang : "es-ES"; if (voz) u.voice = voz; u.rate = 1.05; u.pitch = 1.05;
+      u.lang = voz ? voz.lang : "es-ES"; if (voz) u.voice = voz; u.rate = 1; u.pitch = 1;
       Sonido.bajar(Math.min(6, 1.2 + txt.length / 14));
       speechSynthesis.speak(u);
     }
@@ -1142,9 +1156,19 @@ function pintarHost(){
           <div class="cta" style="margin:0"><button class="btn go" id="vStart" disabled>¡Empezar!</button><button class="btn small" id="vSalir">Cerrar sala</button></div></div>
         <div class="vlobby" id="vList"></div>
         <p class="note" style="font-size:20px">${S_rondasTxt()}</p>
+        ${Voz.ok ? `<div class="opt" id="vozRow" style="margin-top:14px"><span>Voz del narrador</span>
+          <div class="cta" style="margin:0;align-items:center"><select id="vozSel" class="tbtn" aria-label="Voz del narrador" style="max-width:min(100%,420px)"></select><button class="btn small" id="vozTest">Probar voz</button></div>
+          <span class="note" style="font-size:18px">Si suena robótica, prueba otra. En Microsoft Edge salen voces "Natural" que suenan casi humanas.</span></div>` : ""}
       </section>`;
       pintarQR($("#qrSala"), 220, urlSala());
       $("#vStart").onclick = () => VIVO.ref.update({ estado:"jugando", inicio:TS() });
+      if (Voz.ok) {
+        const llenar = () => { const sel = $("#vozSel"); if (!sel) return;
+          sel.innerHTML = Voz.lista.length ? Voz.lista.map(v => `<option ${v === Voz.actual ? "selected" : ""}>${esc(v.name)}</option>`).join("") : `<option>voz del navegador</option>`; };
+        llenar(); Voz.onCambio(llenar);
+        $("#vozSel").onchange = e => { Voz.usar(e.target.value); Voz.decir("¡Hola! Así sueno yo.", true); };
+        $("#vozTest").onclick = () => Voz.decir("¡Juan pasa al primer puesto con 5 seguidas!", true);
+      }
       $("#vSalir").onclick = inicio;
     } else if (est === "jugando") {
       app.innerHTML = `<section class="vivo">
@@ -1351,6 +1375,16 @@ document.addEventListener("keydown", e => {
   else if (S.respondido && e.key === "Enter" && document.activeElement?.id !== "next") { e.preventDefault(); siguiente(); }
 });
 $("#goHome").onclick = inicio;
+{ // botón "Menú principal": visible fuera del inicio; en plena partida pide un segundo toque para no salir por accidente
+  const btn = $("#goMenu"), txt = btn.querySelector("span"), ETQ = txt.innerHTML; let armado = null;
+  const enPartida = () => !!app.querySelector(".stage") && !app.querySelector(".result");
+  btn.onclick = () => {
+    if (!enPartida() || armado) { clearTimeout(armado); armado = null; txt.innerHTML = ETQ; inicio(); window.scrollTo(0, 0); return; }
+    txt.textContent = "¿Salir? Toca otra vez"; btn.style.borderColor = "var(--red)";
+    armado = setTimeout(() => { armado = null; txt.innerHTML = ETQ; btn.style.borderColor = ""; }, 3000);
+  };
+  new MutationObserver(() => { btn.hidden = !!app.querySelector(".hero"); if (!armado) btn.style.borderColor = ""; }).observe(app, { childList:true });
+}
 $("#goGuide").onclick = guia;
 const salaURL = new URLSearchParams(location.search).get("sala");
 if (salaURL) unirseSala(salaURL.toUpperCase().slice(0, 4)); else inicio();
