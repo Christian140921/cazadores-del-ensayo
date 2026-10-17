@@ -29,7 +29,7 @@ html{background:var(--paper)}
 body{background-color:var(--paper);color:var(--ink);font-family:var(--f-read);font-size:17px;line-height:1.55;
   background-image:linear-gradient(var(--grid) 1px, transparent 1px),linear-gradient(90deg, var(--grid) 1px, transparent 1px);
   background-size:26px 26px;background-position:-1px -1px;
-  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 48px;min-height:100%}
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 48px;min-height:100vh;box-sizing:border-box}
 .wrap{max-width:1000px;margin:0 auto}
 h1,h2,h3{margin:0;font-weight:400;text-wrap:balance;line-height:1.05}
 button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -245,6 +245,38 @@ button.strip:hover{transform:translateX(4px)}
 .repaso .meta s{color:var(--red)} .repaso .meta b{color:var(--green)}
 .repaso p{margin:0;color:var(--pencil);font-size:15.5px}
 .players .opts{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 28px}
+.vivo{display:grid;gap:16px;padding-block:6px}
+.vtitle{font-family:var(--f-marker);font-weight:400;font-size:clamp(30px,4vw,44px)}
+.sala-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+.sala-top .qr img,.sala-top .qr canvas{width:220px;height:220px}
+.codigo{font-family:var(--f-marker);font-size:clamp(64px,13vw,150px);letter-spacing:.14em;color:var(--red);line-height:1;margin-top:6px}
+.vlobby{display:flex;flex-wrap:wrap;gap:12px;min-height:60px}
+.vlobby span{font-family:var(--f-hand);font-weight:700;font-size:30px;line-height:1;padding:8px 18px 10px;background:var(--c);border-radius:3px;box-shadow:var(--shadow);transform:rotate(var(--r));animation:pop .35s cubic-bezier(.22,1,.36,1) both}
+.board{display:grid;gap:8px}
+.vrow{display:grid;grid-template-columns:40px 34px minmax(0,1.3fr) minmax(80px,2fr) auto 4.5ch;gap:12px;align-items:center;background:var(--sheet);box-shadow:var(--shadow);border-radius:4px;padding:4px 16px 4px 8px;font-family:var(--f-hand);font-weight:700;font-size:28px;line-height:1}
+.vrow .pos{font-family:var(--f-marker);font-weight:400;font-size:24px;color:var(--soft);text-align:center}
+.vrow.lead{outline:3px solid var(--ink)} .vrow.lead .pos{color:var(--red)}
+.vrow svg{width:34px;height:42px}
+.vrow .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vrow .bar{height:16px;border-bottom:2px solid var(--pencil);position:relative}
+.vrow .bar i{position:absolute;left:0;bottom:2px;height:11px;background:var(--hl-arg);border-radius:2px 6px 3px 5px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.vrow .estado{font-size:20px;color:var(--soft);white-space:nowrap}
+.vrow .pts{font-family:var(--f-marker);font-weight:400;font-size:24px;color:var(--pen);font-variant-numeric:tabular-nums;text-align:right}
+.vrow.out{opacity:.55} .vrow.out .nm{text-decoration:line-through;color:var(--red)}
+.vrow.off .nm{opacity:.6}
+.mini-join{display:flex;align-items:center;gap:14px}
+.mini-join .qr img,.mini-join .qr canvas{width:96px;height:96px}
+.podio3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end;max-width:680px;width:100%}
+.podio3>div{display:grid;justify-items:center;gap:4px;text-align:center;font-family:var(--f-hand);font-weight:700;font-size:28px;line-height:1.05;min-width:0;overflow-wrap:anywhere}
+.podio3 small{font-family:var(--f-marker);font-weight:400;font-size:18px;color:var(--pen)}
+.podio3 .step{width:100%;background:var(--c);border-radius:4px 4px 0 0;display:grid;place-items:center;font-family:var(--f-marker);font-size:44px;color:var(--ink);box-shadow:var(--shadow)}
+@media (max-width:760px){
+  .sala-top{grid-template-columns:minmax(0,1fr)}
+  .sala-top .qr img,.sala-top .qr canvas{width:160px;height:160px}
+  .vrow{grid-template-columns:30px 26px minmax(0,1fr) auto 4ch;font-size:22px;gap:8px}
+  .vrow .bar{display:none}
+  .vrow svg{width:26px;height:32px}
+}
 /* Pista, QR y récords */
 .tools-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
 .pista{display:inline-flex;align-items:center;gap:8px;border:2px dashed var(--pen);background:transparent;color:var(--pen);border-radius:30px;padding:6px 16px 8px;font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1}
@@ -604,11 +636,11 @@ function marcarClaves(t){
 
 /* ---------- Código QR para entrar desde el celular ---------- */
 const URL_JUEGO = /github\.io$/.test(location.hostname) ? location.origin + location.pathname : "https://christian140921.github.io/cazadores-del-ensayo/";
-function pintarQR(el, tam){
+function pintarQR(el, tam, texto = URL_JUEGO){
   if (!el) return;
   if (typeof QRCode === "undefined") { el.hidden = true; return; }
   el.innerHTML = "";
-  new QRCode(el, { text: URL_JUEGO, width: tam, height: tam, colorDark: "#1D2740", colorLight: "#FFFFFF", correctLevel: QRCode.CorrectLevel.M });
+  new QRCode(el, { text: texto, width: tam, height: tam, colorDark: "#1D2740", colorLight: "#FFFFFF", correctLevel: QRCode.CorrectLevel.M });
 }
 function qrGrande(){
   const d = document.createElement("div");
@@ -650,6 +682,7 @@ function responderBonus(q, b){
   const uso = q.k === "contra" ? "mostrar lo que piensan quienes no están de acuerdo, y después responderles" : "apoyar su tesis con la voz de alguien reconocido";
   $("#bonusFb").innerHTML = `<p>${ok ? "<b>¡Bien! +5.</b> " : "<b>No.</b> "}Las comillas indican que esas palabras son de ${esc(q.c)}, no del autor del ensayo. El autor las usa para ${uso}.</p>`;
   $("#scores").innerHTML = scoresHTML();
+  publicarVivo();
 }
 
 const cfg = { equipos:false, nEquipos:2, nombres:["Los Lectores","Los Escritores","Los Críticos","Los Poetas"], rondas:10, tiempo:0, jugador:"" };
@@ -658,7 +691,7 @@ function stopTimer(){ if (timer) { clearInterval(timer); timer = null; } }
 
 /* ---------- Inicio ---------- */
 function inicio(){
-  stopTimer(); S = null;
+  salirVivo(); stopTimer(); S = null;
   const piezas = ORDEN_PARTES.map((k,i) => `<span class="hl" style="${cvar(k)}">${PARTES[k].nombre}</span>${i < 4 ? `<i aria-hidden="true">→</i>` : ""}`).join("");
   app.innerHTML = `
   <section class="hero">
@@ -710,6 +743,12 @@ function inicio(){
       <p class="note" style="margin-top:14px">ideal para jugar toda la clase con el proyector</p>
       <div class="cta"><button class="btn" id="playO">Ordenar un ensayo</button></div>
     </div>
+    <div class="sheet" style="grid-column:1/-1">
+      <h2>En vivo, como Kahoot</h2>
+      <p>El proyector crea una sala y muestra en tiempo real quién va ganando, mientras cada uno juega Clasifica en su celular con su propio ahorcado.</p>
+      <div class="cta"><button class="btn go" id="vCrear">Crear sala (proyector)</button><button class="btn" id="vUnir">Unirme a una sala</button></div>
+      <p class="note" style="font-size:20px;margin:6px 0 0">la sala usa la cantidad de recortes y el reloj que elijas en Clasifica</p>
+    </div>
     <div class="sheet tilt-r">
       <h2>Juega desde tu celular</h2>
       <div class="qr-row" style="margin-top:14px"><div class="qr" id="qrSmall"></div>
@@ -741,6 +780,8 @@ function inicio(){
     startClasifica();
   };
   $("#playO").onclick = () => { cfg.jugador = $("#playerName").value.trim(); startOrdena(); };
+  $("#vCrear").onclick = crearSala;
+  $("#vUnir").onclick = () => unirseSala();
   window.scrollTo(0,0);
 }
 
@@ -769,25 +810,31 @@ function guia(){
 }
 
 /* ---------- Clasifica ---------- */
-function startClasifica(){
-  const pool = [];
-  ENSAYOS.forEach(e => e.f.forEach(([k,t,w,c]) => pool.push({k,t,w,c,tema:e.tema})));
+const POOL = [];
+ENSAYOS.forEach(e => e.f.forEach(([k,t,w,c]) => POOL.push({k,t,w,c,tema:e.tema})));
+// Arma una partida como lista de posiciones en POOL, para poder compartirla en vivo
+function armarCola(n){
+  const idx = POOL.map((_, i) => i);
   // Variedad: una vuelta con cada parte antes de repetir
-  const porParte = ORDEN_PARTES.map(k => shuffle(pool.filter(x=>x.k===k)));
+  const porParte = ORDEN_PARTES.map(k => shuffle(idx.filter(i => POOL[i].k === k)));
   let cola = [];
-  while (cola.length < cfg.rondas) {
-    const vuelta = shuffle(porParte.map(arr => arr.shift()).filter(Boolean));
+  while (cola.length < n) {
+    const vuelta = shuffle(porParte.map(arr => arr.shift()).filter(i => i !== undefined));
     if (!vuelta.length) break;
     cola.push(...vuelta);
   }
-  cola = cola.slice(0, cfg.rondas);
+  cola = cola.slice(0, n);
   // Que en cada partida aparezca al menos una cita entre comillas
-  if (!cola.some(x => x.c)) {
-    const cita = shuffle(pool.filter(x => x.c))[0], i = cola.findIndex(x => x.k === cita.k);
-    if (i >= 0) cola[i] = cita; else cola[cola.length - 1] = cita;
+  if (!cola.some(i => POOL[i].c)) {
+    const cita = shuffle(idx.filter(i => POOL[i].c))[0], j = cola.findIndex(i => POOL[i].k === POOL[cita].k);
+    cola[j >= 0 ? j : cola.length - 1] = cita;
   }
-  const equipos = cfg.equipos ? cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>({nombre:(n||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false})) : [{nombre:cfg.jugador || "Tú", pts:0, ok:0, n:0, err:0, out:false}];
-  S = { cola, i:0, equipos, turno:0, racha:0, respondido:false, fallos:[], stats:Object.fromEntries(ORDEN_PARTES.map(k=>[k,{ok:0,n:0}])) };
+  return cola;
+}
+function startClasifica(vivo){
+  const cola = (vivo ? vivo.orden : armarCola(cfg.rondas)).map(i => POOL[i]);
+  const equipos = (!vivo && cfg.equipos) ? cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>({nombre:(n||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false})) : [{nombre:(vivo ? vivo.nombre : cfg.jugador) || "Tú", pts:0, ok:0, n:0, err:0, out:false}];
+  S = { cola, i:0, equipos, turno:0, racha:0, respondido:false, fallos:[], vivo: vivo || null, stats:Object.fromEntries(ORDEN_PARTES.map(k=>[k,{ok:0,n:0}])) };
   ronda();
 }
 
@@ -802,7 +849,7 @@ function barra(){
 }
 function hudHTML(){
   return `<div class="hud">
-    <span class="prog">Recorte ${Math.min(S.i+1,S.cola.length)} de ${S.cola.length}${S.racha>=2?`<small>racha de ${S.racha}</small>`:""}</span>
+    ${S.vivo ? `<span class="prog" id="vRank" style="color:var(--red)"></span>` : ""}<span class="prog">Recorte ${Math.min(S.i+1,S.cola.length)} de ${S.cola.length}${S.racha>=2?`<small>racha de ${S.racha}</small>`:""}</span>
     <div class="pencil-bar">${barra()}</div>
     <span class="timer" id="timer" ${cfg.tiempo?"":"hidden"}></span>
     <div id="scores" style="width:100%">${scoresHTML()}</div>
@@ -905,6 +952,7 @@ function responder(k){
   $("#next").focus({preventScroll:true});
   $("#fb").scrollIntoView({behavior: reduce ? "auto" : "smooth", block:"nearest"});
   $("#scores").innerHTML = scoresHTML();
+  publicarVivo();
 }
 
 function siguiente(){
@@ -912,6 +960,7 @@ function siguiente(){
   S.i++;
   if (cfg.equipos) { do { S.turno = (S.turno + 1) % S.equipos.length; } while (S.equipos[S.turno].out); }
   ronda(); window.scrollTo(0,0);
+  rankJugador();
 }
 
 // Repaso de los fragmentos en que hubo errores, para estudiar al final
@@ -955,9 +1004,15 @@ function final(){
     <div class="cta"><button class="btn go" id="again">Jugar otra vez</button><button class="btn" id="ord">Ordenar un ensayo</button><button class="btn" id="home">Volver al inicio</button></div>
   </section>`;
   S.respondido = true;
-  $("#again").onclick = startClasifica; $("#ord").onclick = () => startOrdena(); $("#home").onclick = inicio;
+  $("#again").onclick = () => startClasifica(); $("#ord").onclick = () => startOrdena(); $("#home").onclick = inicio;
   // En modo individual el puntaje se guarda solo, con el nombre que se escribió al empezar
-  if (!cfg.equipos && !S.guardado) {
+  if (S.vivo) {
+    publicarVivo({ terminado:true });
+    $("#recBox h3").textContent = "Tabla en vivo";
+    $("#again").remove(); $("#ord").remove();
+    rankJugador();
+  }
+  if (!cfg.equipos && !S.guardado && !S.vivo) {
     S.guardado = true;
     const e = S.equipos[0], id = Date.now() + "-" + Math.random().toString(36).slice(2,6);
     const lista = guardarRecord({ id, nombre: e.nombre, pts: e.pts, ok: e.ok, n: e.n });
@@ -967,6 +1022,194 @@ function final(){
   }
   if (gano) { Sonido.victoria(); confeti(); }
   window.scrollTo(0,0);
+}
+
+/* ---------- En vivo: sala con tabla en tiempo real (Firebase) ---------- */
+// Datos del proyecto de Firebase (no son secretos: están pensados para ir en la página)
+const FIREBASE_CONFIG = null;
+const LETRAS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+let FB = null, VIVO = null;
+function cargarScript(src){ return new Promise((ok, mal) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => mal(new Error("red")); document.head.appendChild(s); }); }
+async function fb(){
+  if (FB) return FB;
+  if (!FIREBASE_CONFIG) throw new Error("config");
+  await cargarScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
+  await cargarScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js");
+  firebase.initializeApp(FIREBASE_CONFIG);
+  FB = firebase.database();
+  return FB;
+}
+const TS = () => firebase.database.ServerValue.TIMESTAMP;
+const errorVivo = e => e && e.message === "config" ? "El modo en vivo todavía no está conectado a la base de datos." : "No se pudo conectar. Revisa que haya internet y vuelve a intentarlo.";
+const rankingVivo = js => Object.entries(js || {}).map(([id, j]) => ({ id, ...j })).sort((a,b) => (!!a.out - !!b.out) || ((b.pts||0) - (a.pts||0)) || ((b.ok||0) - (a.ok||0)));
+function salirVivo(){
+  if (!VIVO) return;
+  VIVO.off.forEach(f => { try { f(); } catch {} });
+  if (VIVO.rol === "jugador" && VIVO.yo) VIVO.yo.update({ conectado:false }).catch(() => {});
+  VIVO = null;
+}
+function escuchar(ref, fn){ const cb = ref.on("value", fn); VIVO.off.push(() => ref.off("value", cb)); }
+function pantallaMsg(titulo, texto, boton = true){
+  app.innerHTML = `<section class="final"><div class="sheet" style="max-width:620px"><h2 style="font-family:var(--f-marker);font-size:36px">${titulo}</h2><p>${texto}</p>${boton ? `<div class="cta"><button class="btn" id="vHome">Volver al inicio</button></div>` : ""}</div></section>`;
+  if (boton) $("#vHome").onclick = inicio;
+}
+function publicarVivo(extra = {}){
+  if (!S || !S.vivo || !VIVO) return;
+  const e = S.equipos[0];
+  VIVO.yo.update({ pts:e.pts, ok:e.ok, n:e.n, err:e.err, out:e.out, i:S.i, ...extra, actualizado:TS() }).catch(() => {});
+}
+
+/* El proyector: crea la sala, muestra quién entra y la carrera en vivo */
+async function crearSala(){
+  salirVivo(); stopTimer(); S = null;
+  pantallaMsg("Creando la sala…", "Un momento.", false);
+  try {
+    const db = await fb();
+    let code, ref;
+    for (let n = 0; n < 8; n++) {
+      code = Array.from({length:4}, () => LETRAS[Math.floor(Math.random()*LETRAS.length)]).join("");
+      ref = db.ref("salas/" + code);
+      const snap = await ref.get();
+      if (!snap.exists() || Date.now() - (snap.val().creada || 0) > 6 * 3600e3) break;
+    }
+    await ref.set({ estado:"espera", creada:TS(), rondas:cfg.rondas, tiempo:cfg.tiempo, orden:armarCola(cfg.rondas) });
+    VIVO = { rol:"host", code, ref, jugadores:{}, estado:"espera", pantalla:null, off:[], celebrado:false };
+    escuchar(ref.child("estado"), s => { VIVO.estado = s.val() || "espera"; pintarHost(); });
+    escuchar(ref.child("jugadores"), s => { VIVO.jugadores = s.val() || {}; pintarHost(); });
+  } catch (e) { pantallaMsg("No se pudo crear la sala", errorVivo(e)); }
+}
+function urlSala(){ return URL_JUEGO + "?sala=" + VIVO.code; }
+function pintarHost(){
+  if (!VIVO || VIVO.rol !== "host") return;
+  const est = VIVO.estado, js = rankingVivo(VIVO.jugadores);
+  if (VIVO.pantalla !== est) {
+    VIVO.pantalla = est;
+    if (est === "espera") {
+      app.innerHTML = `<section class="vivo">
+        <div class="sheet"><div class="sala-top"><div>
+          <p class="lead">Entra desde tu celular a</p><div class="qr-url" style="font-size:clamp(24px,3vw,34px)">${esc(URL_JUEGO.replace(/^https:\/\//, ""))}</div>
+          <p class="lead" style="margin-top:12px">toca "Unirme a una sala" y escribe el código:</p><div class="codigo">${VIVO.code}</div></div>
+          <div class="qr" id="qrSala"></div></div></div>
+        <div class="hud" style="margin-top:20px"><h2 class="vtitle" id="vCount"></h2>
+          <div class="cta" style="margin:0"><button class="btn go" id="vStart" disabled>¡Empezar!</button><button class="btn small" id="vSalir">Cerrar sala</button></div></div>
+        <div class="vlobby" id="vList"></div>
+        <p class="note" style="font-size:20px">${S_rondasTxt()}</p>
+      </section>`;
+      pintarQR($("#qrSala"), 220, urlSala());
+      $("#vStart").onclick = () => VIVO.ref.update({ estado:"jugando", inicio:TS() });
+      $("#vSalir").onclick = inicio;
+    } else if (est === "jugando") {
+      app.innerHTML = `<section class="vivo">
+        <div class="hud"><span class="prog">Sala <span class="hl" style="${cvar("tesis")}">${VIVO.code}</span> · en vivo</span><span class="prog" id="vCount"></span>
+          <div class="cta" style="margin:0"><button class="btn small" id="vFin">Terminar partida</button></div></div>
+        <div class="board" id="vList"></div>
+        <div class="mini-join"><div class="qr" id="qrSala"></div><span class="note">¿llegaste tarde? escanea y entra con el código <b>${VIVO.code}</b></span></div>
+      </section>`;
+      pintarQR($("#qrSala"), 96, urlSala());
+      $("#vFin").onclick = () => VIVO.ref.update({ estado:"fin" });
+    } else {
+      const [p1, p2, p3] = js;
+      const col = (j, n, c, h) => j ? `<div><span>${esc(j.nombre)}</span><small>${j.pts||0} pts</small><div class="step" style="--c:var(${c});height:${h}px">${n}</div></div>` : `<div></div>`;
+      app.innerHTML = `<section class="vivo final">
+        <h2 class="vtitle" style="font-size:clamp(40px,7vw,72px)">${p1 ? `¡Gana ${esc(p1.nombre)}!` : "Partida terminada"}</h2>
+        <div class="podio3">${col(p2,2,"--hl-concl",120)}${col(p1,1,"--hl-intro",170)}${col(p3,3,"--hl-contra",90)}</div>
+        <div class="board" id="vList"></div>
+        <div class="cta"><button class="btn go" id="vOtra">Otra partida con los mismos</button><button class="btn" id="vSalir">Cerrar sala</button></div>
+      </section>`;
+      $("#vOtra").onclick = () => {
+        const upd = { estado:"espera", rondas:cfg.rondas, tiempo:cfg.tiempo, orden:armarCola(cfg.rondas) };
+        Object.keys(VIVO.jugadores).forEach(id => Object.assign(upd, { [`jugadores/${id}/pts`]:0, [`jugadores/${id}/ok`]:0, [`jugadores/${id}/n`]:0, [`jugadores/${id}/err`]:0, [`jugadores/${id}/out`]:false, [`jugadores/${id}/i`]:0, [`jugadores/${id}/terminado`]:false }));
+        VIVO.celebrado = false; VIVO.ref.update(upd);
+      };
+      $("#vSalir").onclick = inicio;
+      if (!VIVO.celebrado) { VIVO.celebrado = true; Sonido.victoria(); confeti(); }
+    }
+  }
+  const conectados = js.filter(j => j.conectado !== false);
+  if (est === "espera") {
+    $("#vCount").textContent = conectados.length ? `${conectados.length} ${conectados.length === 1 ? "jugador" : "jugadores"} en la sala` : "Esperando jugadores…";
+    $("#vStart").disabled = !conectados.length;
+    const cols = ["--hl-intro","--hl-tesis","--hl-arg","--hl-contra","--hl-concl"];
+    $("#vList").innerHTML = conectados.map((j,i) => `<span style="--c:var(${cols[i%5]});--r:${(i*37%7)-3}deg">${esc(j.nombre)}</span>`).join("");
+    return;
+  }
+  const total = (VIVO.rondasActual || cfg.rondas);
+  $("#vList").innerHTML = js.map((j,i) => `<div class="vrow ${j.out?"out":""} ${j.conectado===false?"off":""} ${i===0&&!j.out?"lead":""}">
+    <span class="pos">${i+1}</span>${horca(j.err||0,{mini:true})}<span class="nm">${esc(j.nombre)}</span>
+    <span class="bar"><i style="width:${Math.min(100,(j.n||0)/total*100)}%"></i></span>
+    <span class="estado">${j.out ? "ahorcado" : j.terminado ? "terminó" : `${j.n||0}/${total}`}</span><span class="pts">${j.pts||0}</span></div>`).join("");
+  if (est === "jugando") {
+    const enJuego = js.filter(j => !j.out && !j.terminado).length;
+    $("#vCount").textContent = `${js.length} jugando · ${enJuego} sin terminar`;
+    if (js.length && !enJuego) VIVO.ref.update({ estado:"fin" });
+  }
+}
+function S_rondasTxt(){ return `${cfg.rondas} recortes · ${cfg.tiempo ? cfg.tiempo + " s por recorte" : "sin reloj"}. Puedes cambiarlo en Clasifica antes de crear la sala.`; }
+
+/* El celular: entra a la sala y juega Clasifica con su propio ahorcado */
+function unirseSala(codigo = ""){
+  salirVivo(); stopTimer(); S = null;
+  app.innerHTML = `<section class="final"><div class="sheet" style="max-width:560px">
+    <h2 style="font-family:var(--f-marker);font-size:38px">Unirme a una sala</h2>
+    <form id="joinForm" class="opts">
+      <div class="opt"><span>Código de la sala</span><div class="teams"><input id="jCode" maxlength="4" autocomplete="off" autocapitalize="characters" aria-label="Código de la sala" value="${esc(codigo)}" style="text-transform:uppercase;letter-spacing:.25em;font-size:34px"></div></div>
+      <div class="opt"><span>Tu nombre</span><div class="teams"><input id="jName" maxlength="18" autocomplete="off" aria-label="Tu nombre"></div></div>
+      <p class="note" id="jAviso" style="color:var(--red);font-size:21px;margin:0" hidden></p>
+      <div class="cta" style="margin-top:4px"><button class="btn go" type="submit" id="jBtn">Entrar</button><button class="btn small" type="button" id="jHome">Volver</button></div>
+    </form></div></section>`;
+  (codigo ? $("#jName") : $("#jCode")).focus();
+  $("#jHome").onclick = inicio;
+  const aviso = t => { $("#jAviso").textContent = t; $("#jAviso").hidden = false; $("#jBtn").disabled = false; $("#jBtn").textContent = "Entrar"; };
+  $("#joinForm").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const code = $("#jCode").value.trim().toUpperCase(), nombre = $("#jName").value.trim();
+    if (code.length !== 4) return aviso("El código tiene 4 letras. Míralo en el proyector.");
+    if (!nombre) return aviso("Escribe tu nombre para que aparezca en la tabla.");
+    $("#jBtn").disabled = true; $("#jBtn").textContent = "Entrando…";
+    try {
+      const db = await fb(), ref = db.ref("salas/" + code), snap = await ref.get();
+      if (!snap.exists()) return aviso("No hay ninguna sala con ese código. Revisa las letras.");
+      const sala = snap.val();
+      if (sala.estado === "fin") return aviso("Esa partida ya terminó. Espera a que el proyector empiece otra.");
+      let pid; try { pid = sessionStorage.getItem("cz-pid"); } catch {}
+      if (!pid) { pid = Math.random().toString(36).slice(2, 10); try { sessionStorage.setItem("cz-pid", pid); } catch {} }
+      const repetido = Object.entries(sala.jugadores || {}).some(([id, j]) => id !== pid && j.conectado !== false && (j.nombre || "").toLowerCase() === nombre.toLowerCase());
+      if (repetido) return aviso("Ese nombre ya está en la sala. Agrega tu apellido o una inicial.");
+      const yo = ref.child("jugadores/" + pid);
+      await yo.set({ nombre, pts:0, ok:0, n:0, err:0, out:false, i:0, terminado:false, conectado:true, actualizado:TS() });
+      yo.child("conectado").onDisconnect().set(false);
+      VIVO = { rol:"jugador", code, ref, yo, pid, nombre, jugadores:{}, estado:null, off:[] };
+      escuchar(ref.child("jugadores"), s => { if (!VIVO) return; VIVO.jugadores = s.val() || {}; rankJugador(); });
+      escuchar(ref.child("estado"), async s => {
+        if (!VIVO) return;
+        const antes = VIVO.estado; VIVO.estado = s.val();
+        if (VIVO.estado === "espera") { S = null; stopTimer(); esperaJugador(); }
+        else if (VIVO.estado === "jugando" && antes !== "jugando") {
+          const sala = (await ref.get()).val();
+          cfg.equipos = false; cfg.tiempo = sala.tiempo || 0; cfg.rondas = sala.rondas || 10;
+          startClasifica({ orden: sala.orden, nombre });
+        } else if (VIVO.estado === "fin" && !(S && S.vivo)) {
+          pantallaMsg("La partida terminó", "Mira el proyector para ver el podio.");
+        }
+      });
+    } catch (e) { aviso(errorVivo(e)); }
+  });
+}
+function esperaJugador(){
+  app.innerHTML = `<section class="final"><div class="result"><div>${horca(0)}</div><div>
+    <h2 style="font-family:var(--f-marker);font-size:clamp(40px,8vw,72px)">¡Estás dentro!</h2>
+    <div class="sum">Hola, ${esc(VIVO.nombre)}. Sala ${VIVO.code}</div>
+    <p>Mira el proyector: cuando empiece la partida, aquí te aparecerá el primer recorte.</p></div></div></section>`;
+}
+function rankJugador(){
+  if (!VIVO || VIVO.rol !== "jugador" || !S || !S.vivo) return;
+  const r = rankingVivo(VIVO.jugadores), p = r.findIndex(x => x.id === VIVO.pid) + 1;
+  const rk = $("#vRank"); if (rk) rk.textContent = p ? `puesto ${p} de ${r.length}` : "";
+  const box = $("#recList");
+  if (box && S.respondido && !$("#answers")) {
+    box.innerHTML = recordsHTML(r.map(j => ({ id:j.id, nombre:j.nombre, pts:j.pts||0, ok:j.ok||0, n:j.n||0 })), VIVO.pid)
+      + (p > 5 ? `<p class="note" style="font-size:22px;margin:6px 0 0">vas en el puesto ${p} de ${r.length}</p>` : "");
+  }
 }
 
 /* ---------- Ordena ---------- */
@@ -1058,7 +1301,8 @@ document.addEventListener("keydown", e => {
 });
 $("#goHome").onclick = inicio;
 $("#goGuide").onclick = guia;
-inicio();
+const salaURL = new URLSearchParams(location.search).get("sala");
+if (salaURL) unirseSala(salaURL.toUpperCase().slice(0, 4)); else inicio();
 </script>
 
 </body>
