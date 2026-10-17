@@ -223,6 +223,32 @@ button.strip:hover{transform:translateX(4px)}
   .bk{grid-template-columns:120px minmax(0,1fr) 46px;font-size:21px}
   .tilt-l,.tilt-r{transform:none}
 }
+/* Pista, QR y récords */
+.tools-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.pista{display:inline-flex;align-items:center;gap:8px;border:2px dashed var(--pen);background:transparent;color:var(--pen);border-radius:30px;padding:6px 16px 8px;font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1}
+.pista svg{width:20px;height:20px}
+.pista:disabled{opacity:.45;cursor:default}
+.clave{text-decoration:underline wavy var(--red);text-decoration-thickness:2px;text-underline-offset:5px}
+.ans.out{opacity:.25;text-decoration:line-through}
+.qr-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+.qr{background:#fff;padding:8px;border-radius:4px;line-height:0}
+.qr img,.qr canvas{display:block;width:132px;height:132px}
+.qr-url{font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--pen);overflow-wrap:anywhere;line-height:1.1}
+.qr-big{position:fixed;inset:0;z-index:30;background:var(--paper);display:grid;place-items:center;align-content:center;gap:18px;padding:max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));text-align:center}
+.qr-big h2{font-family:var(--f-marker);font-size:clamp(32px,6vw,60px)}
+.qr-big .qr img,.qr-big .qr canvas{width:min(70vmin,460px);height:min(70vmin,460px)}
+.qr-big .qr-url{font-size:clamp(24px,3.4vw,36px)}
+.records{display:grid;gap:8px}
+.records h3{font-family:var(--f-hand);font-weight:700;font-size:30px}
+.records ol{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.records li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:baseline;font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1.1;border-bottom:1.5px dashed var(--grid);padding-bottom:4px}
+.records li .p{font-family:var(--f-marker);font-weight:400;font-size:20px;color:var(--pen);white-space:nowrap}
+.records li.me{color:var(--red)}
+.records li .pos{color:var(--soft)}
+.save-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.save-row input{flex:1 1 200px;min-width:0;font-family:var(--f-hand);font-weight:700;font-size:26px;padding:4px 2px;border:0;border-bottom:2px solid var(--pencil);background:transparent;color:var(--ink)}
+.save-row input:focus{outline:none;border-bottom-color:var(--pen)}
+@media (max-width:760px){.qr img,.qr canvas{width:110px;height:110px}}
 @media (prefers-reduced-motion:reduce){
   .hl.sweep,.btn,.ans,.strip{transition:none}
   .horca .draw{animation:none;stroke-dashoffset:0}
@@ -260,6 +286,7 @@ button.strip:hover{transform:translateX(4px)}
   <main id="app"></main>
 </div>
 <canvas id="confeti" hidden></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
 const PARTES = {
@@ -319,6 +346,54 @@ const ENSAYOS = [
   ["arg","También ahorra tiempo y dinero a las familias, porque no hay que decidir cada mañana qué ponerse ni comprar ropa distinta para cada día.","\"También\" agrega otra razón a favor de la tesis."],
   ["contra","Quienes están en contra dicen que el uniforme limita la libertad de expresión. Es un punto válido, pero los estudiantes pueden expresar su personalidad de muchas otras formas, como en sus ideas y sus trabajos.","Reconoce la objeción (\"Quienes están en contra\") y luego la responde con \"pero\"."],
   ["concl","Por estas razones, considero que el uniforme debe mantenerse, aunque su diseño podría revisarse con la participación de los propios estudiantes.","\"Por estas razones\" resume y reafirma la tesis para cerrar."]
+ ]},
+ {tema:"Los videojuegos", f:[
+  ["intro","Muchos adolescentes dedican parte de su tiempo libre a los videojuegos. Para algunos padres son una pérdida de tiempo; para otros, una forma más de aprender y divertirse.","Presenta el tema y muestra que hay opiniones distintas, pero el autor todavía no dice la suya."],
+  ["tesis","Considero que los videojuegos pueden ser beneficiosos para los jóvenes, siempre que se jueguen con moderación.","\"Considero que\" anuncia la postura del autor. El resto del ensayo la va a defender."],
+  ["arg","Por ejemplo, muchos juegos exigen resolver problemas, planificar estrategias y tomar decisiones rápidas, habilidades que también sirven en el colegio.","\"Por ejemplo\" introduce una razón concreta que apoya la tesis."],
+  ["arg","Además, los juegos en equipo enseñan a comunicarse y a colaborar con otras personas para lograr un objetivo común.","\"Además\" suma otra razón a favor de la tesis."],
+  ["contra","Es verdad que algunos jóvenes juegan tantas horas que descuidan sus estudios. Sin embargo, ese problema se debe al exceso y no al videojuego en sí, y se soluciona con horarios claros.","Reconoce una crítica (\"Es verdad que\") y la refuta con \"Sin embargo\"."],
+  ["concl","En conclusión, los videojuegos no son enemigos del aprendizaje: bien administrados, pueden ayudar a desarrollar habilidades útiles.","\"En conclusión\" cierra el ensayo y reafirma la tesis."]
+ ]},
+ {tema:"Las tareas para la casa", f:[
+  ["intro","Al terminar la jornada escolar, muchos estudiantes llegan a casa con la mochila llena de tareas. Algunos días pasan horas frente a los cuadernos antes de poder descansar.","Describe una situación conocida para presentar el tema, sin dar todavía una opinión."],
+  ["tesis","En mi opinión, las tareas deberían ser menos y más cortas, pero bien pensadas para reforzar lo aprendido en clase.","\"En mi opinión\" expresa la postura que el ensayo va a defender."],
+  ["arg","En primer lugar, el descanso es necesario para aprender: un estudiante agotado rinde menos y olvida con más facilidad lo que estudió.","\"En primer lugar\" ordena la primera razón a favor de la tesis."],
+  ["arg","En segundo lugar, una tarea corta y bien diseñada permite practicar lo esencial sin quitarle tiempo a la familia, al deporte o a la lectura.","\"En segundo lugar\" agrega otra razón que apoya la tesis."],
+  ["contra","Algunos profesores piensan que muchas tareas forman el hábito del estudio. No obstante, el hábito depende más de la constancia que de la cantidad, y una tarea breve diaria también lo crea.","Presenta la idea contraria (\"Algunos profesores piensan\") y la responde con \"No obstante\"."],
+  ["concl","En resumen, menos tareas pero de mejor calidad nos ayudarían a aprender más y a vivir con menos estrés.","\"En resumen\" retoma la tesis para cerrar el ensayo."]
+ ]},
+ {tema:"Comida sana en el colegio", f:[
+  ["intro","En los recreos, los quioscos de muchos colegios venden papas fritas, galletas y bebidas con mucha azúcar. Es lo más fácil de comprar y, a veces, lo único que hay.","Muestra el problema con una escena cotidiana. Aún no hay opinión del autor."],
+  ["tesis","Sostengo que los colegios deberían ofrecer principalmente alimentos saludables en sus quioscos y comedores.","\"Sostengo que\" presenta la postura central del ensayo."],
+  ["arg","Una alimentación equilibrada entrega la energía que el cuerpo y el cerebro necesitan para aprender durante toda la jornada.","Da una razón que explica por qué la tesis es correcta."],
+  ["arg","Asimismo, el colegio es un lugar donde se forman hábitos: si nos acostumbramos a comer fruta o sándwiches caseros, es más probable que lo sigamos haciendo de adultos.","\"Asimismo\" suma un nuevo argumento a favor de la tesis."],
+  ["contra","Hay quienes dicen que cada estudiante debe ser libre de comer lo que quiera. Pero el colegio no prohíbe nada fuera de él; solo se trata de que lo que ofrece sea sano.","Recoge la objeción (\"Hay quienes dicen\") y la rebate con \"Pero\"."],
+  ["concl","Por todo lo anterior, ofrecer comida saludable en el colegio es una forma sencilla de cuidar la salud y el rendimiento de los estudiantes.","\"Por todo lo anterior\" resume lo dicho y cierra el ensayo."]
+ ]},
+ {tema:"Adoptar mascotas", f:[
+  ["intro","Cada año, miles de perros y gatos viven en la calle o en refugios esperando una familia. Al mismo tiempo, muchas personas compran animales de raza en tiendas.","Presenta el contexto del tema con datos que llaman la atención, sin tomar postura."],
+  ["tesis","Pienso que, antes de comprar una mascota, las familias deberían considerar adoptar una.","\"Pienso que\" introduce la opinión que se defenderá."],
+  ["arg","Adoptar le da un hogar a un animal que lo necesita y ayuda a disminuir la cantidad de animales abandonados.","Explica una razón que apoya la tesis."],
+  ["arg","También suele ser más económico, porque muchos refugios entregan a las mascotas vacunadas y esterilizadas.","\"También\" agrega otra razón a favor de adoptar."],
+  ["contra","Algunas personas creen que los animales adoptados tienen problemas de comportamiento. Sin embargo, la mayoría se adapta bien con cariño y paciencia, igual que cualquier otra mascota.","Expone una creencia contraria (\"Algunas personas creen\") y la refuta con \"Sin embargo\"."],
+  ["concl","En definitiva, adoptar es una decisión responsable y solidaria que cambia la vida de un animal y la de su nueva familia.","\"En definitiva\" marca el cierre y la idea final."]
+ ]},
+ {tema:"Aprender otro idioma", f:[
+  ["intro","Hoy podemos conversar con personas de otros países por internet, ver series de todo el mundo y viajar con más facilidad que antes.","Describe el mundo actual para introducir el tema, sin dar todavía una opinión."],
+  ["tesis","Por eso, considero que aprender un segundo idioma desde el colegio es más importante que nunca.","\"Considero que\" deja clara la postura del autor."],
+  ["arg","Hablar otro idioma abre más oportunidades de estudio y de trabajo, ya que muchas becas y empleos lo piden como requisito.","Da una razón concreta que respalda la tesis."],
+  ["arg","Además, aprender un idioma nos acerca a otras culturas y nos ayuda a entender mejor nuestra propia lengua.","\"Además\" suma otra razón a favor de la tesis."],
+  ["contra","Se podría pensar que hoy basta con un traductor automático. Aun así, un traductor no reemplaza la capacidad de conversar con alguien de forma natural ni de entender su cultura.","\"Se podría pensar\" presenta la objeción y \"Aun así\" la refuta."],
+  ["concl","Así, dedicar tiempo a un segundo idioma es una inversión que nos acompañará toda la vida.","Cierra reafirmando la tesis con una idea final."]
+ ]},
+ {tema:"La música en el colegio", f:[
+  ["intro","La música está presente en casi todos los momentos de nuestra vida: en las fiestas, en el transporte y hasta mientras hacemos tareas.","Abre con una observación cotidiana que presenta el tema."],
+  ["tesis","A mi juicio, la clase de música debería tener la misma importancia que las demás asignaturas.","\"A mi juicio\" anuncia la opinión que guiará todo el ensayo."],
+  ["arg","Según diversas investigaciones, aprender a tocar un instrumento ayuda a mejorar la memoria y la concentración.","Usa evidencia (\"Según diversas investigaciones\") para apoyar la tesis."],
+  ["arg","Por otro lado, la música permite expresar emociones y trabajar en grupo, por ejemplo al formar una banda o un coro.","\"Por otro lado\" agrega una razón distinta a favor de la tesis."],
+  ["contra","Quienes no están de acuerdo dicen que la música no sirve para conseguir trabajo. Es una opinión comprensible, pero las habilidades que desarrolla, como la disciplina y la creatividad, sirven en cualquier profesión.","Reconoce la postura contraria (\"Quienes no están de acuerdo\") y la responde con \"pero\"."],
+  ["concl","En conclusión, la música es una parte valiosa de la formación de los estudiantes y merece su lugar en el colegio.","\"En conclusión\" cierra y retoma la tesis."]
  ]}
 ];
 
@@ -491,6 +566,47 @@ function confeti(){
   })(t0);
 }
 
+
+/* ---------- Palabras clave para las pistas ---------- */
+const CLAVES = ["En mi opinión","Considero que","considero que","Pienso que","Sostengo que","defiendo que","A mi juicio","Mi postura es","Por ejemplo","Además","En primer lugar","En segundo lugar","Asimismo","También","Diversos estudios señalan","Según diversas investigaciones","Por un lado","Por otro lado","Es cierto que","Es verdad que","Sin embargo","No obstante","Aun así","Pero","pero","Hay quienes","Algunas personas","Algunos profesores piensan","Algunos adultos sostienen","Quienes están en contra","Quienes no están de acuerdo","Se podría objetar","Se podría pensar","En conclusión","En resumen","En definitiva","Por todo lo anterior","Por estas razones","Así,","Hoy","Cada día","Cada año","Vivimos","Muchos estudiantes","Muchos adolescentes"];
+function marcarClaves(t){
+  let h = esc(t);
+  CLAVES.forEach(c => { const e = esc(c); const re = new RegExp("(^|[\\s¿¡(])(" + e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "g"); h = h.replace(re, (m, a, b) => a + "\u0001" + b + "\u0002"); });
+  return h.replace(/\u0001/g, '<span class="clave">').replace(/\u0002/g, "</span>");
+}
+
+/* ---------- Código QR para entrar desde el celular ---------- */
+const URL_JUEGO = /github\.io$/.test(location.hostname) ? location.origin + location.pathname : "https://christian140921.github.io/cazadores-del-ensayo/";
+function pintarQR(el, tam){
+  if (!el) return;
+  if (typeof QRCode === "undefined") { el.hidden = true; return; }
+  el.innerHTML = "";
+  new QRCode(el, { text: URL_JUEGO, width: tam, height: tam, colorDark: "#1D2740", colorLight: "#FFFFFF", correctLevel: QRCode.CorrectLevel.M });
+}
+function qrGrande(){
+  const d = document.createElement("div");
+  d.className = "qr-big"; d.setAttribute("role", "dialog"); d.setAttribute("aria-label", "Código QR del juego");
+  d.innerHTML = `<h2>Escanea y juega</h2><div class="qr" id="qrBig"></div><div class="qr-url">${esc(URL_JUEGO.replace(/^https:\/\//, ""))}</div><button class="btn go" id="qrClose">Cerrar</button>`;
+  document.body.appendChild(d);
+  pintarQR($("#qrBig"), 460);
+  const cerrar = () => { d.remove(); document.removeEventListener("keydown", esc_); };
+  const esc_ = e => { if (e.key === "Escape") cerrar(); };
+  $("#qrClose").onclick = cerrar; $("#qrClose").focus();
+  document.addEventListener("keydown", esc_);
+}
+
+/* ---------- Récords guardados en este dispositivo ---------- */
+const leerRecords = () => { try { return JSON.parse(localStorage.getItem("cz-records") || "[]"); } catch { return []; } };
+function guardarRecord(r){
+  const lista = leerRecords().concat(r).sort((a,b) => b.pts - a.pts || b.ok - a.ok).slice(0, 10);
+  try { localStorage.setItem("cz-records", JSON.stringify(lista)); } catch {}
+  return lista;
+}
+function recordsHTML(lista, yo){
+  if (!lista.length) return `<p style="margin:0;color:var(--soft)">Todavía no hay récords. ¡El primero puede ser el tuyo!</p>`;
+  return `<ol>${lista.slice(0,5).map((r,i)=>`<li class="${yo && r.id===yo ? "me" : ""}"><span class="pos">${i+1}.</span><span>${esc(r.nombre)}</span><span class="p">${r.pts} pts · ${r.ok}/${r.n}</span></li>`).join("")}</ol>`;
+}
+
 const cfg = { equipos:false, nEquipos:2, nombres:["Los Lectores","Los Escritores","Los Críticos","Los Poetas"], rondas:10, tiempo:0 };
 let S = null, timer = null;
 function stopTimer(){ if (timer) { clearInterval(timer); timer = null; } }
@@ -539,7 +655,19 @@ function inicio(){
       <p class="note" style="margin-top:14px">ideal para jugar toda la clase con el proyector</p>
       <div class="cta"><button class="btn" id="playO">Ordenar un ensayo</button></div>
     </div>
+    <div class="sheet tilt-r">
+      <h2>Juega desde tu celular</h2>
+      <div class="qr-row" style="margin-top:14px"><div class="qr" id="qrSmall"></div>
+        <div><div class="qr-url">${esc(URL_JUEGO.replace(/^https:\/\//, ""))}</div><div class="cta" style="margin-top:12px"><button class="btn small" id="qrShow">Mostrar QR en grande</button></div></div></div>
+    </div>
+    <div class="sheet tilt-l records">
+      <h3>Mejores puntajes</h3>
+      ${recordsHTML(leerRecords())}
+      <p class="note" style="font-size:20px;margin:0">se guardan en este aparato · juega "yo solo" para entrar a la tabla</p>
+    </div>
   </section>`;
+  pintarQR($("#qrSmall"), 132);
+  $("#qrShow").onclick = qrGrande;
   const teams = () => { $("#teams").innerHTML = cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>`<input id="team${i}" aria-label="Nombre del equipo ${i+1}" value="${esc(n)}" maxlength="18">`).join("");
     $("#teams").querySelectorAll("input").forEach((inp,i)=>inp.addEventListener("input",()=>cfg.nombres[i]=inp.value)); };
   teams();
@@ -596,7 +724,7 @@ function scoresHTML(){
 function barra(){
   const pct = S.i / S.cola.length;
   return `<svg viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 Q150 4 298 7" stroke="var(--grid)" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <path d="M2 6 Q150 4 298 7" stroke="var(--pen)" stroke-width="5" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="${pct*100} 100" filter="url(#rough)"/></svg>`;
+    <path d="M2 6 Q150 4 298 7" stroke="var(--pen)" stroke-width="5" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="${pct*100} 200" filter="url(#rough)"/></svg>`;
 }
 function hudHTML(){
   return `<div class="hud">
@@ -619,12 +747,15 @@ function ronda(){
         <div class="sheet clip"><div class="tema">del ensayo «${esc(q.tema)}»</div>
           <blockquote id="quote">${esc(q.t)}</blockquote></div>
         <div class="answers" id="answers">${opts}</div>
+        <div class="tools-row"><button class="pista" id="pista"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Pista: quita 2 opciones (el acierto vale la mitad)</button></div>
       </div>
       <aside class="side" id="gallows">${horca(eq.err)}${vidasHTML(eq.err)}</aside>
     </div>
     <div id="fb"></div>
-    <p class="keys">atajo: teclas 1 a 5 para responder y Enter para seguir</p>`;
-  $("#answers").addEventListener("click", e => { const b = e.target.closest(".ans"); if (b) responder(b.dataset.k); });
+    <p class="keys">atajos: teclas 1 a 5 para responder, P para la pista y Enter para seguir</p>`;
+  $("#answers").addEventListener("click", e => { const b = e.target.closest(".ans"); if (b && !b.disabled) responder(b.dataset.k); });
+  S.pista = false;
+  $("#pista").onclick = usarPista;
   if (cfg.tiempo) {
     // El tiempo se calcula desde un límite fijo, así el reloj siempre baja de uno en uno aunque el navegador se atrase
     const limite = Date.now() + cfg.tiempo * 1000;
@@ -641,6 +772,14 @@ function ronda(){
 }
 function pintarTimer(){ const t = $("#timer"); if (!t) return; t.textContent = S.restante + "s"; t.classList.toggle("low", S.restante <= 5); }
 
+function usarPista(){
+  if (!S || S.respondido || S.pista) return;
+  S.pista = true; Sonido.tap();
+  const q = S.cola[S.i];
+  shuffle([...document.querySelectorAll(".ans")].filter(b => b.dataset.k !== q.k)).slice(0, 2).forEach(b => { b.disabled = true; b.classList.add("out"); });
+  $("#quote").innerHTML = marcarClaves(q.t);
+  $("#pista").disabled = true;
+}
 const vivos = () => S.equipos.filter(e => !e.out);
 const terminado = () => S.i >= S.cola.length - 1 || vivos().length === 0;
 
@@ -653,6 +792,7 @@ function responder(k){
   if (ok) {
     S.racha++; eq.ok++; S.stats[q.k].ok++;
     ganados = 10 + (cfg.tiempo ? Math.round(S.restante / cfg.tiempo * 5) : 0) + (S.racha >= 3 ? 5 : 0);
+    if (S.pista) ganados = Math.ceil(ganados / 2);
     eq.pts += ganados;
     Sonido.acierto();
   } else {
@@ -662,8 +802,9 @@ function responder(k){
     Sonido.error(); Sonido.trazo();
     if (eq.out) setTimeout(() => Sonido.derrota(), 450);
   }
+  if ($("#pista")) $("#pista").disabled = true;
   document.querySelectorAll(".ans").forEach(b => {
-    b.disabled = true;
+    b.disabled = true; b.classList.remove("out");
     if (b.dataset.k === q.k) b.classList.add("right");
     else if (b.dataset.k === k) b.classList.add("wrong");
     else b.classList.add("dim");
@@ -716,7 +857,10 @@ function final(){
     cabecera = `<div class="result"><div>${horca(e.err, {estado: e.out ? "muerto" : "salvado"})}</div><div>
       <h2 class="${gano?"win":"lose"}">${e.out ? "¡Ahorcado!" : "¡Lo salvaste!"}</h2>
       <div class="sum">${e.ok} de ${e.n} correctas · ${e.pts} puntos</div>
-      <p>${msg}</p></div></div>`;
+      <p>${msg}</p></div></div>
+      <div class="sheet records" id="recBox"><h3>Guarda tu puntaje</h3>
+        <form class="save-row" id="recForm"><input id="recName" maxlength="18" placeholder="Escribe tu nombre" aria-label="Tu nombre" autocomplete="off"><button class="btn go small" type="submit">Guardar</button></form>
+        <div id="recList">${recordsHTML(leerRecords())}</div></div>`;
   }
   const bk = ORDEN_PARTES.filter(k=>S.stats[k].n).map(k=>{const s=S.stats[k];return `<div class="bk" style="${cvar(k)}"><span>${PARTES[k].nombre}</span><span class="track"><i style="width:${s.ok/s.n*100}%"></i></span><span class="v">${s.ok}/${s.n}</span></div>`;}).join("");
   app.innerHTML = `<section class="final">
@@ -726,6 +870,15 @@ function final(){
   </section>`;
   S.respondido = true;
   $("#again").onclick = startClasifica; $("#ord").onclick = () => startOrdena(); $("#home").onclick = inicio;
+  const form = $("#recForm");
+  if (form) form.addEventListener("submit", ev => {
+    ev.preventDefault();
+    const e = S.equipos[0], nombre = $("#recName").value.trim() || "Anónimo", id = Date.now() + "-" + Math.random().toString(36).slice(2,6);
+    const lista = guardarRecord({ id, nombre, pts: e.pts, ok: e.ok, n: e.n });
+    $("#recList").innerHTML = recordsHTML(lista, id);
+    form.remove(); $("#recBox h3").textContent = lista.findIndex(r => r.id === id) === 0 ? "¡Nuevo récord!" : "Mejores puntajes";
+    Sonido.acierto();
+  });
   if (gano) { Sonido.victoria(); confeti(); }
   window.scrollTo(0,0);
 }
@@ -788,7 +941,8 @@ function startOrdena(){
 
 document.addEventListener("keydown", e => {
   if (!S || !$("#answers") || e.target.matches("input")) return;
-  if (!S.respondido && /^[1-5]$/.test(e.key)) responder(ORDEN_PARTES[+e.key-1]);
+  if (!S.respondido && /^[1-5]$/.test(e.key)) { const b = document.querySelector(`.ans[data-k="${ORDEN_PARTES[+e.key-1]}"]`); if (b && !b.disabled) responder(b.dataset.k); }
+  else if (!S.respondido && (e.key === "p" || e.key === "P")) usarPista();
   else if (S.respondido && e.key === "Enter" && document.activeElement?.id !== "next") { e.preventDefault(); siguiente(); }
 });
 $("#goHome").onclick = inicio;
