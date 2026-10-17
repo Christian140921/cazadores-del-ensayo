@@ -1026,7 +1026,7 @@ function final(){
 
 /* ---------- En vivo: sala con tabla en tiempo real (Firebase) ---------- */
 // Datos del proyecto de Firebase (no son secretos: están pensados para ir en la página)
-const FIREBASE_CONFIG = null;
+const FIREBASE_CONFIG = { apiKey:"AIzaSyCWwGWVsfn0ycgfmB2G6_bUqfwSO7tMLTk", authDomain:"cazadores-del-ensayo.firebaseapp.com", databaseURL:"https://cazadores-del-ensayo-default-rtdb.firebaseio.com", projectId:"cazadores-del-ensayo", storageBucket:"cazadores-del-ensayo.firebasestorage.app", messagingSenderId:"897841295777", appId:"1:897841295777:web:29556d4b2a552ade6edbe0" };
 const LETRAS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
 let FB = null, VIVO = null;
 function cargarScript(src){ return new Promise((ok, mal) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => mal(new Error("red")); document.head.appendChild(s); }); }
