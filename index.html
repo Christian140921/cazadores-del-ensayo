@@ -46,6 +46,8 @@ svg.defs{position:absolute;width:0;height:0}
 .tbtn[aria-pressed="false"]{opacity:.6}
 .tbtn[aria-pressed="false"] .on{display:none}
 .tbtn[aria-pressed="true"] .off{display:none}
+.tbtn.wake{background:var(--hl-intro);animation:llama 1.6s ease-in-out infinite}
+@keyframes llama{50%{transform:scale(1.06)}}
 
 /* Botones "de cuaderno" */
 .btn{position:relative;font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1;padding:12px 24px 14px;border:2.5px solid var(--ink);
@@ -224,7 +226,7 @@ button.strip:hover{transform:translateX(4px)}
 @media (prefers-reduced-motion:reduce){
   .hl.sweep,.btn,.ans,.strip{transition:none}
   .horca .draw{animation:none;stroke-dashoffset:0}
-  .horca .pop,.strip.nope,.timer.low{animation:none}
+  .horca .pop,.strip.nope,.timer.low,.tbtn.wake{animation:none}
 }
 </style>
 </head>
@@ -333,6 +335,7 @@ const Sonido = (() => {
   const leer = (k,d) => { try { const v = localStorage.getItem(k); return v === null ? d : v === "1"; } catch { return d; } };
   const guardar = (k,v) => { try { localStorage.setItem(k, v ? "1" : "0"); } catch {} };
   const st = { musica: leer("cz-musica", true), efectos: leer("cz-efectos", true) };
+  let alCambiar = () => {};
   let ctx = null, master, mus, sfx, ruidoBuf, reloj = null, paso = 0, prox = 0;
   const hz = m => 440 * Math.pow(2, (m - 69) / 12);
 
@@ -347,6 +350,12 @@ const Sonido = (() => {
     sfx = ctx.createGain(); sfx.gain.value = st.efectos ? .7 : 0; sfx.connect(master);
     ruidoBuf = ctx.createBuffer(1, ctx.sampleRate * .6, ctx.sampleRate);
     const d = ruidoBuf.getChannelData(0); for (let i=0;i<d.length;i++) d[i] = Math.random()*2-1;
+    // Cuando el navegador por fin deja sonar el audio, reprograma la música desde "ahora"
+    ctx.onstatechange = () => {
+      if (ctx.state !== "running") return;
+      if (st.musica) { if (reloj) { prox = ctx.currentTime + .05; mus.gain.cancelScheduledValues(ctx.currentTime); mus.gain.setTargetAtTime(VOL_MUSICA, ctx.currentTime, 1.2); } else arrancar(); }
+      alCambiar();
+    };
     if (ctx.state !== "running") ctx.resume();
     if (st.musica) arrancar();
   }
@@ -396,6 +405,7 @@ const Sonido = (() => {
 
   const fx = fn => { if (!ctx || !st.efectos) return; fn(ctx.currentTime + .01); };
   return {
+    onCambio(fn){ alCambiar = fn; },
     init, st, listo: () => !!ctx && ctx.state === "running",
     sonando: () => !!ctx && ctx.state === "running" && !!reloj && sonoAntes,
     musica(v){ st.musica = v; guardar("cz-musica", v); init(); if (!ctx) return; v ? arrancar() : parar(); },
@@ -413,12 +423,16 @@ const Sonido = (() => {
 const desbloquear = () => { Sonido.init(); if (Sonido.listo()) ["pointerdown","click","touchend","keydown"].forEach(ev => document.removeEventListener(ev, desbloquear, true)); };
 ["pointerdown","click","touchend","keydown"].forEach(ev => document.addEventListener(ev, desbloquear, true));
 function pintarToggles(){
+  const bloqueada = Sonido.st.musica && !Sonido.listo();
+  $("#tMusic").classList.toggle("wake", bloqueada);
+  $("#tMusic .on").textContent = bloqueada ? "Activar música" : "Música";
   $("#tMusic").setAttribute("aria-pressed", Sonido.st.musica);
   $("#tSfx").setAttribute("aria-pressed", Sonido.st.efectos);
 }
 // Si la música aún no sonaba (primer toque), este clic la enciende en vez de apagarla
 $("#tMusic").onclick = () => { Sonido.musica(Sonido.st.musica && !Sonido.sonando() ? true : !Sonido.st.musica); pintarToggles(); };
 $("#tSfx").onclick = () => { Sonido.efectos(!Sonido.st.efectos); pintarToggles(); };
+Sonido.onCambio(pintarToggles);
 pintarToggles();
 
 /* ---------- El ahorcado dibujado ---------- */
