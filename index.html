@@ -237,6 +237,14 @@ button.strip:hover{transform:translateX(4px)}
 .bonus .bq.right{border-color:var(--green);color:var(--green)} .bonus .bq.wrong{border-color:var(--red);color:var(--red);text-decoration:line-through}
 .bonus .bq:disabled{cursor:default}
 .bonus p{margin:0}
+.repaso{display:grid;gap:4px}
+.repaso h3{font-family:var(--f-hand);font-weight:700;font-size:30px}
+.repaso article{padding-block:12px;border-top:2px dashed var(--grid);display:grid;gap:6px}
+.repaso blockquote{margin:0;font-size:18px;line-height:1.5}
+.repaso .meta{font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1.1}
+.repaso .meta s{color:var(--red)} .repaso .meta b{color:var(--green)}
+.repaso p{margin:0;color:var(--pencil);font-size:15.5px}
+.players .opts{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 28px}
 /* Pista, QR y récords */
 .tools-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
 .pista{display:inline-flex;align-items:center;gap:8px;border:2px dashed var(--pen);background:transparent;color:var(--pen);border-radius:30px;padding:6px 16px 8px;font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1}
@@ -318,7 +326,7 @@ const ENSAYOS = [
   ["tesis","En mi opinión, el celular debería permitirse en clase solo cuando el profesor lo indique para una actividad, porque bien usado es una herramienta de aprendizaje.","\"En mi opinión\" anuncia la postura del autor. Es la idea que el resto del ensayo va a defender."],
   ["arg","Por ejemplo, con el celular podemos consultar un diccionario, revisar un mapa o responder un cuestionario en línea en pocos segundos, lo que hace la clase más dinámica.","Da ejemplos concretos (\"Por ejemplo\") que apoyan la tesis de que el celular sirve para aprender."],
   ["arg","Además, aprender a usarlo con reglas nos prepara para el futuro, ya que en la universidad y en el trabajo tendremos que manejar la tecnología de forma responsable.","\"Además\" suma una nueva razón a favor de la tesis. Es un argumento del desarrollo."],
-  ["contra","Es cierto que algunos piensan que el celular solo sirve para distraerse con juegos y redes sociales. Sin embargo, la distracción disminuye cuando hay normas claras y el profesor decide en qué momento se usa.","Primero reconoce la opinión contraria (\"algunos piensan\") y luego la refuta con \"Sin embargo\"."],
+  ["contra","Es cierto que algunos piensan que “el celular solo sirve para distraerse con juegos y redes sociales”. Sin embargo, la distracción disminuye cuando hay normas claras y el profesor decide en qué momento se usa.","Pone entre comillas lo que piensan otras personas (\"algunos piensan\") y luego lo refuta con \"Sin embargo\". Es un contraargumento.","quienes piensan distinto"],
   ["concl","En conclusión, prohibir el celular por completo desaprovecha una herramienta útil. Lo mejor es enseñarnos a usarlo con responsabilidad dentro del aula.","\"En conclusión\" marca el cierre: retoma la tesis y deja una propuesta final."]
  ]},
  {tema:"Reciclaje en el colegio", f:[
@@ -326,6 +334,7 @@ const ENSAYOS = [
   ["tesis","Considero que todos los colegios deberían tener un programa obligatorio de reciclaje dirigido por los propios estudiantes.","\"Considero que\" expresa una postura clara y discutible: esa es la tesis."],
   ["arg","En primer lugar, separar los residuos reduce la basura que llega a los rellenos sanitarios, y materiales como el papel y el plástico pueden volver a usarse.","\"En primer lugar\" ordena las razones del desarrollo. Esta apoya la tesis con un beneficio concreto."],
   ["arg","En segundo lugar, cuando los estudiantes organizan el programa, aprenden a trabajar en equipo y a cuidar su entorno con acciones concretas.","\"En segundo lugar\" introduce otra razón a favor de la tesis."],
+  ["arg","Como dice una conocida frase atribuida al químico Antoine Lavoisier: “En la naturaleza nada se crea, nada se pierde, todo se transforma”. Reciclar es aplicar esa idea a nuestra basura.","Usa la frase de un científico famoso, entre comillas, para apoyar la tesis. Es un argumento de autoridad.","Antoine Lavoisier"],
   ["contra","Algunas personas dicen que reciclar le quita tiempo a las clases. No obstante, bastan unos minutos al día y turnos por curso para que funcione sin afectar el estudio.","Presenta la objeción (\"Algunas personas dicen\") y la responde con \"No obstante\"."],
   ["concl","Por todo lo anterior, un programa de reciclaje es una lección práctica sobre el cuidado del planeta que cualquier colegio puede aplicar.","\"Por todo lo anterior\" resume lo dicho y cierra reafirmando la tesis."]
  ]},
@@ -343,6 +352,7 @@ const ENSAYOS = [
   ["tesis","Por eso, defiendo que el colegio debería aumentar las horas de educación física a la semana.","\"Defiendo que\" deja clara la postura del autor: es la tesis."],
   ["arg","La Organización Mundial de la Salud recomienda que niños y adolescentes hagan al menos 60 minutos de actividad física al día, y el colegio es un buen lugar para lograrlo.","Cita una fuente confiable (la OMS) como prueba a favor de la tesis."],
   ["arg","Además, hacer ejercicio ayuda a concentrarse: después de moverse, es más fácil prestar atención en las clases siguientes.","\"Además\" suma una razón más que apoya la tesis."],
+  ["arg","Hace casi dos mil años, el poeta romano Juvenal escribió: “mente sana en cuerpo sano”. Esa idea sigue vigente: cuidar el cuerpo también nos ayuda a pensar mejor.","Trae las palabras de un autor antiguo, entre comillas, para respaldar la tesis. Es un argumento de autoridad.","el poeta Juvenal"],
   ["contra","Se podría objetar que más horas de deporte significan menos tiempo para matemáticas o lenguaje. Aun así, un estudiante sano y descansado aprovecha mejor las horas que sí tiene en esas asignaturas.","\"Se podría objetar\" presenta la idea contraria y \"Aun así\" la refuta."],
   ["concl","Así, sumar horas de educación física es una inversión en la salud y el rendimiento de los estudiantes, y vale la pena que el colegio lo considere.","Cierra retomando la tesis y proponiendo una acción. Es la conclusión."]
  ]},
@@ -351,7 +361,7 @@ const ENSAYOS = [
   ["tesis","A mi juicio, las redes sociales no son buenas ni malas por sí mismas: su efecto depende de cuánto tiempo y de cómo las usemos.","\"A mi juicio\" anuncia la opinión del autor que guiará todo el texto."],
   ["arg","Por un lado, permiten mantener el contacto con amigos y familiares que viven lejos, y también difundir campañas solidarias en poco tiempo.","\"Por un lado\" presenta una razón que respalda la tesis con ejemplos."],
   ["arg","Por otro lado, pasar muchas horas comparándose con otras personas puede afectar la autoestima, por lo que es importante poner límites de tiempo.","Completa el razonamiento de la tesis: el efecto depende del uso. Es otro argumento."],
-  ["contra","Algunos adultos sostienen que lo mejor sería prohibirlas a los menores de edad. Sin embargo, la prohibición no enseña a usarlas bien, y tarde o temprano los jóvenes llegarán a ellas sin preparación.","Expone la postura contraria (\"Algunos adultos sostienen\") y la refuta con \"Sin embargo\"."],
+  ["contra","Algunos adultos sostienen que “lo mejor sería prohibirlas a los menores de edad”. Sin embargo, la prohibición no enseña a usarlas bien, y tarde o temprano los jóvenes llegarán a ellas sin preparación.","Pone entre comillas la postura contraria (\"Algunos adultos sostienen\") y la refuta con \"Sin embargo\". Es un contraargumento.","algunos adultos"],
   ["concl","En definitiva, más que alejarnos de las redes, necesitamos aprender a usarlas con criterio, cuidando nuestro tiempo y nuestro bienestar.","\"En definitiva\" señala el cierre y la idea final del ensayo."]
  ]},
  {tema:"El uniforme escolar", f:[
@@ -359,7 +369,7 @@ const ENSAYOS = [
   ["tesis","Mi postura es que el uniforme sí es útil, porque reduce las diferencias entre estudiantes y facilita la vida diaria.","\"Mi postura es\" expresa directamente la tesis."],
   ["arg","Cuando todos visten igual, disminuyen las burlas por la ropa o las marcas, y los estudiantes se fijan más en las personas que en lo que llevan puesto.","Explica una razón que apoya la tesis: el uniforme reduce diferencias."],
   ["arg","También ahorra tiempo y dinero a las familias, porque no hay que decidir cada mañana qué ponerse ni comprar ropa distinta para cada día.","\"También\" agrega otra razón a favor de la tesis."],
-  ["contra","Quienes están en contra dicen que el uniforme limita la libertad de expresión. Es un punto válido, pero los estudiantes pueden expresar su personalidad de muchas otras formas, como en sus ideas y sus trabajos.","Reconoce la objeción (\"Quienes están en contra\") y luego la responde con \"pero\"."],
+  ["contra","Quienes están en contra dicen que “el uniforme limita la libertad de expresión”. Es un punto válido, pero los estudiantes pueden expresar su personalidad de muchas otras formas, como en sus ideas y sus trabajos.","Cita la idea de quienes piensan distinto (\"Quienes están en contra dicen\") y la responde con \"pero\". Es un contraargumento.","quienes están en contra del uniforme"],
   ["concl","Por estas razones, considero que el uniforme debe mantenerse, aunque su diseño podría revisarse con la participación de los propios estudiantes.","\"Por estas razones\" resume y reafirma la tesis para cerrar."]
  ]},
  {tema:"Los videojuegos", f:[
@@ -664,11 +674,10 @@ function inicio(){
     </div>
   </section>
   <section class="modes">
-    <div class="sheet tilt-l">
-      <h2>Clasifica</h2>
-      <p>Aparece un recorte y eliges a qué parte del ensayo pertenece. Después de cada respuesta verás por qué.</p>
+    <div class="sheet players" style="grid-column:1/-1">
+      <h2>¿Quiénes juegan?</h2>
       <div class="opts">
-        <div class="opt"><span>¿Quiénes juegan?</span>
+        <div class="opt"><span>modo</span>
           <div class="seg" id="segModo"><button data-v="0" aria-pressed="${!cfg.equipos}">yo solo</button><button data-v="1" aria-pressed="${cfg.equipos}">por equipos</button></div>
         </div>
         <div class="opt" id="rowNombre" ${cfg.equipos?"hidden":""}><span>¿Cómo te llamas?</span>
@@ -679,6 +688,13 @@ function inicio(){
           <div class="seg" id="segN">${[2,3,4].map(n=>`<button data-v="${n}" aria-pressed="${cfg.nEquipos===n}">${n}</button>`).join("")}</div>
           <div class="teams" id="teams"></div>
         </div>
+      </div>
+      <p class="note" style="font-size:20px;margin-top:10px">sirve para los dos juegos: Clasifica y Ordena</p>
+    </div>
+    <div class="sheet tilt-l">
+      <h2>Clasifica</h2>
+      <p>Aparece un recorte y eliges a qué parte del ensayo pertenece. Después de cada respuesta verás por qué.</p>
+      <div class="opts">
         <div class="opt"><span>¿Cuántos recortes?</span>
           <div class="seg" id="segR">${[5,10,15,20].map(n=>`<button data-v="${n}" aria-pressed="${cfg.rondas===n}">${n}</button>`).join("")}</div>
         </div>
@@ -690,7 +706,7 @@ function inicio(){
     </div>
     <div class="sheet tilt-r">
       <h2>Ordena</h2>
-      <p>Un ensayo completo llega desordenado. Toca los párrafos del primero al último. Un párrafo fuera de lugar también cuenta como fallo.</p>
+      <p>Un ensayo completo llega desordenado. Toca los párrafos del primero al último. Un párrafo fuera de lugar también cuenta como fallo. En equipos, quien acierta sigue jugando y quien falla pasa el turno.</p>
       <p class="note" style="margin-top:14px">ideal para jugar toda la clase con el proyector</p>
       <div class="cta"><button class="btn" id="playO">Ordenar un ensayo</button></div>
     </div>
@@ -724,7 +740,7 @@ function inicio(){
     }
     startClasifica();
   };
-  $("#playO").onclick = () => startOrdena();
+  $("#playO").onclick = () => { cfg.jugador = $("#playerName").value.trim(); startOrdena(); };
   window.scrollTo(0,0);
 }
 
@@ -771,7 +787,7 @@ function startClasifica(){
     if (i >= 0) cola[i] = cita; else cola[cola.length - 1] = cita;
   }
   const equipos = cfg.equipos ? cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>({nombre:(n||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false})) : [{nombre:cfg.jugador || "Tú", pts:0, ok:0, n:0, err:0, out:false}];
-  S = { cola, i:0, equipos, turno:0, racha:0, respondido:false, stats:Object.fromEntries(ORDEN_PARTES.map(k=>[k,{ok:0,n:0}])) };
+  S = { cola, i:0, equipos, turno:0, racha:0, respondido:false, fallos:[], stats:Object.fromEntries(ORDEN_PARTES.map(k=>[k,{ok:0,n:0}])) };
   ronda();
 }
 
@@ -855,6 +871,7 @@ function responder(k){
     Sonido.acierto();
   } else {
     S.racha = 0; eq.err++;
+    S.fallos.push({ q, k, quien: eq.nombre });
     if (eq.err >= MAX_FALLOS) eq.out = true;
     $("#gallows").innerHTML = horca(eq.err, {animar:true}) + vidasHTML(eq.err);
     Sonido.error(); Sonido.trazo();
@@ -897,6 +914,15 @@ function siguiente(){
   ronda(); window.scrollTo(0,0);
 }
 
+// Repaso de los fragmentos en que hubo errores, para estudiar al final
+function repasoHTML(){
+  if (!S.fallos.length) return "";
+  return `<div class="sheet repaso"><h3>Repasa tus errores</h3>${S.fallos.map(({q,k,quien}) => `<article>
+    <blockquote><span class="hl" style="${cvar(q.k)}">${conCitas(esc(q.t))}</span></blockquote>
+    <div class="meta">${cfg.equipos ? esc(quien) + ": " : ""}${k ? `<s>${PARTES[k].nombre}</s> → ` : "se acabó el tiempo → "}<b>${PARTES[q.k].nombre}</b></div>
+    <p>${esc(q.w)}</p></article>`).join("")}</div>`;
+}
+
 function final(){
   stopTimer();
   let cabecera, gano = false;
@@ -925,6 +951,7 @@ function final(){
   app.innerHTML = `<section class="final">
     ${cabecera}
     <div class="sheet bars"><h3>Aciertos por parte del ensayo</h3>${bk}</div>
+    ${repasoHTML()}
     <div class="cta"><button class="btn go" id="again">Jugar otra vez</button><button class="btn" id="ord">Ordenar un ensayo</button><button class="btn" id="home">Volver al inicio</button></div>
   </section>`;
   S.respondido = true;
@@ -950,15 +977,28 @@ function startOrdena(){
   ultimoEnsayo = idx;
   const e = ENSAYOS[idx];
   const items = shuffle(e.f.map(([k,t],i)=>({k,t,i})));
-  const O = { orden:[], err:0, malo:-1, nuevoErr:false, celebrado:false };
+  const nuevosEquipos = () => cfg.equipos
+    ? cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>({nombre:(n||"").trim()||`Equipo ${i+1}`, pts:0, err:0, out:false}))
+    : [{nombre: cfg.jugador.trim() || "Tú", pts:0, err:0, out:false}];
+  const O = { orden:[], equipos:nuevosEquipos(), turno:0, malo:-1, nuevoErr:false, celebrado:false };
+  const vivosO = () => O.equipos.filter(x => !x.out);
+  const pasarTurno = () => { if (!cfg.equipos || !vivosO().length) return; do { O.turno = (O.turno + 1) % O.equipos.length; } while (O.equipos[O.turno].out); };
   const pintar = () => {
-    const perdio = O.err >= MAX_FALLOS, gano = O.orden.length === items.length, fin = perdio || gano;
-    const msg = fin ? (gano ? "Así queda el ensayo, de principio a fin." : "Quedaste ahorcado. Este era el orden correcto.")
+    const eq = O.equipos[O.turno];
+    const perdio = vivosO().length === 0, completo = O.orden.length === items.length, fin = perdio || completo;
+    const rank = O.equipos.slice().sort((a,b)=>(a.out-b.out) || (b.pts-a.pts));
+    const ganador = rank[0], empate = cfg.equipos && rank.length > 1 && rank[1].out === ganador.out && rank[1].pts === ganador.pts;
+    const msg = fin ? (completo ? "Así queda el ensayo, de principio a fin." : (cfg.equipos ? "Todos los equipos quedaron ahorcados. Este era el orden correcto." : "Quedaste ahorcado. Este era el orden correcto."))
+      : O.aviso ? `${esc(O.aviso)} ¿Cuál va en el lugar ${O.orden.length+1}?`
       : O.orden.length === 0 ? "¿Cuál párrafo va primero?" : `Bien. ¿Cuál va en el lugar ${O.orden.length+1}?`;
-    app.innerHTML = `<div class="hud"><span class="prog">Ordena «${esc(e.tema)}»</span></div>
+    O.aviso = "";
+    const chips = cfg.equipos ? `<div class="scores">${O.equipos.map((x,i)=>`<span class="score ${!fin && i===O.turno?"turn":""} ${x.out?"out":""}">${horca(x.err,{mini:true})}${esc(x.nombre)} <b>${x.pts}</b></span>`).join("")}</div>` : "";
+    const lado = fin && completo ? ganador : eq;
+    app.innerHTML = `<div class="hud"><span class="prog">Ordena «${esc(e.tema)}»</span><div style="width:100%">${chips}</div></div>
+      ${!fin ? `<div class="turnline">${cfg.equipos ? "Turno de" : "Juega"} <span class="hl" style="${cvar("intro")}">${esc(eq.nombre)}</span></div>` : ""}
       <div class="stage">
         <div class="main"><p class="lead">${msg}</p><div class="olist" id="olist" style="margin-top:14px"></div></div>
-        <aside class="side">${horca(O.err, {animar:O.nuevoErr, estado: gano ? "salvado" : "jugando"})}${gano ? `<div class="lives" style="color:var(--green)">¡Salvado!</div>` : vidasHTML(O.err)}</aside>
+        <aside class="side">${horca(lado.err, {animar:O.nuevoErr, estado: fin && completo && !lado.out ? "salvado" : "jugando"})}${fin && completo && !lado.out ? `<div class="lives" style="color:var(--green)">¡Salvado!</div>` : vidasHTML(lado.err)}</aside>
       </div>
       <div id="ofb"></div>
       <div class="cta">${fin
@@ -973,10 +1013,14 @@ function startOrdena(){
         d.innerHTML = `<span class="num">${j+1}</span><span>${conCitas(esc(t))}<br><span class="tag hl" style="${cvar(k)}">${PARTES[k].nombre}</span></span>`;
         list.appendChild(d);
       });
-      $("#ofb").innerHTML = `<div class="fb ${gano?"ok":"no"}"><h3>${gano ? (O.err===0 ? "¡Orden perfecto, sin fallos!" : `¡Lo lograste con ${O.err} ${O.err===1?"fallo":"fallos"}!`) : "¡Ahorcado!"}</h3>
+      const titulo = !completo ? "¡Ahorcado!"
+        : cfg.equipos ? (empate ? "¡Empate!" : `¡Gana ${esc(ganador.nombre)}!`)
+        : (eq.err === 0 ? "¡Orden perfecto, sin fallos!" : `¡Lo lograste con ${eq.err} ${eq.err===1?"fallo":"fallos"}!`);
+      const podio = cfg.equipos ? `<div class="podium">${rank.map((x,i)=>`<div class="${x.out?"out":""}">${horca(x.err,{mini:true})}<span>${i+1}. ${esc(x.nombre)}${x.out?" (ahorcado)":""}</span><em>${x.pts} pts</em></div>`).join("")}</div>` : "";
+      $("#ofb").innerHTML = `<div class="fb ${completo?"ok":"no"}"><h3>${titulo}</h3>${podio}
         <p>Un ensayo sigue esta ruta: introducción, tesis, argumentos, contraargumento y conclusión. Los argumentos pueden ir en cualquier orden entre sí.</p></div>`;
       $("#otro").onclick = () => startOrdena(); $("#home").onclick = inicio;
-      if (!O.celebrado) { O.celebrado = true; if (gano) { Sonido.victoria(); confeti(); } }
+      if (!O.celebrado) { O.celebrado = true; if (completo) { Sonido.victoria(); confeti(); } }
       return;
     }
     items.forEach((it, n) => {
@@ -986,14 +1030,22 @@ function startOrdena(){
       b.innerHTML = `<span class="num">${pos>=0?pos+1:""}</span><span>${conCitas(esc(it.t))}${pos>=0?`<br><span class="tag hl" style="${cvar(it.k)}">${PARTES[it.k].nombre}</span>`:""}</span>`;
       if (pos >= 0) b.disabled = true;
       else b.onclick = () => {
-        const esperado = e.f[O.orden.length][0];
-        if (it.k === esperado) { O.orden.push(n); O.malo = -1; Sonido.acierto(); }
-        else { O.err++; O.malo = n; O.nuevoErr = true; Sonido.error(); Sonido.trazo(); if (O.err >= MAX_FALLOS) setTimeout(() => Sonido.derrota(), 450); }
+        const esperado = e.f[O.orden.length][0], actual = O.equipos[O.turno];
+        if (it.k === esperado) { O.orden.push(n); O.malo = -1; actual.pts += 10; Sonido.acierto(); }
+        else {
+          actual.err++; O.malo = n; O.nuevoErr = true; Sonido.error(); Sonido.trazo();
+          if (actual.err >= MAX_FALLOS) { actual.out = true; setTimeout(() => Sonido.derrota(), 450); }
+        }
+        // En equipos: si aciertan siguen jugando; si fallan, el turno pasa al siguiente equipo en juego
+        if (O.nuevoErr && cfg.equipos && O.orden.length < items.length) {
+          pasarTurno(); O.nuevoErr = false;
+          if (vivosO().length) O.aviso = `${actual.nombre} se equivocó${actual.out ? " y quedó ahorcado" : ""}. Turno de ${O.equipos[O.turno].nombre}.`;
+        }
         pintar();
       };
       list.appendChild(b);
     });
-    $("#reset").onclick = () => { O.orden = []; O.err = 0; O.malo = -1; pintar(); };
+    $("#reset").onclick = () => { O.orden = []; O.equipos = nuevosEquipos(); O.turno = 0; O.malo = -1; pintar(); };
   };
   pintar(); window.scrollTo(0,0);
 }
