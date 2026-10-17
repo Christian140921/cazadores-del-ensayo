@@ -626,8 +626,17 @@ function ronda(){
     <p class="keys">atajo: teclas 1 a 5 para responder y Enter para seguir</p>`;
   $("#answers").addEventListener("click", e => { const b = e.target.closest(".ans"); if (b) responder(b.dataset.k); });
   if (cfg.tiempo) {
+    // El tiempo se calcula desde un límite fijo, así el reloj siempre baja de uno en uno aunque el navegador se atrase
+    const limite = Date.now() + cfg.tiempo * 1000;
     S.restante = cfg.tiempo; pintarTimer();
-    timer = setInterval(() => { S.restante--; pintarTimer(); if (S.restante <= 5 && S.restante > 0) Sonido.tic(); if (S.restante <= 0) { stopTimer(); responder(null); } }, 1000);
+    stopTimer();
+    timer = setInterval(() => {
+      const r = Math.max(0, Math.ceil((limite - Date.now()) / 1000));
+      if (r === S.restante) return;
+      S.restante = r; pintarTimer();
+      if (r <= 5 && r > 0) Sonido.tic();
+      if (r <= 0) { stopTimer(); responder(null); }
+    }, 200);
   }
 }
 function pintarTimer(){ const t = $("#timer"); if (!t) return; t.textContent = S.restante + "s"; t.classList.toggle("low", S.restante <= 5); }
