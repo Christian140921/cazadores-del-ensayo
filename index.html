@@ -223,6 +223,14 @@ button.strip:hover{transform:translateX(4px)}
   .bk{grid-template-columns:120px minmax(0,1fr) 46px;font-size:21px}
   .tilt-l,.tilt-r{transform:none}
 }
+.cita{font-style:italic;text-decoration:underline dotted var(--pen);text-decoration-thickness:2px;text-underline-offset:5px}
+.bonus{margin-top:14px;padding-top:12px;border-top:2px dashed var(--grid);display:grid;gap:10px}
+.bonus h4{margin:0;font-family:var(--f-hand);font-weight:700;font-size:28px;line-height:1.05;color:var(--pen)}
+.bonus .row2{display:flex;flex-wrap:wrap;gap:10px}
+.bonus .bq{font-family:var(--f-hand);font-weight:700;font-size:24px;line-height:1;padding:8px 16px 10px;border:2px solid var(--pen);background:var(--sheet);color:var(--pen);border-radius:30px}
+.bonus .bq.right{border-color:var(--green);color:var(--green)} .bonus .bq.wrong{border-color:var(--red);color:var(--red);text-decoration:line-through}
+.bonus .bq:disabled{cursor:default}
+.bonus p{margin:0}
 /* Pista, QR y récords */
 .tools-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
 .pista{display:inline-flex;align-items:center;gap:8px;border:2px dashed var(--pen);background:transparent;color:var(--pen);border-radius:30px;padding:6px 16px 8px;font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1}
@@ -320,6 +328,7 @@ const ENSAYOS = [
   ["tesis","Pienso que leer por gusto sigue siendo uno de los mejores hábitos que puede tener un joven, porque nos ayuda a pensar y a expresarnos mejor.","\"Pienso que\" introduce la opinión central que se defenderá en el ensayo."],
   ["arg","Diversos estudios señalan que quienes leen con frecuencia tienen un vocabulario más amplio y escriben con mayor claridad, algo que se nota en todas las asignaturas.","Usa evidencia (\"Diversos estudios señalan\") para respaldar la tesis."],
   ["arg","Asimismo, la lectura desarrolla la empatía: al seguir la historia de un personaje, nos ponemos en el lugar de otras personas y entendemos realidades distintas.","\"Asimismo\" agrega otra razón que apoya la tesis."],
+  ["arg","Como escribió Miguel de Cervantes en Don Quijote: “El que lee mucho y anda mucho, ve mucho y sabe mucho”. Leer nos permite conocer el mundo sin salir de casa.","Usa una cita de un autor reconocido para apoyar la tesis. Por eso es un argumento: se llama argumento de autoridad.","Miguel de Cervantes"],
   ["contra","Hay quienes afirman que leer es aburrido y que se aprende lo mismo viendo videos. Pero un video nos entrega todo resuelto, mientras que un libro nos obliga a imaginar y a concentrarnos por más tiempo.","Recoge una idea opuesta (\"Hay quienes afirman\") y la rebate con \"Pero\"."],
   ["concl","En resumen, leer no pasa de moda. Dedicar aunque sea veinte minutos al día a un libro puede mejorar nuestra forma de pensar, escribir y convivir.","\"En resumen\" cierra el ensayo y deja una recomendación final."]
  ]},
@@ -360,7 +369,7 @@ const ENSAYOS = [
   ["tesis","En mi opinión, las tareas deberían ser menos y más cortas, pero bien pensadas para reforzar lo aprendido en clase.","\"En mi opinión\" expresa la postura que el ensayo va a defender."],
   ["arg","En primer lugar, el descanso es necesario para aprender: un estudiante agotado rinde menos y olvida con más facilidad lo que estudió.","\"En primer lugar\" ordena la primera razón a favor de la tesis."],
   ["arg","En segundo lugar, una tarea corta y bien diseñada permite practicar lo esencial sin quitarle tiempo a la familia, al deporte o a la lectura.","\"En segundo lugar\" agrega otra razón que apoya la tesis."],
-  ["contra","Algunos profesores piensan que muchas tareas forman el hábito del estudio. No obstante, el hábito depende más de la constancia que de la cantidad, y una tarea breve diaria también lo crea.","Presenta la idea contraria (\"Algunos profesores piensan\") y la responde con \"No obstante\"."],
+  ["contra","Algunos profesores piensan que “muchas tareas forman el hábito del estudio”. No obstante, el hábito depende más de la constancia que de la cantidad, y una tarea breve diaria también lo crea.","Pone entre comillas la idea de otras personas que piensan distinto (\"Algunos profesores piensan\") y luego la refuta con \"No obstante\". Es un contraargumento.","algunos profesores"],
   ["concl","En resumen, menos tareas pero de mejor calidad nos ayudarían a aprender más y a vivir con menos estrés.","\"En resumen\" retoma la tesis para cerrar el ensayo."]
  ]},
  {tema:"Comida sana en el colegio", f:[
@@ -384,6 +393,7 @@ const ENSAYOS = [
   ["tesis","Por eso, considero que aprender un segundo idioma desde el colegio es más importante que nunca.","\"Considero que\" deja clara la postura del autor."],
   ["arg","Hablar otro idioma abre más oportunidades de estudio y de trabajo, ya que muchas becas y empleos lo piden como requisito.","Da una razón concreta que respalda la tesis."],
   ["arg","Además, aprender un idioma nos acerca a otras culturas y nos ayuda a entender mejor nuestra propia lengua.","\"Además\" suma otra razón a favor de la tesis."],
+  ["arg","Se atribuye a Nelson Mandela esta frase: “Si le hablas a una persona en un idioma que entiende, llegas a su cabeza. Si le hablas en su propio idioma, llegas a su corazón”. Aprender otro idioma es una forma de acercarnos a los demás.","Cita las palabras de una persona importante para reforzar la tesis. Es un argumento de autoridad.","Nelson Mandela"],
   ["contra","Se podría pensar que hoy basta con un traductor automático. Aun así, un traductor no reemplaza la capacidad de conversar con alguien de forma natural ni de entender su cultura.","\"Se podría pensar\" presenta la objeción y \"Aun así\" la refuta."],
   ["concl","Así, dedicar tiempo a un segundo idioma es una inversión que nos acompañará toda la vida.","Cierra reafirmando la tesis con una idea final."]
  ]},
@@ -392,6 +402,7 @@ const ENSAYOS = [
   ["tesis","A mi juicio, la clase de música debería tener la misma importancia que las demás asignaturas.","\"A mi juicio\" anuncia la opinión que guiará todo el ensayo."],
   ["arg","Según diversas investigaciones, aprender a tocar un instrumento ayuda a mejorar la memoria y la concentración.","Usa evidencia (\"Según diversas investigaciones\") para apoyar la tesis."],
   ["arg","Por otro lado, la música permite expresar emociones y trabajar en grupo, por ejemplo al formar una banda o un coro.","\"Por otro lado\" agrega una razón distinta a favor de la tesis."],
+  ["arg","Al filósofo griego Platón se le atribuye la idea de que “la música es para el alma lo que la gimnasia es para el cuerpo”. Es decir, la música también nos forma como personas.","Trae la idea de un pensador famoso, entre comillas, para apoyar la tesis. Es un argumento de autoridad.","Platón"],
   ["contra","Quienes no están de acuerdo dicen que la música no sirve para conseguir trabajo. Es una opinión comprensible, pero las habilidades que desarrolla, como la disciplina y la creatividad, sirven en cualquier profesión.","Reconoce la postura contraria (\"Quienes no están de acuerdo\") y la responde con \"pero\"."],
   ["concl","En conclusión, la música es una parte valiosa de la formación de los estudiantes y merece su lugar en el colegio.","\"En conclusión\" cierra y retoma la tesis."]
  ]}
@@ -607,6 +618,24 @@ function recordsHTML(lista, yo){
   return `<ol>${lista.slice(0,5).map((r,i)=>`<li class="${yo && r.id===yo ? "me" : ""}"><span class="pos">${i+1}.</span><span>${esc(r.nombre)}</span><span class="p">${r.pts} pts · ${r.ok}/${r.n}</span></li>`).join("")}</ol>`;
 }
 
+/* ---------- Citas: lo que va entre comillas es de otra persona ---------- */
+const conCitas = h => h.replace(/“([^”]*)”/g, '<span class="cita">“$1”</span>');
+function bonusCita(q){
+  const ops = shuffle([["autor", "Del autor del ensayo"], ["otro", "De " + q.c]]);
+  return `<div class="bonus" id="bonus"><h4>Bonus +5: ¿de quién son las palabras entre comillas?</h4>
+    <div class="row2">${ops.map(([v,t]) => `<button class="bq" data-v="${v}">${esc(t)}</button>`).join("")}</div><div id="bonusFb"></div></div>`;
+}
+function responderBonus(q, b){
+  if (S.bonusListo) return;
+  S.bonusListo = true;
+  const ok = b.dataset.v === "otro", eq = S.equipos[S.turno];
+  document.querySelectorAll(".bq").forEach(x => { x.disabled = true; if (x.dataset.v === "otro") x.classList.add("right"); else if (x === b) x.classList.add("wrong"); });
+  if (ok) { eq.pts += 5; Sonido.acierto(); } else Sonido.error();
+  const uso = q.k === "contra" ? "mostrar lo que piensan quienes no están de acuerdo, y después responderles" : "apoyar su tesis con la voz de alguien reconocido";
+  $("#bonusFb").innerHTML = `<p>${ok ? "<b>¡Bien! +5.</b> " : "<b>No.</b> "}Las comillas indican que esas palabras son de ${esc(q.c)}, no del autor del ensayo. El autor las usa para ${uso}.</p>`;
+  $("#scores").innerHTML = scoresHTML();
+}
+
 const cfg = { equipos:false, nEquipos:2, nombres:["Los Lectores","Los Escritores","Los Críticos","Los Poetas"], rondas:10, tiempo:0, jugador:"" };
 let S = null, timer = null;
 function stopTimer(){ if (timer) { clearInterval(timer); timer = null; } }
@@ -703,6 +732,13 @@ function guia(){
       <div class="n">${i+1}</div>
       <div><h3><span class="hl" style="${cvar(k)}">${p.nombre}</span></h3><p>${p.def}</p><p class="where">Dónde va: ${p.donde}</p>
       <div class="keys2">${p.claves.map(c=>`<span>${c}</span>`).join("")}</div></div></article>`;}).join("")}
+    <article class="part">
+      <div class="n">“ ”</div>
+      <div><h3><span class="hl" style="--c:var(--grid)">Las citas entre comillas</span></h3>
+      <p>Cuando un ensayo usa las <b>palabras exactas de otra persona</b>, las escribe entre comillas (“ ”) y dice quién las dijo. Así el lector sabe que esa idea no es del autor del ensayo.</p>
+      <p>Una cita no es una parte nueva del ensayo: va <b>dentro</b> de otra parte. Si apoya la tesis, es un <b>argumento</b> (se llama argumento de autoridad). Si muestra lo que piensan quienes no están de acuerdo, es parte del <b>contraargumento</b>.</p>
+      <p class="where">Ejemplo: Como escribió Cervantes, <span class="cita">“el que lee mucho y anda mucho, ve mucho y sabe mucho”</span>.</p>
+      <div class="keys2"><span>Como dijo…</span><span>Según…</span><span>Como escribió…</span><span>Se atribuye a…</span></div></div></article>
     <p class="note" style="margin-top:6px">ojo: los argumentos y el contraargumento forman el desarrollo (el cuerpo) del ensayo</p>
     <div class="cta"><button class="btn go" id="gPlay">Ir a jugar</button></div>
   </section>`;
@@ -713,7 +749,7 @@ function guia(){
 /* ---------- Clasifica ---------- */
 function startClasifica(){
   const pool = [];
-  ENSAYOS.forEach(e => e.f.forEach(([k,t,w]) => pool.push({k,t,w,tema:e.tema})));
+  ENSAYOS.forEach(e => e.f.forEach(([k,t,w,c]) => pool.push({k,t,w,c,tema:e.tema})));
   // Variedad: una vuelta con cada parte antes de repetir
   const porParte = ORDEN_PARTES.map(k => shuffle(pool.filter(x=>x.k===k)));
   let cola = [];
@@ -723,6 +759,11 @@ function startClasifica(){
     cola.push(...vuelta);
   }
   cola = cola.slice(0, cfg.rondas);
+  // Que en cada partida aparezca al menos una cita entre comillas
+  if (!cola.some(x => x.c)) {
+    const cita = shuffle(pool.filter(x => x.c))[0], i = cola.findIndex(x => x.k === cita.k);
+    if (i >= 0) cola[i] = cita; else cola[cola.length - 1] = cita;
+  }
   const equipos = cfg.equipos ? cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>({nombre:(n||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false})) : [{nombre:cfg.jugador || "Tú", pts:0, ok:0, n:0, err:0, out:false}];
   S = { cola, i:0, equipos, turno:0, racha:0, respondido:false, stats:Object.fromEntries(ORDEN_PARTES.map(k=>[k,{ok:0,n:0}])) };
   ronda();
@@ -756,7 +797,7 @@ function ronda(){
     <div class="stage">
       <div class="main">
         <div class="sheet clip"><div class="tema">del ensayo «${esc(q.tema)}»</div>
-          <blockquote id="quote">${esc(q.t)}</blockquote></div>
+          <blockquote id="quote">${conCitas(esc(q.t))}</blockquote></div>
         <div class="answers" id="answers">${opts}</div>
         <div class="tools-row"><button class="pista" id="pista"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Pista: quita 2 opciones (el acierto vale la mitad)</button></div>
       </div>
@@ -788,7 +829,7 @@ function usarPista(){
   S.pista = true; Sonido.tap();
   const q = S.cola[S.i];
   shuffle([...document.querySelectorAll(".ans")].filter(b => b.dataset.k !== q.k)).slice(0, 2).forEach(b => { b.disabled = true; b.classList.add("out"); });
-  $("#quote").innerHTML = marcarClaves(q.t);
+  $("#quote").innerHTML = conCitas(marcarClaves(q.t));
   $("#pista").disabled = true;
 }
 const vivos = () => S.equipos.filter(e => !e.out);
@@ -821,7 +862,7 @@ function responder(k){
     else b.classList.add("dim");
   });
   const quote = $("#quote");
-  quote.innerHTML = `<span class="hl sweep off" style="${cvar(q.k)}">${esc(q.t)}</span>`;
+  quote.innerHTML = `<span class="hl sweep off" style="${cvar(q.k)}">${conCitas(esc(q.t))}</span>`;
   requestAnimationFrame(() => requestAnimationFrame(() => quote.firstChild.classList.remove("off")));
   const p = PARTES[q.k];
   let titulo = ok ? (S.racha >= 3 ? `¡Correcto! +${ganados} (racha de ${S.racha})` : `¡Correcto! +${ganados}`)
@@ -832,9 +873,12 @@ function responder(k){
     <h3>${esc(titulo)}</h3>
     <p>${esc(q.w)}</p>
     <p class="def"><b>${p.nombre}:</b> ${p.def}</p>
+    ${q.c ? bonusCita(q) : ""}
     <div class="cta"><button class="btn go small" id="next">${fin?"Ver resultados":"Siguiente recorte"}</button></div>
   </div>`;
   $("#next").onclick = siguiente;
+  S.bonusListo = false;
+  document.querySelectorAll(".bq").forEach(b => b.onclick = () => responderBonus(q, b));
   $("#next").focus({preventScroll:true});
   $("#fb").scrollIntoView({behavior: reduce ? "auto" : "smooth", block:"nearest"});
   $("#scores").innerHTML = scoresHTML();
@@ -920,7 +964,7 @@ function startOrdena(){
       e.f.forEach(([k,t],j) => {
         const d = document.createElement("div");
         d.className = "strip placed"; d.style.opacity = 1;
-        d.innerHTML = `<span class="num">${j+1}</span><span>${esc(t)}<br><span class="tag hl" style="${cvar(k)}">${PARTES[k].nombre}</span></span>`;
+        d.innerHTML = `<span class="num">${j+1}</span><span>${conCitas(esc(t))}<br><span class="tag hl" style="${cvar(k)}">${PARTES[k].nombre}</span></span>`;
         list.appendChild(d);
       });
       $("#ofb").innerHTML = `<div class="fb ${gano?"ok":"no"}"><h3>${gano ? (O.err===0 ? "¡Orden perfecto, sin fallos!" : `¡Lo lograste con ${O.err} ${O.err===1?"fallo":"fallos"}!`) : "¡Ahorcado!"}</h3>
@@ -933,7 +977,7 @@ function startOrdena(){
       const pos = O.orden.indexOf(n);
       const b = document.createElement("button");
       b.className = "strip" + (pos>=0 ? " placed" : "") + (n===O.malo ? " nope" : "");
-      b.innerHTML = `<span class="num">${pos>=0?pos+1:""}</span><span>${esc(it.t)}${pos>=0?`<br><span class="tag hl" style="${cvar(it.k)}">${PARTES[it.k].nombre}</span>`:""}</span>`;
+      b.innerHTML = `<span class="num">${pos>=0?pos+1:""}</span><span>${conCitas(esc(it.t))}${pos>=0?`<br><span class="tag hl" style="${cvar(it.k)}">${PARTES[it.k].nombre}</span>`:""}</span>`;
       if (pos >= 0) b.disabled = true;
       else b.onclick = () => {
         const esperado = e.f[O.orden.length][0];
