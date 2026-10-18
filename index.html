@@ -136,7 +136,10 @@ svg.defs{position:absolute;width:0;height:0}
 .temaop{display:grid;gap:6px;text-align:left;border:2px solid var(--ink);background:var(--sheet);border-radius:8px;padding:16px 18px;font-family:var(--f-read);font-size:16px;line-height:1.4;color:var(--ink)}
 .temaop b{font-family:var(--f-marker);font-weight:400;font-size:clamp(26px,3vw,32px);line-height:1}
 .temaop[aria-pressed="true"]{border-width:3px;background:var(--c);box-shadow:var(--shadow)}
-.answers.pon{grid-template-columns:1fr} .answers.pon .ans .txt{font-size:clamp(19px,2.2vw,23px);line-height:1.15}
+.answers.pon{grid-template-columns:1fr}
+.duelo{display:grid;gap:8px;margin:18px 0}
+.duelo div{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--sheet);box-shadow:var(--shadow);border-radius:4px;padding:8px 18px;font-family:var(--f-hand);font-weight:700;font-size:clamp(24px,3vw,32px)}
+.duelo div.gana{outline:3px solid var(--green)} .duelo .ok{color:var(--green)} .duelo .no{color:var(--red)} .answers.pon .ans .txt{font-size:clamp(19px,2.2vw,23px);line-height:1.15}
 .part.pon .n{color:#7A5CD6}
 .ans:hover:not(:disabled){transform:translateY(-3px) rotate(-.8deg)}
 .ans:disabled{cursor:default}
@@ -399,6 +402,28 @@ const PONENCIA = [
   ["¿Qué apoyo visual ayuda más en una ponencia?", ["Una gráfica sencilla que explique un dato","Una diapositiva llena de párrafos largos","Un video largo que no tenga que ver con el tema","Muchas fotos que pasan rápido y sin explicación"], "Un buen apoyo visual aclara una idea de un vistazo."]
 ];
 const TEMAS = ["ensayo","ponencia"];
+
+/* ---------- Muerte súbita: preguntas difíciles para desempatar (la primera opción es la correcta) ---------- */
+const DIFICILES = {
+  ensayo: [
+    ["«Es cierto que los videojuegos pueden quitar tiempo de estudio; sin embargo, bien usados, desarrollan la atención y la solución de problemas.» ¿Qué parte del ensayo es lo anterior?", ["Contraargumento","Argumento","Tesis","Conclusión"], "Reconoce la idea contraria («Es cierto que…») y luego la responde («sin embargo…»): es un contraargumento."],
+    ["«Aunque muchos creen que el uniforme limita la libertad, sostengo que ayuda a reducir las diferencias entre los estudiantes.» ¿Qué parte del ensayo es lo anterior?", ["Tesis","Contraargumento","Introducción","Argumento"], "Menciona una idea contraria, pero lo principal es la postura del autor («sostengo que…»): es la tesis."],
+    ["«Así, más que prohibir el celular, la escuela debería enseñar a usarlo; solo así la tecnología jugará a favor del aprendizaje.» ¿Qué parte del ensayo es lo anterior?", ["Conclusión","Tesis","Argumento","Contraargumento"], "«Así» retoma lo dicho, vuelve a la postura y cierra con una reflexión: es la conclusión."],
+    ["¿Cuál de estas oraciones podría ser la tesis de un ensayo?", ["Considero que el colegio debería tener una huerta escolar","En Colombia viven más de cincuenta millones de personas","Muchos colegios del país tienen una biblioteca pequeña","Las huertas escolares existen desde hace varios años"], "La tesis es una opinión que se puede discutir. Las demás son datos o hechos."],
+    ["«Según la Organización Mundial de la Salud, los adolescentes deberían hacer al menos 60 minutos de actividad física al día.» ¿Qué tipo de argumento es lo anterior?", ["Argumento de autoridad","Argumento de ejemplo","Argumento de experiencia","Argumento de analogía"], "Se apoya en lo que dice una institución reconocida: es un argumento de autoridad."],
+    ["¿Qué diferencia a un contraargumento de un argumento?", ["Presenta la idea opuesta y luego la responde","Siempre va al principio, antes de la tesis","Es una cita textual de un autor famoso","Resume todo lo dicho al final del ensayo"], "El argumento apoya la tesis; el contraargumento muestra lo que piensa quien no está de acuerdo y lo refuta."],
+    ["«¿Deberían los colegios dejar de poner tareas para la casa? La pregunta divide a padres, profesores y estudiantes.» ¿Qué parte del ensayo es lo anterior?", ["Introducción","Tesis","Contraargumento","Conclusión"], "Plantea el tema y la pregunta, pero todavía no da una opinión: es la introducción."]
+  ],
+  ponencia: [
+    ["¿Qué significa delimitar el tema de una ponencia?", ["Reducirlo a un aspecto que se pueda explicar en el tiempo dado","Escoger el tema más amplio posible para tener mucho que decir","Escribir el título del tema en la primera diapositiva","Pedirle al moderador que escoja el tema por ti"], "Delimitar es enfocarse en una parte concreta del tema para poder explicarla bien en el tiempo disponible."],
+    ["Tienes 10 minutos para tu ponencia. ¿Cuál reparto del tiempo es el más adecuado?", ["1 de introducción, 7 de desarrollo, 1 de conclusión y 1 de preguntas","5 de introducción, 3 de desarrollo, 1 de conclusión y 1 de preguntas","1 de introducción, 2 de desarrollo, 5 de conclusión y 2 de preguntas","0 de introducción, 4 de desarrollo, 1 de conclusión y 5 de preguntas"], "El desarrollo es la parte más larga; la introducción y la conclusión son breves."],
+    ["¿Cuál de estas es la fuente más confiable para preparar una ponencia?", ["Un artículo de una universidad o de una entidad oficial","Un comentario anónimo en una red social muy popular","Un video viral sin autor ni fecha de publicación","Lo que te contó un amigo que lo leyó en internet"], "Una fuente confiable dice quién es el autor y tiene respaldo académico u oficial."],
+    ["¿Qué es el lenguaje no verbal en una ponencia?", ["Los gestos, la postura y la mirada del ponente","Las palabras técnicas que se usan al exponer","El texto que aparece escrito en las diapositivas","Las preguntas que hace el público al final"], "Es todo lo que comunicas sin palabras: gestos, postura, mirada y movimiento."],
+    ["«Imaginen que mañana el colegio amanece sin una sola botella de plástico…» ¿Qué busca el ponente al empezar así?", ["Captar la atención del público desde el inicio","Presentar las conclusiones de su investigación","Abrir la ronda de preguntas para el público","Citar una fuente confiable sobre el reciclaje"], "Es un inicio llamativo: pone al público a imaginar para que se interese desde el principio."],
+    ["En plena ponencia se te olvida lo que ibas a decir. ¿Qué es lo más adecuado?", ["Hacer una pausa, mirar el guion y seguir con calma","Pedir disculpas varias veces y terminar de una vez","Inventar algo distinto para no quedarte callado","Leer en voz alta todas las diapositivas que faltan"], "Una pausa corta y el guion te devuelven el hilo sin que el público lo note."]
+  ]
+};
+const DES_SEG = 20;
 
 const ENSAYOS = [
  {tema:"El celular en clase", f:[
@@ -1127,10 +1152,11 @@ async function fb(){
 const TS = () => firebase.database.ServerValue.TIMESTAMP;
 const errorVivo = e => e && e.message === "config" ? "El modo en vivo todavía no está conectado a la base de datos." : "No se pudo conectar. Revisa que haya internet y vuelve a intentarlo.";
 // Empates: más aciertos, luego menos fallos y, si siguen iguales, gana quien llegó primero a ese puntaje
-const rankingVivo = js => Object.entries(js || {}).map(([id, j]) => ({ id, ...j })).sort((a,b) => (!!a.out - !!b.out) || ((b.pts||0) - (a.pts||0)) || ((b.ok||0) - (a.ok||0)) || ((a.err||0) - (b.err||0)) || ((a.alcanzado||Infinity) - (b.alcanzado||Infinity)));
+const rankingVivo = js => Object.entries(js || {}).map(([id, j]) => ({ id, ...j })).sort((a,b) => (!!a.out - !!b.out) || ((b.pts||0) - (a.pts||0)) || ((b.dg||0) - (a.dg||0)) || ((b.ok||0) - (a.ok||0)) || ((a.err||0) - (b.err||0)) || ((a.alcanzado||Infinity) - (b.alcanzado||Infinity)));
 function motivoDesempate(a, b){
   if (!a || !b || (a.pts||0) !== (b.pts||0) || !!a.out !== !!b.out) return "";
   const pts = `Empate a ${a.pts||0} puntos: `;
+  if (a.dg) return pts + `gana ${a.nombre} por ganar la muerte súbita.`;
   if ((a.ok||0) !== (b.ok||0)) return pts + `gana ${a.nombre} por tener más respuestas correctas.`;
   if ((a.err||0) !== (b.err||0)) return pts + `gana ${a.nombre} por tener menos fallos.`;
   return pts + `gana ${a.nombre} por llegar primero a ese puntaje.`;
@@ -1196,6 +1222,7 @@ async function crearSala(){
     VIVO = { rol:"host", code, ref, jugadores:{}, estado:"espera", pantalla:null, off:[], celebrado:false };
     escuchar(ref.child("estado"), s => { VIVO.estado = s.val() || "espera"; pintarHost(); });
     escuchar(ref.child("jugadores"), s => { VIVO.jugadores = s.val() || {}; pintarHost(); });
+    escuchar(ref.child("desempate"), s => { VIVO.des = s.val(); if (VIVO.estado === "desempate") pintarHost(); });
   } catch (e) { pantallaMsg("No se pudo crear la sala", errorVivo(e)); }
 }
 function urlSala(){ return URL_JUEGO + "?sala=" + VIVO.code; }
@@ -1256,6 +1283,7 @@ function narrar(js){
 function pintarHost(){
   if (!VIVO || VIVO.rol !== "host") return;
   const est = VIVO.estado, js = rankingVivo(VIVO.jugadores);
+  if (est === "desempate") { VIVO.pantalla = est; return pintarDesempateHost(); }
   if (VIVO.pantalla !== est) {
     VIVO.pantalla = est;
     if (est === "espera") {
@@ -1290,7 +1318,8 @@ function pintarHost(){
         <div class="mini-join"><div class="qr" id="qrSala"></div><span class="note">¿llegaste tarde? escanea y entra con el código <b>${VIVO.code}</b></span></div>
       </section>`;
       pintarQR($("#qrSala"), 96, urlSala());
-      $("#vFin").onclick = () => VIVO.ref.update({ estado:"fin" });
+      $("#vFin").onclick = cerrarPartida;
+      VIVO.cerrando = false; VIVO.resolviendo = 0; VIVO.desUsadas = [];
       if ($("#vVoz")) $("#vVoz").onclick = e => { Voz.set(!Voz.on); e.currentTarget.textContent = Voz.on ? "Voz: sí" : "Voz: no"; e.currentTarget.setAttribute("aria-pressed", Voz.on); };
       VIVO.voz = null; Voz.decir("¡Que empiece el juego! Mucha suerte a todos.", true);
     } else {
@@ -1305,7 +1334,8 @@ function pintarHost(){
       </section>`;
       $("#vOtra").onclick = () => {
         const upd = { estado:"espera", tema:cfg.tema, rondas:cfg.rondas, tiempo:cfg.tiempo, orden:armarCola(cfg.rondas) };
-        Object.keys(VIVO.jugadores).forEach(id => Object.assign(upd, { [`jugadores/${id}/pts`]:0, [`jugadores/${id}/ok`]:0, [`jugadores/${id}/n`]:0, [`jugadores/${id}/err`]:0, [`jugadores/${id}/out`]:false, [`jugadores/${id}/i`]:0, [`jugadores/${id}/terminado`]:false, [`jugadores/${id}/alcanzado`]:null, [`jugadores/${id}/racha`]:0 }));
+        Object.keys(VIVO.jugadores).forEach(id => Object.assign(upd, { [`jugadores/${id}/pts`]:0, [`jugadores/${id}/ok`]:0, [`jugadores/${id}/n`]:0, [`jugadores/${id}/err`]:0, [`jugadores/${id}/out`]:false, [`jugadores/${id}/i`]:0, [`jugadores/${id}/terminado`]:false, [`jugadores/${id}/alcanzado`]:null, [`jugadores/${id}/racha`]:0, [`jugadores/${id}/dg`]:null }));
+        upd.desempate = null;
         VIVO.celebrado = false; VIVO.ref.update(upd);
       };
       $("#vSalir").onclick = inicio;
@@ -1329,9 +1359,68 @@ function pintarHost(){
     const enJuego = js.filter(j => !j.out && !j.terminado).length;
     $("#vCount").textContent = `${js.length} jugando · ${enJuego} sin terminar`;
     narrar(js);
-    if (js.length && !enJuego) VIVO.ref.update({ estado:"fin" });
+    if (js.length && !enJuego) cerrarPartida();
   }
 }
+/* Muerte súbita: si hay empate en el primer lugar, solo los empatados responden una pregunta difícil */
+function cerrarPartida(){
+  if (!VIVO || VIVO.cerrando) return;
+  VIVO.cerrando = true;
+  const js = rankingVivo(VIVO.jugadores), top = js[0];
+  const empatados = top && !top.out && (top.pts || 0) > 0 ? js.filter(j => !j.out && j.conectado !== false && (j.pts || 0) === top.pts) : [];
+  if (empatados.length >= 2) iniciarDesempate(empatados.map(j => j.id), 1, top.pts);
+  else VIVO.ref.update({ estado:"fin" });
+}
+const nombreDe = id => ((VIVO && VIVO.jugadores[id]) || {}).nombre || "alguien";
+function iniciarDesempate(ids, ronda, pts){
+  const lista = DIFICILES[cfg.tema] || DIFICILES.ensayo;
+  let libres = lista.map((_, i) => i).filter(i => !VIVO.desUsadas.includes(i));
+  if (!libres.length) { VIVO.desUsadas = []; libres = lista.map((_, i) => i); }
+  const q = shuffle(libres)[0]; VIVO.desUsadas.push(q);
+  VIVO.ref.update({ estado:"desempate", desempate:{ ids:Object.fromEntries(ids.map(i => [i, true])), orden:ids, tema:cfg.tema in DIFICILES ? cfg.tema : "ensayo", q, ronda, pts, limite:Date.now() + (DES_SEG + 3) * 1000 } });
+  Voz.decir(ronda === 1 ? `¡Empate! Muerte súbita entre ${ids.map(nombreDe).join(" y ")}.` : "¡Nadie acertó! Va otra pregunta.", true);
+  if (!VIVO.desTick) {
+    VIVO.desTick = setInterval(revisarDesempate, 250);
+    VIVO.off.push(() => { clearInterval(VIVO.desTick); });
+  }
+}
+function revisarDesempate(){
+  const d = VIVO && VIVO.des;
+  if (!d || d.ganador || VIVO.estado !== "desempate") return;
+  const r = Math.max(0, Math.ceil((d.limite - Date.now()) / 1000) - 3), el = $("#desReloj");
+  if (el) { el.textContent = r + "s"; el.classList.toggle("low", r <= 5); }
+  const resp = Object.entries(d.resp || {}).filter(([id, x]) => d.ids[id] && x.ronda === d.ronda);
+  if (resp.length >= d.orden.length || Date.now() >= d.limite) resolverDesempate(d, resp);
+}
+function resolverDesempate(d, resp){
+  if (VIVO.resolviendo === d.ronda) return;
+  VIVO.resolviendo = d.ronda;
+  const aciertos = resp.filter(([, x]) => x.ok).sort((a, b) => (a[1].t || 0) - (b[1].t || 0));
+  const lista = DIFICILES[d.tema];
+  if (!aciertos.length && d.ronda < 3 && lista.length > VIVO.desUsadas.length) { setTimeout(() => iniciarDesempate(d.orden, d.ronda + 1, d.pts), 2500); return; }
+  // Gana quien acertó primero; si nadie acertó en 3 rondas, se mantiene el orden de la tabla
+  const gan = aciertos.length ? aciertos[0][0] : d.orden[0];
+  VIVO.ref.child("desempate").update({ ganador:gan });
+  Voz.decir(`¡${nombreDe(gan)} gana la muerte súbita!`, true);
+  setTimeout(() => { if (VIVO) VIVO.ref.update({ [`jugadores/${gan}/dg`]:1, estado:"fin" }); }, 5500);
+}
+const partesPregunta = t => { const m = t.match(/^«(.+)» (.+)$/); return m ? { frag:m[1], preg:m[2] } : { frag:"", preg:t }; };
+function pintarDesempateHost(){
+  const d = VIVO.des; if (!d) return;
+  const q = DIFICILES[d.tema][d.q], { frag, preg } = partesPregunta(q[0]), resp = d.resp || {};
+  const estado = id => { const x = resp[id]; if (!x || x.ronda !== d.ronda) return d.ganador ? `<span class="no">sin responder</span>` : "pensando…";
+    return d.ganador ? (x.ok ? `<span class="ok">¡correcta!</span>` : `<span class="no">incorrecta</span>`) : "ya respondió"; };
+  app.innerHTML = `<section class="vivo">
+    <div class="hud"><h2 class="vtitle" style="font-size:clamp(40px,7vw,72px)">¡Muerte súbita!</h2>${d.ganador ? "" : `<span class="timer" id="desReloj"></span>`}</div>
+    <p class="lead" style="max-width:none">Empate a ${d.pts} puntos. Solo ${d.orden.map(id => esc(nombreDe(id))).join(" y ")} responden esta pregunta difícil en su celular${d.ronda > 1 ? ` (ronda ${d.ronda})` : ""}. Gana quien acierte primero.</p>
+    <div class="sheet clip" style="margin-top:16px"><div class="tema">pregunta difícil</div><blockquote>${frag ? `«${esc(frag)}»` : esc(preg)}</blockquote>${frag ? `<p class="pregunta" style="margin-top:14px">${esc(preg)}</p>` : ""}</div>
+    <div class="duelo">${d.orden.map(id => `<div class="${d.ganador === id ? "gana" : ""}"><span>${esc(nombreDe(id))}</span><span>${estado(id)}</span></div>`).join("")}</div>
+    ${d.ganador ? `<p class="lead" style="max-width:none">La respuesta correcta era: <b>${esc(q[1][0])}</b>. ${esc(q[2])}</p><h3 class="vtitle">¡Gana ${esc(nombreDe(d.ganador))}!</h3>` : ""}
+  </section>`;
+  if (d.ganador && VIVO.desConfeti !== d.ronda) { VIVO.desConfeti = d.ronda; confeti(); Sonido.victoria(); }
+  revisarDesempate();
+}
+
 function S_rondasTxt(){ return `Tema: ${cfg.tema === "ponencia" ? "la ponencia" : "el ensayo"} · ${cfg.rondas} ${cfg.tema === "ponencia" ? "preguntas" : "recortes"} · ${cfg.tiempo ? cfg.tiempo + " s cada una" : "sin reloj"}`; }
 
 /* El celular: entra a la sala y juega Clasifica con su propio ahorcado */
@@ -1368,20 +1457,64 @@ function unirseSala(codigo = ""){
       yo.child("conectado").onDisconnect().set(false);
       VIVO = { rol:"jugador", code, ref, yo, pid, nombre, jugadores:{}, estado:null, off:[] };
       escuchar(ref.child("jugadores"), s => { if (!VIVO) return; VIVO.jugadores = s.val() || {}; rankJugador(); });
+      escuchar(ref.child("desempate"), s => { if (!VIVO) return; VIVO.des = s.val(); if (VIVO.estado === "desempate") desempateJugador(); });
       escuchar(ref.child("estado"), async s => {
         if (!VIVO) return;
         const antes = VIVO.estado; VIVO.estado = s.val();
-        if (VIVO.estado === "espera") { S = null; stopTimer(); esperaJugador(); }
+        if (VIVO.estado === "espera") { S = null; stopTimer(); VIVO.desPintado = VIVO.desResp = null; esperaJugador(); }
         else if (VIVO.estado === "jugando" && antes !== "jugando") {
           const sala = (await ref.get()).val();
           cfg.equipos = false; cfg.tiempo = sala.tiempo || 0; cfg.rondas = sala.rondas || 10;
           startClasifica({ orden: sala.orden, nombre });
-        } else if (VIVO.estado === "fin" && !(S && S.vivo)) {
-          pantallaMsg("La partida terminó", "Mira el proyector para ver el podio.");
+        } else if (VIVO.estado === "desempate") desempateJugador();
+        else if (VIVO.estado === "fin") {
+          const d = VIVO.des;
+          if (d && d.ids && d.ids[VIVO.pid] && d.ganador) { stopTimer();
+            pantallaMsg(d.ganador === VIVO.pid ? "¡Ganaste la muerte súbita!" : "Perdiste la muerte súbita", d.ganador === VIVO.pid ? "Quedaste en el primer lugar. Mira el podio en el proyector." : `Ganó ${esc(nombreDe(d.ganador))}. ¡Estuviste muy cerca! Mira el podio en el proyector.`);
+            if (d.ganador === VIVO.pid) { Sonido.victoria(); confeti(); } }
+          else if (!(S && S.vivo) || VIVO.desPintado) pantallaMsg("La partida terminó", "Mira el proyector para ver el podio.");
         }
       });
     } catch (e) { aviso(errorVivo(e)); }
   });
+}
+function desempateJugador(){
+  const d = VIVO.des; if (!d || d.ganador) return;
+  if (!d.ids || !d.ids[VIVO.pid]) {
+    if (VIVO.desPintado !== "mirar") { VIVO.desPintado = "mirar"; stopTimer();
+      pantallaMsg("¡Hay muerte súbita!", `Hubo empate en el primer lugar entre ${d.orden.map(id => esc(nombreDe(id))).join(" y ")}. Mira el proyector para ver quién gana.`, false); }
+    return;
+  }
+  const clave = "ronda" + d.ronda;
+  if (VIVO.desPintado === clave) return;
+  VIVO.desPintado = clave; stopTimer();
+  const q = DIFICILES[d.tema][d.q], { frag, preg } = partesPregunta(q[0]);
+  app.innerHTML = `<div class="hud"><span class="prog" style="color:var(--red)">Muerte súbita${d.ronda > 1 ? ` · ronda ${d.ronda}` : ""}</span><span class="timer" id="timer"></span></div>
+    <div class="turnline">Empate en el primer lugar. ¡Acierta antes que ${d.orden.filter(id => id !== VIVO.pid).map(id => esc(nombreDe(id))).join(" y ")}!</div>
+    <div class="sheet clip"><div class="tema">pregunta difícil</div><blockquote>${frag ? `«${esc(frag)}»` : esc(preg)}</blockquote></div>
+    <p class="pregunta">${frag ? esc(preg) : "Elige la respuesta correcta:"}</p>
+    <div class="answers pon" id="desAns">${shuffle(q[1].map((_, i) => i)).map((i, n) => `<button class="ans" data-k="${i}" style="${cvar("pon")}"><span class="cap">${n + 1}</span><span class="txt">${esc(q[1][i])}</span></button>`).join("")}</div>
+    <div id="desFb"></div>`;
+  window.scrollTo(0, 0);
+  const responder = k => {
+    if (VIVO.desResp === clave) return;
+    VIVO.desResp = clave; stopTimer();
+    const ok = k === 0;
+    VIVO.ref.child("desempate/resp/" + VIVO.pid).set({ k, ok, t:TS(), ronda:d.ronda }).catch(() => {});
+    document.querySelectorAll("#desAns .ans").forEach(b => { b.disabled = true; const i = +b.dataset.k;
+      if (i === 0) b.classList.add("right"); else if (i === k) b.classList.add("wrong"); else b.classList.add("dim"); });
+    ok ? Sonido.acierto() : Sonido.error();
+    $("#desFb").innerHTML = `<div class="fb ${ok ? "ok" : "no"}" role="status"><h3>${k === null ? "Se acabó el tiempo." : ok ? "¡Correcto!" : "Incorrecto."}</h3><p>${esc(q[2])}</p><p><b>Mira el proyector para ver quién gana.</b></p></div>`;
+  };
+  $("#desAns").addEventListener("click", e => { const b = e.target.closest(".ans"); if (b && !b.disabled) responder(+b.dataset.k); });
+  const limite = Date.now() + DES_SEG * 1000;
+  S && (S.restante = DES_SEG);
+  timer = setInterval(() => {
+    const r = Math.max(0, Math.ceil((limite - Date.now()) / 1000)), t = $("#timer");
+    if (t) { t.textContent = r + "s"; t.classList.toggle("low", r <= 5); }
+    if (r <= 5 && r > 0) Sonido.tic();
+    if (r <= 0) responder(null);
+  }, 250);
 }
 function esperaJugador(){
   app.innerHTML = `<section class="final"><div class="result"><div>${horca(0)}</div><div>
