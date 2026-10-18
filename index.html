@@ -128,6 +128,11 @@ svg.defs{position:absolute;width:0;height:0}
   font-family:var(--f-hand);font-weight:700;font-size:28px;line-height:1;min-width:0;transition:transform .15s cubic-bezier(.2,.8,.2,1)}
 .ans .cap{flex:none;width:30px;height:30px;border-radius:7px 9px 6px 10px;background:var(--c);display:grid;place-items:center;font-family:var(--f-marker);font-size:16px;color:var(--ink)}
 .ans .txt{min-width:0;overflow-wrap:anywhere}
+.pregunta{font-family:var(--f-hand);font-weight:700;font-size:clamp(23px,2.8vw,30px);line-height:1.15;margin:22px 0 -6px}
+.temas2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:14px}
+.temaop{display:grid;gap:6px;text-align:left;border:2px solid var(--ink);background:var(--sheet);border-radius:8px;padding:16px 18px;font-family:var(--f-read);font-size:16px;line-height:1.4;color:var(--ink)}
+.temaop b{font-family:var(--f-marker);font-weight:400;font-size:clamp(26px,3vw,32px);line-height:1}
+.temaop[aria-pressed="true"]{border-width:3px;background:var(--c);box-shadow:var(--shadow)}
 .answers.pon{grid-template-columns:1fr} .answers.pon .ans .txt{font-size:clamp(19px,2.2vw,23px);line-height:1.15}
 .part.pon .n{color:#7A5CD6}
 .ans:hover:not(:disabled){transform:translateY(-3px) rotate(-.8deg)}
@@ -368,10 +373,10 @@ const PONENCIA = [
   ["En un foro o congreso, ¿qué hace el moderador?", ["Presenta a los ponentes, controla el tiempo y organiza las preguntas","Escribe la ponencia por el ponente","Pone la nota a cada ponente","Solo escucha desde el público"], "El moderador dirige el evento: presenta, cuida el tiempo y da la palabra al público."],
   ["¿Cuál es el orden de las partes de una ponencia?", ["Introducción, desarrollo, conclusión y preguntas del público","Conclusión, desarrollo, introducción y preguntas","Preguntas, introducción, conclusión y desarrollo","Desarrollo, preguntas, introducción y conclusión"], "Como el ensayo, empieza con la introducción y cierra con la conclusión. Al final se abre la ronda de preguntas."],
   ["¿Qué se hace en la introducción de una ponencia?", ["Saludar, presentar el tema y decir el objetivo","Dar todos los datos y estadísticas","Despedirse y agradecer","Responder las preguntas del público"], "La introducción saluda, presenta el tema y anuncia qué se va a explicar y para qué."],
-  ["«Buenos días. Hoy les voy a hablar del reciclaje en el colegio y de por qué deberíamos empezar ya.» ¿A qué parte de la ponencia pertenece?", ["Introducción","Desarrollo","Conclusión","Ronda de preguntas"], "Saluda y presenta el tema y el objetivo: es la introducción."],
-  ["«Según la Secretaría de Ambiente, cada estudiante produce casi un kilo de basura a la semana, como muestra esta gráfica.» ¿A qué parte pertenece?", ["Desarrollo","Introducción","Conclusión","Ronda de preguntas"], "Da datos, cita una fuente y usa un apoyo visual: es el desarrollo."],
-  ["«Para cerrar, recordemos las tres ideas principales. Muchas gracias por su atención.» ¿A qué parte pertenece?", ["Conclusión","Introducción","Desarrollo","Ronda de preguntas"], "Resume las ideas y agradece: es la conclusión."],
-  ["«¿Alguien tiene alguna pregunta o comentario?» ¿En qué momento se dice esto?", ["En la ronda de preguntas, al final","En el saludo inicial","En medio del desarrollo","Antes de empezar a investigar"], "Después de la conclusión se abre un espacio para que el público pregunte."],
+  ["«Buenos días. Hoy les voy a hablar del reciclaje en el colegio y de por qué deberíamos empezar ya.» ¿A qué parte de la ponencia corresponde lo anterior?", ["Introducción","Desarrollo","Conclusión","Ronda de preguntas"], "Saluda y presenta el tema y el objetivo: es la introducción."],
+  ["«Según la Secretaría de Ambiente, cada estudiante produce casi un kilo de basura a la semana, como muestra esta gráfica.» ¿A qué parte de la ponencia corresponde lo anterior?", ["Desarrollo","Introducción","Conclusión","Ronda de preguntas"], "Da datos, cita una fuente y usa un apoyo visual: es el desarrollo."],
+  ["«Para cerrar, recordemos las tres ideas principales. Muchas gracias por su atención.» ¿A qué parte de la ponencia corresponde lo anterior?", ["Conclusión","Introducción","Desarrollo","Ronda de preguntas"], "Resume las ideas y agradece: es la conclusión."],
+  ["«¿Alguien tiene alguna pregunta o comentario?» ¿En qué momento de la ponencia se dice lo anterior?", ["En la ronda de preguntas, al final","En el saludo inicial","En medio del desarrollo","Antes de empezar a investigar"], "Después de la conclusión se abre un espacio para que el público pregunte."],
   ["¿En qué parte de la ponencia se explican las ideas con datos y ejemplos?", ["En el desarrollo","En la introducción","En la conclusión","En el saludo"], "El desarrollo es el cuerpo: ahí van las ideas, los datos, los ejemplos y las citas."],
   ["¿Cuál es la principal diferencia entre una ponencia y un ensayo?", ["La ponencia se presenta en voz alta ante un público y el ensayo es un texto escrito","La ponencia no tiene tema","El ensayo siempre es más corto","No hay ninguna diferencia"], "El ensayo se escribe para leerse; la ponencia se dice en voz alta frente a otras personas."],
   ["¿En qué se parecen la ponencia y el ensayo?", ["Los dos tienen introducción, desarrollo y conclusión, y pueden defender una idea","Los dos se improvisan sin preparar","Los dos se hacen siempre en grupo","Los dos necesitan diapositivas"], "Ambos organizan las ideas en introducción, desarrollo y conclusión."],
@@ -390,7 +395,7 @@ const PONENCIA = [
   ["¿Cuál es el propósito de una ponencia?", ["Informar o convencer al público sobre un tema con información preparada","Entretener sin dar información","Contar un chiste largo","Leer un cuento en voz alta"], "El ponente comparte lo que investigó para que el público aprenda o cambie de opinión."],
   ["¿Qué apoyo visual ayuda más en una ponencia?", ["Una gráfica o imagen sencilla que explique un dato","Una diapositiva llena de párrafos","Un video largo sin relación con el tema","Ninguno: siempre estorban"], "Un buen apoyo visual aclara una idea de un vistazo."]
 ];
-const TEMAS = ["ensayo","mixto","ponencia"];
+const TEMAS = ["ensayo","ponencia"];
 
 const ENSAYOS = [
  {tema:"El celular en clase", f:[
@@ -726,7 +731,7 @@ function responderBonus(q, b){
   publicarVivo();
 }
 
-const cfg = { tema:"mixto", equipos:false, nEquipos:2, nombres:["Los Lectores","Los Escritores","Los Críticos","Los Poetas"], rondas:10, tiempo:0, jugador:"" };
+const cfg = { tema:"ensayo", equipos:false, nEquipos:2, nombres:["Los Lectores","Los Escritores","Los Críticos","Los Poetas"], rondas:10, tiempo:0, jugador:"" };
 let S = null, timer = null;
 function stopTimer(){ if (timer) { clearInterval(timer); timer = null; } }
 
@@ -767,10 +772,10 @@ function inicio(){
     </div>
     <div class="sheet tilt-l">
       <h2>Clasifica</h2>
-      <p>Aparece un recorte y eliges a qué parte del ensayo pertenece. Si sumas la ponencia, también salen preguntas sobre cómo prepararla y presentarla. Después de cada respuesta verás por qué.</p>
+      <p>Aparece un recorte y eliges a qué parte del ensayo pertenece. También puedes jugar con el tema de la ponencia. Después de cada respuesta verás por qué.</p>
       <div class="opts">
         <div class="opt"><span>¿Qué tema?</span>
-          <div class="seg" id="segTema">${[["ensayo","solo ensayo"],["mixto","ensayo + ponencia"],["ponencia","solo ponencia"]].map(([v,t],i)=>`<button data-v="${i}" aria-pressed="${cfg.tema===v}">${t}</button>`).join("")}</div>
+          <div class="seg" id="segTema">${[["ensayo","el ensayo"],["ponencia","la ponencia"]].map(([v,t],i)=>`<button data-v="${i}" aria-pressed="${cfg.tema===v}">${t}</button>`).join("")}</div>
         </div>
         <div class="opt"><span>¿Cuántos recortes?</span>
           <div class="seg" id="segR">${[5,10,15,20].map(n=>`<button data-v="${n}" aria-pressed="${cfg.rondas===n}">${n}</button>`).join("")}</div>
@@ -791,7 +796,7 @@ function inicio(){
       <h2>En vivo, como Kahoot</h2>
       <p>El proyector crea una sala y muestra en tiempo real quién va ganando, mientras cada uno juega Clasifica en su celular con su propio ahorcado.</p>
       <div class="cta"><button class="btn go" id="vCrear">Crear sala (proyector)</button><button class="btn" id="vUnir">Unirme a una sala</button></div>
-      <p class="note" style="font-size:20px;margin:6px 0 0">la sala usa el tema, la cantidad de recortes y el reloj que elijas en Clasifica</p>
+      <p class="note" style="font-size:20px;margin:6px 0 0">al crear la sala eliges si juegan con el ensayo o con la ponencia</p>
     </div>
     <div class="sheet tilt-r">
       <h2>Juega desde tu celular</h2>
@@ -825,7 +830,7 @@ function inicio(){
     startClasifica();
   };
   $("#playO").onclick = () => { cfg.jugador = $("#playerName").value.trim(); startOrdena(); };
-  $("#vCrear").onclick = crearSala;
+  $("#vCrear").onclick = elegirSala;
   $("#vUnir").onclick = () => unirseSala();
   window.scrollTo(0,0);
 }
@@ -868,16 +873,12 @@ function guia(){
 /* ---------- Clasifica ---------- */
 const POOL = [];
 ENSAYOS.forEach(e => e.f.forEach(([k,t,w,c]) => POOL.push({k,t,w,c,tema:e.tema})));
-PONENCIA.forEach(([t,ops,w]) => POOL.push({k:"pon", t, ops, ok:0, w, tema:"La ponencia"}));
+// Si empieza con «…», el fragmento va en la hoja y lo demás es la pregunta de abajo
+PONENCIA.forEach(([t,ops,w]) => { const m = t.match(/^«(.+)» (.+)$/); POOL.push({k:"pon", t: m ? m[1] : t, pq: m ? m[2] : "", ops, ok:0, w, tema:"La ponencia"}); });
 // Arma una partida como lista de posiciones en POOL, para poder compartirla en vivo
 function armarCola(n){
   const pon = shuffle(POOL.map((_, i) => i).filter(i => POOL[i].k === "pon"));
-  if (cfg.tema === "ponencia") return pon.slice(0, n);
-  if (cfg.tema !== "mixto") return colaEnsayo(n);
-  // Mezcla: cerca de un tercio de ponencia, repartida a lo largo de la partida
-  const nPon = Math.min(pon.length, Math.max(1, Math.round(n * .3))), cola = colaEnsayo(n - nPon);
-  pon.slice(0, nPon).forEach((i, j) => cola.splice(Math.round((j + 1) * (n - 1) / (nPon + 1)), 0, i));
-  return cola;
+  return cfg.tema === "ponencia" ? pon.slice(0, n) : colaEnsayo(n);
 }
 function colaEnsayo(n){
   if (n <= 0) return [];
@@ -916,13 +917,14 @@ function barra(){
 }
 function hudHTML(){
   return `<div class="hud">
-    ${S.vivo ? `<span class="prog" id="vRank" style="color:var(--red)"></span>` : ""}<span class="prog">Recorte ${Math.min(S.i+1,S.cola.length)} de ${S.cola.length}${S.racha>=2?`<small>racha de ${S.racha}</small>`:""}</span>
+    ${S.vivo ? `<span class="prog" id="vRank" style="color:var(--red)"></span>` : ""}<span class="prog">${S.cola[S.i]?.k === "pon" ? "Pregunta" : "Recorte"} ${Math.min(S.i+1,S.cola.length)} de ${S.cola.length}${S.racha>=2?`<small>racha de ${S.racha}</small>`:""}</span>
     <div class="pencil-bar">${barra()}</div>
     <span class="timer" id="timer" ${cfg.tiempo?"":"hidden"}></span>
     <div id="scores" style="width:100%">${scoresHTML()}</div>
   </div>`;
 }
 
+const PREGUNTAS_ENSAYO = ["¿A qué parte del ensayo corresponde el fragmento anterior?","¿Lo anterior es una introducción, una tesis, un argumento, un contraargumento o una conclusión?","¿Qué parte del ensayo es el recorte anterior?"];
 function ronda(){
   stopTimer();
   const q = S.cola[S.i], eq = S.equipos[S.turno];
@@ -935,8 +937,9 @@ function ronda(){
     <div class="turnline">${cfg.equipos ? "Turno de" : "Juega"} <span class="hl" style="${cvar("intro")}">${esc(eq.nombre)}</span></div>
     <div class="stage">
       <div class="main">
-        <div class="sheet clip"><div class="tema">${esPon ? `tema extra: <span class="hl" style="${cvar("pon")}">la ponencia</span>` : `del ensayo «${esc(q.tema)}»`}</div>
-          <blockquote id="quote">${conCitas(esc(q.t))}</blockquote></div>
+        <div class="sheet clip"><div class="tema">${esPon ? `tema: <span class="hl" style="${cvar("pon")}">la ponencia</span>` : `del ensayo «${esc(q.tema)}»`}</div>
+          <blockquote id="quote">${conCitas(esc(q.pq ? "«" + q.t + "»" : q.t))}</blockquote></div>
+        <p class="pregunta">${esPon ? (q.pq ? esc(q.pq) : "Elige la respuesta correcta:") : PREGUNTAS_ENSAYO[S.i % PREGUNTAS_ENSAYO.length]}</p>
         <div class="answers ${esPon ? "pon" : ""}" id="answers">${opts}</div>
         <div class="tools-row"><button class="pista" id="pista"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Pista: quita 2 opciones (vale la mitad)</button></div>
       </div>
@@ -1003,7 +1006,7 @@ function responder(k){
     else b.classList.add("dim");
   });
   const quote = $("#quote");
-  quote.innerHTML = `<span class="hl sweep off" style="${cvar(q.k)}">${conCitas(esc(q.t))}</span>`;
+  quote.innerHTML = `<span class="hl sweep off" style="${cvar(q.k)}">${conCitas(esc(q.pq ? "«" + q.t + "»" : q.t))}</span>`;
   requestAnimationFrame(() => requestAnimationFrame(() => quote.firstChild.classList.remove("off")));
   const p = PARTES[q.k];
   let titulo = ok ? (S.racha >= 3 ? `¡Correcto! +${ganados} (racha de ${S.racha})` : `¡Correcto! +${ganados}`)
@@ -1016,7 +1019,7 @@ function responder(k){
     <p>${esc(q.w)}</p>
     ${esPon ? "" : `<p class="def"><b>${p.nombre}:</b> ${p.def}</p>`}
     ${q.c ? bonusCita(q) : ""}
-    <div class="cta"><button class="btn go small" id="next">${fin?"Ver resultados":"Siguiente recorte"}</button></div>
+    <div class="cta"><button class="btn go small" id="next">${fin?"Ver resultados":esPon?"Siguiente pregunta":"Siguiente recorte"}</button></div>
   </div>`;
   $("#next").onclick = siguiente;
   S.bonusListo = false;
@@ -1039,7 +1042,7 @@ function siguiente(){
 function repasoHTML(){
   if (!S.fallos.length) return "";
   return `<div class="sheet repaso"><h3>Repasa tus errores</h3>${S.fallos.map(({q,k,quien}) => `<article>
-    <blockquote><span class="hl" style="${cvar(q.k)}">${conCitas(esc(q.t))}</span></blockquote>
+    <blockquote><span class="hl" style="${cvar(q.k)}">${conCitas(esc(q.pq ? "«" + q.t + "» " + q.pq : q.t))}</span></blockquote>
     <div class="meta">${cfg.equipos ? esc(quien) + ": " : ""}${q.k === "pon"
       ? `${k ? `<s>${esc(q.ops[k])}</s> → ` : "se acabó el tiempo → "}<b>${esc(q.ops[q.ok])}</b>`
       : `${k ? `<s>${PARTES[k].nombre}</s> → ` : "se acabó el tiempo → "}<b>${PARTES[q.k].nombre}</b>`}</div>
@@ -1135,6 +1138,30 @@ function publicarVivo(extra = {}){
 }
 
 /* El proyector: crea la sala, muestra quién entra y la carrera en vivo */
+/* Antes de crear la sala: ¿ensayo o ponencia? */
+function elegirSala(){
+  salirVivo(); stopTimer(); S = null;
+  const temas = [["ensayo","El ensayo","Leen recortes y eligen si son introducción, tesis, argumento, contraargumento o conclusión.","intro"],
+                 ["ponencia","La ponencia","Preguntas sobre qué es una ponencia, sus partes y cómo prepararla y presentarla.","pon"]];
+  app.innerHTML = `<section class="vivo"><div class="sheet" style="max-width:860px">
+    <h2 style="font-family:var(--f-marker);font-size:clamp(30px,4vw,42px);margin:0 0 6px">Nueva sala</h2>
+    <p class="lead" style="max-width:none">¿Sobre qué van a jugar?</p>
+    <div class="temas2" id="temas2">${temas.map(([v,t,d,c]) => `<button class="temaop" data-v="${v}" style="${cvar(c)}" aria-pressed="${cfg.tema===v}"><b>${t}</b><span>${d}</span></button>`).join("")}</div>
+    <div class="opts" style="margin-top:18px">
+      <div class="opt"><span>¿Cuántas preguntas?</span><div class="seg" id="sR">${[5,10,15,20].map(n=>`<button data-v="${n}" aria-pressed="${cfg.rondas===n}">${n}</button>`).join("")}</div></div>
+      <div class="opt"><span>¿Con reloj?</span><div class="seg" id="sT">${[[0,"sin reloj"],[30,"30 s"],[20,"20 s"],[12,"12 s"]].map(([v,t])=>`<button data-v="${v}" aria-pressed="${cfg.tiempo===v}">${t}</button>`).join("")}</div></div>
+    </div>
+    <div class="cta"><button class="btn go" id="sCrear">Crear sala</button><button class="btn" id="sVolver">Volver</button></div>
+  </div></section>`;
+  const marcar = (id, fn) => $(id).addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+    Sonido.tap(); $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); fn(b.dataset.v); });
+  marcar("#temas2", v => cfg.tema = v);
+  marcar("#sR", v => cfg.rondas = +v);
+  marcar("#sT", v => cfg.tiempo = +v);
+  $("#sCrear").onclick = crearSala;
+  $("#sVolver").onclick = inicio;
+  window.scrollTo(0, 0);
+}
 async function crearSala(){
   salirVivo(); stopTimer(); S = null;
   pantallaMsg("Creando la sala…", "Un momento.", false);
@@ -1147,7 +1174,7 @@ async function crearSala(){
       const snap = await ref.get();
       if (!snap.exists() || Date.now() - (snap.val().creada || 0) > 6 * 3600e3) break;
     }
-    await ref.set({ estado:"espera", creada:TS(), rondas:cfg.rondas, tiempo:cfg.tiempo, orden:armarCola(cfg.rondas) });
+    await ref.set({ estado:"espera", creada:TS(), tema:cfg.tema, rondas:cfg.rondas, tiempo:cfg.tiempo, orden:armarCola(cfg.rondas) });
     VIVO = { rol:"host", code, ref, jugadores:{}, estado:"espera", pantalla:null, off:[], celebrado:false };
     escuchar(ref.child("estado"), s => { VIVO.estado = s.val() || "espera"; pintarHost(); });
     escuchar(ref.child("jugadores"), s => { VIVO.jugadores = s.val() || {}; pintarHost(); });
@@ -1258,7 +1285,7 @@ function pintarHost(){
         <div class="cta"><button class="btn go" id="vOtra">Otra partida con los mismos</button><button class="btn" id="vSalir">Cerrar sala</button></div>
       </section>`;
       $("#vOtra").onclick = () => {
-        const upd = { estado:"espera", rondas:cfg.rondas, tiempo:cfg.tiempo, orden:armarCola(cfg.rondas) };
+        const upd = { estado:"espera", tema:cfg.tema, rondas:cfg.rondas, tiempo:cfg.tiempo, orden:armarCola(cfg.rondas) };
         Object.keys(VIVO.jugadores).forEach(id => Object.assign(upd, { [`jugadores/${id}/pts`]:0, [`jugadores/${id}/ok`]:0, [`jugadores/${id}/n`]:0, [`jugadores/${id}/err`]:0, [`jugadores/${id}/out`]:false, [`jugadores/${id}/i`]:0, [`jugadores/${id}/terminado`]:false }));
         VIVO.celebrado = false; VIVO.ref.update(upd);
       };
@@ -1286,7 +1313,7 @@ function pintarHost(){
     if (js.length && !enJuego) VIVO.ref.update({ estado:"fin" });
   }
 }
-function S_rondasTxt(){ return `${{ensayo:"Solo ensayo", mixto:"Ensayo + ponencia", ponencia:"Solo ponencia"}[cfg.tema]} · ${cfg.rondas} recortes · ${cfg.tiempo ? cfg.tiempo + " s por recorte" : "sin reloj"}. Puedes cambiarlo en Clasifica antes de crear la sala.`; }
+function S_rondasTxt(){ return `Tema: ${cfg.tema === "ponencia" ? "la ponencia" : "el ensayo"} · ${cfg.rondas} ${cfg.tema === "ponencia" ? "preguntas" : "recortes"} · ${cfg.tiempo ? cfg.tiempo + " s cada una" : "sin reloj"}`; }
 
 /* El celular: entra a la sala y juega Clasifica con su propio ahorcado */
 function unirseSala(codigo = ""){
