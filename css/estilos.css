@@ -302,6 +302,8 @@ button.strip:hover{transform:translateX(4px)}
 .qr-big .qr img,.qr-big .qr canvas{width:min(70vmin,460px);height:min(70vmin,460px)}
 .qr-big .qr-url{font-size:clamp(24px,3.4vw,36px)}
 .records{display:grid;gap:8px}
+.creditos h3{font-family:var(--f-hand);font-weight:700;font-size:30px}
+.creditos ul{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px 28px;font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1.1;color:var(--pen)}
 .records h3{font-family:var(--f-hand);font-weight:700;font-size:30px}
 .records ol{margin:0;padding:0;list-style:none;display:grid;gap:6px}
 .records li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:baseline;font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1.1;border-bottom:1.5px dashed var(--grid);padding-bottom:4px}

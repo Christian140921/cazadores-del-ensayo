@@ -11,3 +11,6 @@ const CLAVES = {
 const USOS_CITA = [["apoyo","Para apoyar su propia opinión"],["contra","Para mostrar lo que piensa quien no está de acuerdo"],["resumen","Para resumir lo que ya dijo antes"]];
 const PREGUNTAS_ENSAYO = ["¿A qué parte del ensayo corresponde el fragmento anterior?","¿Lo anterior es una introducción, una tesis, un argumento, un contraargumento o una conclusión?","¿Qué parte del ensayo es el recorte anterior?"];
 const PUESTOS = ["primer","segundo","tercer","cuarto","quinto"];
+
+// Integrantes del trabajo, para los créditos de la portada
+const INTEGRANTES = ["Mary Luz Arias","Wendy Johana Barrios","Laura Katherine Chavarro","Laura Estefani Gallego","Sofia Catalina Vargas"];

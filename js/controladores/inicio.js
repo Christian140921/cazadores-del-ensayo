@@ -77,6 +77,10 @@ function inicio(){
       ${recordsHTML(leerRecords())}
       <p class="note" style="font-size:20px;margin:0">se guardan en este aparato · en modo "yo solo" tu puntaje entra solo a la tabla</p>
     </div>
+    <div class="sheet creditos" style="grid-column:1/-1">
+      <h3>Un trabajo de</h3>
+      <ul>${INTEGRANTES.map(n => `<li>${esc(n)}</li>`).join("")}</ul>
+    </div>
   </section>`;
   pintarQR($("#qrSmall"), 132);
   $("#qrShow").onclick = qrGrande;
