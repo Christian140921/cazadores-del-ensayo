@@ -77,7 +77,7 @@ svg.defs{position:absolute;width:0;height:0}
 .note{font-family:var(--f-hand);font-size:24px;color:var(--pen);line-height:1.15}
 
 /* Inicio */
-.hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.9fr);gap:24px;align-items:center;padding-block:18px 26px}
+.hero{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,.75fr);gap:24px;align-items:center;padding-block:18px 26px}
 .hero h1{font-family:var(--f-marker);font-size:clamp(48px,8.6vw,92px);letter-spacing:-.01em;line-height:.98}
 .hero h1 .hl{--c:var(--hl-tesis)}
 .hero p{max-width:46ch;margin:18px 0 0;font-size:19px}
@@ -85,8 +85,11 @@ svg.defs{position:absolute;width:0;height:0}
 .hero-art .horca{width:min(100%,260px)}
 .hero-art .note{position:absolute;left:-6px;top:6px;transform:rotate(-8deg);max-width:9ch}
 .hero-art .arrow{position:absolute;left:62px;top:70px;width:70px;height:60px;color:var(--pen)}
-.pieces{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-top:22px}
-.pieces span{font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1.1}
+.pieces{display:flex;flex-wrap:wrap;gap:8px 9px;align-items:center;margin-top:22px}
+.pieces span{font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1.1}
+.pieces b{flex-basis:100%;font-family:var(--f-hand);font-weight:700;font-size:19px;color:var(--soft);line-height:1;margin-bottom:-4px}
+.pieces.pon{margin-top:16px}
+.y-pon{font-family:var(--f-hand);font-weight:700;font-size:clamp(30px,4.4vw,46px);line-height:1;margin-top:8px;transform:rotate(-2deg);transform-origin:left}
 .pieces i{font-style:normal;color:var(--soft);font-family:var(--f-hand);font-size:22px}
 .modes{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:34px 28px;align-items:start;margin-top:14px}
 .modes h2{font-family:var(--f-marker);font-size:36px}
@@ -738,13 +741,17 @@ function stopTimer(){ if (timer) { clearInterval(timer); timer = null; } }
 /* ---------- Inicio ---------- */
 function inicio(){
   salirVivo(); stopTimer(); S = null;
-  const piezas = ORDEN_PARTES.map((k,i) => `<span class="hl" style="${cvar(k)}">${PARTES[k].nombre}</span>${i < 4 ? `<i aria-hidden="true">→</i>` : ""}`).join("");
+  const flecha = `<i aria-hidden="true">→</i>`;
+  const piezas = ORDEN_PARTES.map(k => `<span class="hl" style="${cvar(k)}">${PARTES[k].nombre}</span>`).join(flecha);
+  const piezasPon = ["Introducción","Desarrollo","Conclusión","Preguntas"].map(t => `<span class="hl" style="${cvar("pon")}">${t}</span>`).join(flecha);
   app.innerHTML = `
   <section class="hero">
     <div>
       <h1>Cazadores del <span class="hl">Ensayo</span></h1>
-      <p>Lee recortes de ensayos y descubre qué parte es cada uno. Cada vez que te equivocas, se dibuja una parte más del ahorcado. Con seis fallos, pierdes.</p>
-      <div class="pieces" aria-label="Las cinco partes del ensayo, en orden">${piezas}</div>
+      <div class="y-pon">y de la <span class="hl" style="${cvar("pon")}">ponencia</span></div>
+      <p>Dos temas para jugar: las partes del ensayo y la ponencia. Cada vez que te equivocas, se dibuja una parte más del ahorcado. Con seis fallos, pierdes.</p>
+      <div class="pieces" aria-label="Las cinco partes del ensayo, en orden"><b>El ensayo</b>${piezas}</div>
+      <div class="pieces pon" aria-label="Las partes de la ponencia, en orden"><b>La ponencia</b>${piezasPon}</div>
     </div>
     <div class="hero-art" aria-hidden="true">
       ${horca(3)}
