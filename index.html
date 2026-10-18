@@ -126,11 +126,13 @@ svg.defs{position:absolute;width:0;height:0}
 .stage .main{min-width:0}
 .clip .tema{font-family:var(--f-hand);font-weight:700;font-size:22px;color:var(--soft);line-height:1;margin-bottom:12px}
 .clip blockquote{margin:0;font-size:clamp(21px,2.9vw,29px);line-height:1.5;font-weight:400}
-.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:12px 14px;margin-top:22px}
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px 14px;margin-top:22px}
 .ans{position:relative;display:flex;align-items:center;gap:10px;text-align:left;border:0;background:var(--sheet);box-shadow:var(--shadow);border-radius:6px;padding:10px 14px 12px 10px;
   font-family:var(--f-hand);font-weight:700;font-size:28px;line-height:1;min-width:0;transition:transform .15s cubic-bezier(.2,.8,.2,1)}
 .ans .cap{flex:none;width:30px;height:30px;border-radius:7px 9px 6px 10px;background:var(--c);display:grid;place-items:center;font-family:var(--f-marker);font-size:16px;color:var(--ink)}
-.ans .txt{min-width:0;overflow-wrap:anywhere}
+.ans .txt{min-width:0;overflow-wrap:normal;font-size:clamp(23px,2.1vw,27px)}
+@media (min-width:900px) and (max-height:820px){ .clip blockquote{font-size:23px;line-height:1.4} .side .horca{max-width:170px} .answers{margin-top:14px} .pregunta{margin-top:14px} }
+@media (hover:none){ .keys{display:none} }
 .pregunta{font-family:var(--f-hand);font-weight:700;font-size:clamp(23px,2.8vw,30px);line-height:1.15;margin:22px 0 -6px}
 .temas2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:14px}
 .temaop{display:grid;gap:6px;text-align:left;border:2px solid var(--ink);background:var(--sheet);border-radius:8px;padding:16px 18px;font-family:var(--f-read);font-size:16px;line-height:1.4;color:var(--ink)}
@@ -271,7 +273,9 @@ button.strip:hover{transform:translateX(4px)}
 .vrow{display:grid;grid-template-columns:40px 34px minmax(0,1.3fr) minmax(80px,2fr) auto 4.5ch;gap:12px;align-items:center;background:var(--sheet);box-shadow:var(--shadow);border-radius:4px;padding:4px 16px 4px 8px;font-family:var(--f-hand);font-weight:700;font-size:28px;line-height:1}
 .vrow .pos{font-family:var(--f-marker);font-weight:400;font-size:24px;color:var(--soft);text-align:center}
 .vrow.top{outline:3px solid var(--ink)} .vrow.top .pos{color:var(--red)}
-.vrow svg{width:34px;height:42px}
+.vrow svg{width:34px;height:42px} .vrow .mh{display:block;line-height:0}
+.vmas{margin:4px 0 0;font-size:24px;text-align:center}
+.horca.mini .wood,.horca.mini .guy{filter:none}
 .vrow .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vrow .bar{height:16px;border-bottom:2px solid var(--pencil);position:relative}
 .vrow .bar i{position:absolute;left:0;bottom:2px;height:11px;background:var(--hl-arg);border-radius:2px 6px 3px 5px;transition:width .5s cubic-bezier(.22,1,.36,1)}
@@ -365,41 +369,61 @@ button.strip:hover{transform:translateX(4px)}
 const PARTES = {
   intro:  {nombre:"Introducción", c:"--hl-intro", def:"Presenta el tema y despierta el interés del lector. Da contexto: de qué se va a hablar y por qué importa.", donde:"Al comienzo del ensayo.", claves:["Hoy en día…","En la actualidad…","Cada vez más…","Una pregunta, un dato o una situación cotidiana"]},
   tesis:  {nombre:"Tesis", c:"--hl-tesis", def:"Es la postura u opinión del autor sobre el tema. Todo el ensayo existe para defenderla, por eso debe ser clara y discutible.", donde:"Normalmente al final de la introducción.", claves:["Considero que…","En mi opinión…","Sostengo que…","Mi postura es…"]},
-  arg:    {nombre:"Argumento", c:"--hl-arg", def:"Razones, ejemplos, datos o citas que apoyan la tesis. Forman el desarrollo o cuerpo del ensayo.", donde:"En el desarrollo, uno o varios párrafos.", claves:["En primer lugar…","Además…","Por ejemplo…","Según un estudio…"]},
+  arg:    {nombre:"Argumento", c:"--hl-arg", def:"Razones, ejemplos, datos, comparaciones o citas de una autoridad que apoyan la tesis. Forman el desarrollo o cuerpo del ensayo.", donde:"En el desarrollo, uno o varios párrafos.", claves:["En primer lugar…","Además…","Por ejemplo…","Según un estudio…"]},
   contra: {nombre:"Contraargumento", c:"--hl-contra", def:"Presenta una opinión contraria a la tesis y luego la refuta, mostrando por qué no es suficiente. Hace el ensayo más convincente.", donde:"En el desarrollo, casi siempre antes de la conclusión.", claves:["Algunos piensan que…","Es cierto que…","Sin embargo…","No obstante…"]},
   concl:  {nombre:"Conclusión", c:"--hl-concl", def:"Cierra el ensayo: retoma la tesis, resume las ideas principales y puede dejar una reflexión o propuesta.", donde:"Al final del ensayo.", claves:["En conclusión…","En resumen…","Por todo lo anterior…","En definitiva…"]}
 };
 PARTES.pon = {nombre:"Ponencia", c:"--hl-pon", def:"Exposición oral preparada en la que un ponente presenta un tema ante un público."};
 const ORDEN_PARTES = ["intro","tesis","arg","contra","concl"];
 
+/* Recortes "sin pistas": no traen conectores típicos, hay que reconocer qué hace el párrafo */
+const SIN_PISTAS = [
+  ["El celular en clase","tesis","El celular no debería estar prohibido en clase; lo que hace falta son reglas claras sobre cuándo y para qué se usa.","No dice «en mi opinión», pero es la postura que el resto del ensayo va a defender: es la tesis."],
+  ["El celular en clase","concl","Al final, la pregunta no es si el celular entra al salón, sino si aprendemos a usarlo con responsabilidad.","Retoma la postura del autor y deja una reflexión para cerrar, aunque no empiece con «En conclusión»."],
+  ["Reciclaje en el colegio","arg","Una botella de plástico tarda cientos de años en descomponerse; reciclada, en cambio, puede convertirse en una camiseta o en una silla.","Trae un hecho que apoya la idea de reciclar. No tiene «además» ni «por ejemplo», pero cumple la función de un argumento."],
+  ["Reciclaje en el colegio","contra","¿Y si reciclar le quita tiempo a las clases? La experiencia de otros colegios muestra que cinco minutos por curso bastan.","Plantea la objeción de quien no está de acuerdo, en forma de pregunta, y luego la responde: es un contraargumento."],
+  ["Leer por gusto","intro","En la biblioteca del colegio hay libros que nadie ha pedido prestados en años.","Abre el tema con una situación concreta y todavía no da ninguna opinión: es la introducción."],
+  ["Leer por gusto","concl","Un libro no compite con una pantalla: nos da algo que ella no puede darnos, tiempo para pensar por nuestra cuenta. Vale la pena hacerle un espacio.","Cierra con una reflexión y una invitación a leer, retomando la postura del autor: es la conclusión."],
+  ["Más educación física","arg","Los estudiantes que hacen deporte con regularidad duermen mejor y llegan más descansados a clase.","Da una razón a favor de más educación física: es un argumento, aunque no tenga conector."],
+  ["Más educación física","intro","Suena el timbre del descanso y la mitad del curso se queda sentada mirando el celular.","Pinta una escena cotidiana para presentar el problema. El autor aún no opina: es la introducción."],
+  ["Las redes sociales","contra","Prohibir las redes a los menores parece una solución sencilla. El problema es que lo prohibido se usa a escondidas y sin nadie que oriente.","Presenta la postura contraria (prohibirlas) y muestra por qué no basta: es un contraargumento."],
+  ["El uniforme escolar","arg","Con uniforme, nadie llega al salón preguntándose si su ropa es lo bastante buena para que no se burlen.","Muestra un beneficio del uniforme que apoya la tesis: es un argumento."],
+  ["El uniforme escolar","intro","Cada enero, en las tiendas del centro se forman filas de familias que compran sacos, jardineras y zapatos negros.","Describe una escena para presentar el tema y todavía no hay opinión: es la introducción."],
+  ["Los videojuegos","tesis","Los videojuegos, jugados con medida, pueden enseñar tanto como muchas actividades que los adultos sí aprueban.","Es la idea que el autor va a defender, sin «considero que»: es la tesis."],
+  ["Las tareas para la casa","concl","Menos tareas no significa estudiar menos: significa estudiar mejor y llegar al día siguiente con ganas de aprender.","Resume la postura del ensayo en una frase final que deja una idea para recordar: es la conclusión."],
+  ["Comida sana en el colegio","arg","Un estudiante que almuerza fruta, arroz y proteína se concentra mejor en la tarde que uno que solo come paquetes y gaseosa.","Compara dos casos para apoyar la tesis de la comida sana: es un argumento."],
+  ["Aprender otro idioma","contra","Hoy cualquier celular traduce en segundos, ¿para qué estudiar inglés entonces? Porque una aplicación no puede hacer amigos ni entender un chiste por nosotros.","Pone en boca de otros una objeción (el traductor) y la responde: es un contraargumento."],
+  ["La música en el colegio","tesis","La clase de música merece tantas horas como la de matemáticas.","Es una opinión discutible que el ensayo va a defender: es la tesis, aunque no diga «a mi juicio»."]
+];
+
 /* ---------- Tema extra: la ponencia (preguntas de opción múltiple; la primera opción es la correcta) ---------- */
 const PONENCIA = [
-  ["¿Qué es una ponencia?", ["Una exposición oral preparada ante un público","Un texto escrito para leerse en silencio en casa","Una charla improvisada entre amigos en el descanso","Un debate en el que dos equipos se turnan para hablar"], "La ponencia es oral, se prepara con tiempo y se presenta frente a un público."],
-  ["¿Cómo se llama la persona que presenta una ponencia?", ["El ponente","El moderador","El oyente","El organizador"], "Quien expone es el ponente. El público escucha y el moderador organiza."],
-  ["En un foro o congreso, ¿qué hace el moderador?", ["Presenta a los ponentes y organiza el tiempo y las preguntas","Escribe la ponencia completa para que el ponente solo la lea","Califica a cada ponente con una nota del uno al diez","Se sienta con el público y escucha sin intervenir nunca"], "El moderador dirige el evento: presenta, cuida el tiempo y da la palabra al público."],
+  ["¿Qué es una ponencia?", ["Una exposición oral preparada sobre un tema ante un público","Una discusión entre dos equipos que defienden posturas opuestas","Una conversación en la que un periodista entrevista a un experto","Una reunión en la que varias personas opinan libremente de un tema"], "La ponencia es una exposición preparada: el ponente presenta un tema ante un público. En un debate se enfrentan posturas y en una entrevista mandan las preguntas."],
+  ["¿Cómo se llama la persona que presenta una ponencia?", ["El ponente","El moderador","El relator","El auditorio"], "Quien expone es el ponente. El moderador organiza, el relator toma nota de lo que se dijo y el auditorio es el público."],
+  ["En un foro o congreso, ¿qué hace el moderador?", ["Presenta a los ponentes, controla el tiempo y organiza las preguntas","Expone el tema principal del evento antes que los demás ponentes","Resume por escrito lo que dijo cada ponente cuando todo termina","Responde las preguntas del público en lugar de los ponentes"], "El moderador dirige el evento: presenta, cuida el tiempo y da la palabra al público. Quien escribe el resumen es el relator."],
   ["¿Cuál es el orden de las partes de una ponencia?", ["Introducción, desarrollo, conclusión y preguntas","Desarrollo, introducción, preguntas y conclusión","Introducción, preguntas, desarrollo y conclusión","Preguntas, introducción, conclusión y desarrollo"], "Empieza con la introducción, sigue el desarrollo, cierra con la conclusión y al final se abre la ronda de preguntas."],
-  ["¿Qué se hace en la introducción de una ponencia?", ["Saludar, presentar el tema y decir el objetivo","Mostrar todos los datos, gráficas y estadísticas","Resumir las ideas principales y luego despedirse","Responder todas las dudas que tenga el público"], "La introducción saluda, presenta el tema y anuncia qué se va a explicar y para qué."],
+  ["¿Qué se hace en la introducción de una ponencia?", ["Saludar, presentar el tema y decir el objetivo","Explicar los datos más importantes de la investigación","Resumir las ideas principales y agradecer al público","Contar de qué fuentes salió la información usada"], "La introducción saluda, presenta el tema y anuncia qué se va a explicar y para qué. Los datos van en el desarrollo y el resumen en la conclusión."],
   ["«Buenos días. Hoy les voy a hablar del reciclaje en el colegio y de por qué deberíamos empezar ya.» ¿A qué parte de la ponencia corresponde lo anterior?", ["Introducción","Desarrollo","Conclusión","Ronda de preguntas"], "Saluda y presenta el tema y el objetivo: es la introducción."],
-  ["«Según la Secretaría de Ambiente, cada estudiante produce casi un kilo de basura a la semana, como muestra esta gráfica.» ¿A qué parte de la ponencia corresponde lo anterior?", ["Desarrollo","Introducción","Conclusión","Ronda de preguntas"], "Da datos, cita una fuente y usa un apoyo visual: es el desarrollo."],
+  ["«Según una encuesta que hicimos en nuestro curso, cada estudiante bota casi un kilo de basura a la semana, como muestra esta gráfica.» ¿A qué parte de la ponencia corresponde lo anterior?", ["Desarrollo","Introducción","Conclusión","Ronda de preguntas"], "Da un dato, dice de dónde salió y usa un apoyo visual: es el desarrollo."],
   ["«Para cerrar, recordemos las tres ideas principales. Muchas gracias por su atención.» ¿A qué parte de la ponencia corresponde lo anterior?", ["Conclusión","Introducción","Desarrollo","Ronda de preguntas"], "Resume las ideas y agradece: es la conclusión."],
   ["«¿Alguien tiene alguna pregunta o comentario?» ¿En qué momento de la ponencia se dice lo anterior?", ["En la ronda de preguntas","En el saludo inicial","En medio del desarrollo","Justo antes de la conclusión"], "Después de la conclusión se abre un espacio para que el público pregunte."],
   ["¿En qué parte de la ponencia se explican las ideas con datos y ejemplos?", ["En el desarrollo","En la introducción","En la conclusión","En la ronda de preguntas"], "El desarrollo es el cuerpo: ahí van las ideas, los datos, los ejemplos y las fuentes."],
-  ["En una ponencia, ¿quién es el público?", ["Las personas que escuchan la exposición","La persona que organiza todo el evento","El grupo que escribe las diapositivas","Los jurados que califican al ponente"], "El público son quienes escuchan. Al final pueden hacer preguntas."],
-  ["¿Qué es un simposio?", ["Una reunión en la que varios expertos presentan ponencias sobre un tema","Una obra de teatro en la que varios actores representan una historia","Un concurso en el que los estudiantes leen cuentos en voz alta","Una reunión de padres para hablar de las notas de sus hijos"], "En un simposio, varios ponentes exponen sobre un mismo tema ante un público."],
-  ["¿Cuál es el primer paso para preparar una ponencia?", ["Elegir el tema e investigar en fuentes confiables","Hacer diapositivas con muchas imágenes llamativas","Aprenderse todo de memoria, palabra por palabra","Esperar al día de la presentación e improvisar"], "Primero se define bien el tema y se investiga; después se organiza y se preparan los apoyos."],
-  ["¿Para qué sirve un guion o esquema en una ponencia?", ["Para ordenar las ideas y no perder el hilo","Para leerlo completo sin levantar la mirada","Para entregarlo en vez de hacer la ponencia","Para no tener que ensayar antes de presentar"], "El guion es una guía con las ideas clave. Se mira de vez en cuando, no se lee completo."],
-  ["¿Cómo deben ser las diapositivas de una ponencia?", ["Con pocas palabras, letra grande e imágenes","Con todo el texto, para leerlo en voz alta","Con muchas animaciones y colores brillantes","Con letra pequeña para que quepa más información"], "Las diapositivas apoyan al ponente; no lo reemplazan. Si tienen mucho texto, el público lee en vez de escuchar."],
-  ["¿Por qué conviene ensayar la ponencia antes?", ["Para medir el tiempo y ganar seguridad","Para recitarla de memoria lo más rápido posible","No conviene, porque improvisada suena mejor","Para no tener que mirar al público ese día"], "Ensayar en voz alta ayuda a medir el tiempo y a sentirse seguro."],
-  ["¿Para qué sirve el contacto visual en una ponencia?", ["Para mantener la atención y mostrar seguridad","Para poder leer mejor lo que dicen las diapositivas","Para que el profesor note que estás nervioso","No sirve para nada en una exposición oral"], "Mirar a distintas personas del público las mantiene atentas y muestra confianza."],
-  ["¿Qué es una muletilla?", ["Una palabra que se repite sin necesidad, como «eh»","Una frase de otra persona que se pone entre comillas","Una imagen que acompaña lo que dice el ponente","La última frase con la que se cierra la ponencia"], "Las muletillas («eh», «o sea», «este») distraen. Una pausa en silencio es mejor."],
-  ["¿Cómo debe usar la voz el ponente?", ["Clara, con buen volumen y sin correr","Muy rápida, para terminar a tiempo","Bajita, para no molestar al público","Siempre igual, sin cambiar el tono"], "Volumen, claridad, ritmo pausado y cambios de tono hacen que el público entienda y no se aburra."],
-  ["¿Qué postura conviene durante una ponencia?", ["Erguida y tranquila, con las manos acompañando","Con las manos en los bolsillos y de medio lado","Caminando sin parar de un lado a otro del salón","Con los brazos cruzados durante toda la exposición"], "La postura también comunica: abierta y tranquila transmite seguridad."],
-  ["Si en tu ponencia usas una idea o un dato de otra persona, ¿qué debes hacer?", ["Decir de quién es: «Según…»","Decirla como si fuera una idea tuya","Saltarla para no tener que explicarla","Leerla más rápido para que no se note"], "En voz alta se nombra la fuente, así el público sabe que la idea es de otra persona."],
-  ["Alguien del público te hace una pregunta que no sabes responder. ¿Qué haces?", ["Reconocer con honestidad que no lo sabes","Inventar una respuesta para no quedar mal","Hacer como si no hubieras escuchado la pregunta","Decir que esa pregunta no tiene importancia"], "Reconocer que no se sabe algo, con respeto y ofreciendo averiguarlo, da más credibilidad que inventar."],
-  ["¿Qué debes hacer con el tiempo que te dan para la ponencia?", ["Respetarlo y repartirlo entre las partes","Usar todo el tiempo extra que quieras","Terminar en un minuto para salir rápido","Ignorar al moderador cuando avisa la hora"], "Respetar el tiempo es respetar al público y a los demás ponentes."],
-  ["¿Dónde se suelen presentar ponencias?", ["En congresos, foros y simposios","Solo en periódicos y revistas","En novelas y libros de cuentos","En recetas y manuales de cocina"], "La ponencia es típica de eventos académicos, aunque en clase también se hacen."],
-  ["¿Cuál es el propósito de una ponencia?", ["Informar o convencer al público sobre un tema","Entretener al público sin darle información","Contar chistes para que el tiempo pase rápido","Leer un cuento en voz alta frente al grupo"], "El ponente comparte lo que investigó para que el público aprenda o cambie de opinión."],
-  ["¿Qué apoyo visual ayuda más en una ponencia?", ["Una gráfica sencilla que explique un dato","Una diapositiva llena de párrafos largos","Un video largo que no tenga que ver con el tema","Muchas fotos que pasan rápido y sin explicación"], "Un buen apoyo visual aclara una idea de un vistazo."]
+  ["En una ponencia, ¿quién es el público?", ["Las personas que asisten a escuchar la exposición","Los ponentes que hablan después en el mismo evento","El comité que organiza el evento y elige los temas","Los invitados que comentan la ponencia en un panel"], "El público son quienes escuchan. Al final pueden hacer preguntas."],
+  ["¿Qué es un simposio?", ["Una reunión en la que varios expertos exponen sobre un mismo tema","Una discusión en la que dos grupos defienden posturas contrarias","Una conversación informal entre especialistas, sin orden fijo","Una clase en la que un solo profesor explica un tema muy largo"], "En un simposio, varios ponentes exponen por turnos sobre un mismo tema ante un público."],
+  ["¿Cuál es el primer paso para preparar una ponencia?", ["Elegir y delimitar el tema","Diseñar las diapositivas","Escribir el guion completo","Ensayar frente a los amigos"], "Primero se elige y delimita el tema; después se investiga, se hace el guion, se preparan los apoyos y se ensaya."],
+  ["¿Para qué sirve un guion o esquema en una ponencia?", ["Para ordenar las ideas clave y no perder el hilo","Para leerlo completo y no equivocarse al hablar","Para entregárselo al moderador antes de empezar","Para memorizar cada frase exactamente igual"], "El guion es una guía con las ideas clave. Se mira de vez en cuando; si se lee completo, el ponente deja de mirar al público."],
+  ["¿Cómo deben ser las diapositivas de una ponencia?", ["Con pocas palabras, letra grande e imágenes","Con el texto completo de lo que vas a decir","Con muchas animaciones para que no se aburran","Con todos los datos que encontraste al investigar"], "Las diapositivas apoyan al ponente; no lo reemplazan. Si tienen mucho texto, el público lee en vez de escuchar."],
+  ["¿Por qué conviene ensayar la ponencia antes?", ["Para medir el tiempo y ganar seguridad","Para memorizar el texto palabra por palabra","Para que las diapositivas queden más bonitas","Para saber de antemano qué van a preguntar"], "Ensayar en voz alta ayuda a medir el tiempo y a sentirse seguro. Memorizar todo hace que suene recitado."],
+  ["¿Para qué sirve el contacto visual en una ponencia?", ["Para mantener la atención y mostrar seguridad","Para no tener que mirar el guion en ningún momento","Para saber quién va a hacer preguntas al final","Para poder hablar más rápido sin perderse"], "Mirar a distintas personas del público las mantiene atentas y muestra confianza."],
+  ["¿Qué es una muletilla?", ["Una palabra que se repite sin necesidad, como «eh»","Una frase corta que resume la idea principal","Una pausa en silencio para que el público piense","Una palabra técnica que el público no conoce"], "Las muletillas («eh», «o sea», «este») distraen. Una pausa en silencio, en cambio, ayuda."],
+  ["¿Cómo debe usar la voz el ponente?", ["Clara, con buen volumen y ritmo pausado","Rápida, para alcanzar a decir toda la información","Fuerte y siempre en el mismo tono para sonar seguro","Suave, como en una conversación entre amigos"], "Volumen, claridad, ritmo pausado y cambios de tono hacen que el público entienda y no se aburra."],
+  ["¿Qué postura conviene durante una ponencia?", ["Erguida y tranquila, con las manos acompañando","Quieta detrás de la mesa, con las manos juntas","Mirando la pantalla para seguir las diapositivas","Caminando todo el tiempo para mostrar energía"], "La postura también comunica: abierta, tranquila y de frente al público transmite seguridad."],
+  ["Si en tu ponencia usas una idea o un dato de otra persona, ¿qué debes hacer?", ["Decir de quién es: «Según…»","Ponerla en la diapositiva sin nombrarla","Decirla con tus palabras sin nombrar al autor","Nombrar la fuente solo si alguien lo pregunta"], "En voz alta se nombra la fuente, así el público sabe que la idea es de otra persona. Decirla con otras palabras no la vuelve tuya."],
+  ["Alguien del público te hace una pregunta que no sabes responder. ¿Qué haces?", ["Reconocer que no lo sabes y ofrecer averiguarlo","Responder algo parecido aunque no sea exacto","Pedirle al moderador que pase a otra pregunta","Decir que eso no hacía parte de tu tema"], "Reconocer con respeto que no se sabe algo, y ofrecer averiguarlo, da más credibilidad que improvisar una respuesta."],
+  ["¿Qué debes hacer con el tiempo que te dan para la ponencia?", ["Respetarlo y repartirlo entre las partes","Usarlo casi todo en el desarrollo","Terminar antes para dejar más preguntas","Extenderlo si el público está interesado"], "Respetar el tiempo es respetar al público y a los demás ponentes. Cada parte necesita su espacio."],
+  ["¿Dónde se suelen presentar ponencias?", ["En congresos, foros y simposios","En debates y mesas redondas","En entrevistas y conversatorios","En noticieros y programas de radio"], "La ponencia es típica de eventos académicos como congresos, foros y simposios, aunque en clase también se hacen."],
+  ["¿Cuál es el propósito de una ponencia?", ["Informar o convencer al público sobre un tema","Debatir con el público hasta llegar a un acuerdo","Mostrar todo lo que el ponente sabe del tema","Entretener al público con anécdotas personales"], "El ponente comparte lo que investigó para que el público aprenda o cambie de opinión."],
+  ["¿Qué apoyo visual ayuda más en una ponencia?", ["Una gráfica sencilla que explique un dato","Una tabla con todos los datos encontrados","Una diapositiva con el texto de la ponencia","Un video que repita lo que dice el ponente"], "Un buen apoyo visual aclara una idea de un vistazo, sin llenar la pantalla."]
 ];
 const TEMAS = ["ensayo","ponencia"];
 
@@ -410,7 +434,7 @@ const DIFICILES = {
     ["«Aunque muchos creen que el uniforme limita la libertad, sostengo que ayuda a reducir las diferencias entre los estudiantes.» ¿Qué parte del ensayo es lo anterior?", ["Tesis","Contraargumento","Introducción","Argumento"], "Menciona una idea contraria, pero lo principal es la postura del autor («sostengo que…»): es la tesis."],
     ["«Así, más que prohibir el celular, la escuela debería enseñar a usarlo; solo así la tecnología jugará a favor del aprendizaje.» ¿Qué parte del ensayo es lo anterior?", ["Conclusión","Tesis","Argumento","Contraargumento"], "«Así» retoma lo dicho, vuelve a la postura y cierra con una reflexión: es la conclusión."],
     ["¿Cuál de estas oraciones podría ser la tesis de un ensayo?", ["Considero que el colegio debería tener una huerta escolar","En Colombia viven más de cincuenta millones de personas","Muchos colegios del país tienen una biblioteca pequeña","Las huertas escolares existen desde hace varios años"], "La tesis es una opinión que se puede discutir. Las demás son datos o hechos."],
-    ["«Según la Organización Mundial de la Salud, los adolescentes deberían hacer al menos 60 minutos de actividad física al día.» ¿Qué tipo de argumento es lo anterior?", ["Argumento de autoridad","Argumento de ejemplo","Argumento de experiencia","Argumento de analogía"], "Se apoya en lo que dice una institución reconocida: es un argumento de autoridad."],
+    ["«Según la Organización Mundial de la Salud, los adolescentes deberían hacer al menos 60 minutos de actividad física al día.» ¿Qué tipo de argumento es lo anterior?", ["Argumento de autoridad","Argumento con un ejemplo","Argumento con una comparación","Argumento con un dato propio"], "Se apoya en lo que dice una institución reconocida: es un argumento de autoridad."],
     ["¿Qué diferencia a un contraargumento de un argumento?", ["Presenta la idea opuesta y luego la responde","Siempre va al principio, antes de la tesis","Es una cita textual de un autor famoso","Resume todo lo dicho al final del ensayo"], "El argumento apoya la tesis; el contraargumento muestra lo que piensa quien no está de acuerdo y lo refuta."],
     ["«¿Deberían los colegios dejar de poner tareas para la casa? La pregunta divide a padres, profesores y estudiantes.» ¿Qué parte del ensayo es lo anterior?", ["Introducción","Tesis","Contraargumento","Conclusión"], "Plantea el tema y la pregunta, pero todavía no da una opinión: es la introducción."]
   ],
@@ -427,7 +451,7 @@ const DES_SEG = 20;
 
 const ENSAYOS = [
  {tema:"El celular en clase", f:[
-  ["intro","Hoy casi todos los estudiantes llevan un celular en la mochila. Lo usamos para conversar, buscar información y entretenernos, y por eso muchos colegios se preguntan qué hacer con él durante las clases.","Presenta el tema con una situación cotidiana y plantea la pregunta del ensayo, pero todavía no da una opinión."],
+  ["intro","Hoy casi todos los estudiantes llevan un celular en la maleta. Lo usamos para conversar, buscar información y entretenernos, y por eso muchos colegios se preguntan qué hacer con él durante las clases.","Presenta el tema con una situación cotidiana y plantea la pregunta del ensayo, pero todavía no da una opinión."],
   ["tesis","En mi opinión, el celular debería permitirse en clase solo cuando el profesor lo indique para una actividad, porque bien usado es una herramienta de aprendizaje.","\"En mi opinión\" anuncia la postura del autor. Es la idea que el resto del ensayo va a defender."],
   ["arg","Por ejemplo, con el celular podemos consultar un diccionario, revisar un mapa o responder un cuestionario en línea en pocos segundos, lo que hace la clase más dinámica.","Da ejemplos concretos (\"Por ejemplo\") que apoyan la tesis de que el celular sirve para aprender."],
   ["arg","Además, aprender a usarlo con reglas nos prepara para el futuro, ya que en la universidad y en el trabajo tendremos que manejar la tecnología de forma responsable.","\"Además\" suma una nueva razón a favor de la tesis. Es un argumento del desarrollo."],
@@ -453,7 +477,7 @@ const ENSAYOS = [
   ["concl","En resumen, leer no pasa de moda. Dedicar aunque sea veinte minutos al día a un libro puede mejorar nuestra forma de pensar, escribir y convivir.","\"En resumen\" cierra el ensayo y deja una recomendación final."]
  ]},
  {tema:"Más educación física", f:[
-  ["intro","Muchos estudiantes pasan gran parte del día sentados: en la sala de clases, frente a una pantalla y luego haciendo tareas. El movimiento ocupa cada vez menos espacio en nuestra rutina.","Plantea la situación que da origen al tema. Todavía no hay opinión, solo contexto."],
+  ["intro","Muchos estudiantes pasan gran parte del día sentados: en el salón, frente a una pantalla y luego haciendo tareas. El movimiento ocupa cada vez menos espacio en nuestra rutina.","Plantea la situación que da origen al tema. Todavía no hay opinión, solo contexto."],
   ["tesis","Por eso, defiendo que el colegio debería aumentar las horas de educación física a la semana.","\"Defiendo que\" deja clara la postura del autor: es la tesis."],
   ["arg","La Organización Mundial de la Salud recomienda que niños y adolescentes hagan al menos 60 minutos de actividad física al día, y el colegio es un buen lugar para lograrlo.","Cita una fuente confiable (la OMS) como prueba a favor de la tesis."],
   ["arg","Además, hacer ejercicio ayuda a concentrarse: después de moverse, es más fácil prestar atención en las clases siguientes.","\"Además\" suma una razón más que apoya la tesis."],
@@ -465,7 +489,7 @@ const ENSAYOS = [
   ["intro","Las redes sociales forman parte de la vida diaria de los adolescentes. Allí compartimos fotos, conversamos y nos enteramos de lo que pasa en el mundo.","Introduce el tema mostrando lo presente que está en nuestra vida, sin tomar postura."],
   ["tesis","A mi juicio, las redes sociales no son buenas ni malas por sí mismas: su efecto depende de cuánto tiempo y de cómo las usemos.","\"A mi juicio\" anuncia la opinión del autor que guiará todo el texto."],
   ["arg","Por un lado, permiten mantener el contacto con amigos y familiares que viven lejos, y también difundir campañas solidarias en poco tiempo.","\"Por un lado\" presenta una razón que respalda la tesis con ejemplos."],
-  ["arg","Por otro lado, pasar muchas horas comparándose con otras personas puede afectar la autoestima, por lo que es importante poner límites de tiempo.","Completa el razonamiento de la tesis: el efecto depende del uso. Es otro argumento."],
+  ["arg","Por otro lado, el mismo uso puede hacer daño: pasar horas comparándose con otros afecta la autoestima. Eso confirma que el problema no son las redes, sino la forma en que las usamos.","Muestra un riesgo, pero lo usa para reforzar la tesis («depende de cómo las usemos»). No responde a nadie que piense distinto: es un argumento."],
   ["contra","Algunos adultos sostienen que “lo mejor sería prohibirlas a los menores de edad”. Sin embargo, la prohibición no enseña a usarlas bien, y tarde o temprano los jóvenes llegarán a ellas sin preparación.","Pone entre comillas la postura contraria (\"Algunos adultos sostienen\") y la refuta con \"Sin embargo\". Es un contraargumento.","algunos adultos"],
   ["concl","En definitiva, más que alejarnos de las redes, necesitamos aprender a usarlas con criterio, cuidando nuestro tiempo y nuestro bienestar.","\"En definitiva\" señala el cierre y la idea final del ensayo."]
  ]},
@@ -486,7 +510,7 @@ const ENSAYOS = [
   ["concl","En conclusión, los videojuegos no son enemigos del aprendizaje: bien administrados, pueden ayudar a desarrollar habilidades útiles.","\"En conclusión\" cierra el ensayo y reafirma la tesis."]
  ]},
  {tema:"Las tareas para la casa", f:[
-  ["intro","Al terminar la jornada escolar, muchos estudiantes llegan a casa con la mochila llena de tareas. Algunos días pasan horas frente a los cuadernos antes de poder descansar.","Describe una situación conocida para presentar el tema, sin dar todavía una opinión."],
+  ["intro","Al terminar la jornada escolar, muchos estudiantes llegan a casa con la maleta llena de tareas. Algunos días pasan horas frente a los cuadernos antes de poder descansar.","Describe una situación conocida para presentar el tema, sin dar todavía una opinión."],
   ["tesis","En mi opinión, las tareas deberían ser menos y más cortas, pero bien pensadas para reforzar lo aprendido en clase.","\"En mi opinión\" expresa la postura que el ensayo va a defender."],
   ["arg","En primer lugar, el descanso es necesario para aprender: un estudiante agotado rinde menos y olvida con más facilidad lo que estudió.","\"En primer lugar\" ordena la primera razón a favor de la tesis."],
   ["arg","En segundo lugar, una tarea corta y bien diseñada permite practicar lo esencial sin quitarle tiempo a la familia, al deporte o a la lectura.","\"En segundo lugar\" agrega otra razón que apoya la tesis."],
@@ -494,10 +518,10 @@ const ENSAYOS = [
   ["concl","En resumen, menos tareas pero de mejor calidad nos ayudarían a aprender más y a vivir con menos estrés.","\"En resumen\" retoma la tesis para cerrar el ensayo."]
  ]},
  {tema:"Comida sana en el colegio", f:[
-  ["intro","En los recreos, los quioscos de muchos colegios venden papas fritas, galletas y bebidas con mucha azúcar. Es lo más fácil de comprar y, a veces, lo único que hay.","Muestra el problema con una escena cotidiana. Aún no hay opinión del autor."],
-  ["tesis","Sostengo que los colegios deberían ofrecer principalmente alimentos saludables en sus quioscos y comedores.","\"Sostengo que\" presenta la postura central del ensayo."],
+  ["intro","En los descansos, las tiendas escolares de muchos colegios venden papas fritas, galletas y bebidas con mucha azúcar. Es lo más fácil de comprar y, a veces, lo único que hay.","Muestra el problema con una escena cotidiana. Aún no hay opinión del autor."],
+  ["tesis","Sostengo que los colegios deberían ofrecer principalmente alimentos saludables en sus tiendas escolares y comedores.","\"Sostengo que\" presenta la postura central del ensayo."],
   ["arg","Una alimentación equilibrada entrega la energía que el cuerpo y el cerebro necesitan para aprender durante toda la jornada.","Da una razón que explica por qué la tesis es correcta."],
-  ["arg","Asimismo, el colegio es un lugar donde se forman hábitos: si nos acostumbramos a comer fruta o sándwiches caseros, es más probable que lo sigamos haciendo de adultos.","\"Asimismo\" suma un nuevo argumento a favor de la tesis."],
+  ["arg","Asimismo, el colegio es un lugar donde se forman hábitos: si nos acostumbramos a comer fruta o comida hecha en casa, es más probable que lo sigamos haciendo de adultos.","\"Asimismo\" suma un nuevo argumento a favor de la tesis."],
   ["contra","Hay quienes dicen que cada estudiante debe ser libre de comer lo que quiera. Pero el colegio no prohíbe nada fuera de él; solo se trata de que lo que ofrece sea sano.","Recoge la objeción (\"Hay quienes dicen\") y la rebate con \"Pero\"."],
   ["concl","Por todo lo anterior, ofrecer comida saludable en el colegio es una forma sencilla de cuidar la salud y el rendimiento de los estudiantes.","\"Por todo lo anterior\" resume lo dicho y cierra el ensayo."]
  ]},
@@ -616,6 +640,7 @@ const Sonido = (() => {
     init, st, listo: () => !!ctx && ctx.state === "running",
     sonando: () => !!ctx && ctx.state === "running" && !!reloj && sonoAntes,
     musica(v){ st.musica = v; guardar("cz-musica", v); init(); if (!ctx) return; v ? arrancar() : parar(); },
+    pausarMusica(){ st.musica = false; if (ctx) parar(); if (alCambiar) alCambiar(); },
     efectos(v){ st.efectos = v; guardar("cz-efectos", v); init(); if (sfx) sfx.gain.value = v ? .7 : 0; },
     acierto(){ fx(t => { [72,76,79,84].forEach((m,i) => tono(m, t+i*.07, .28, {tipo:"square", vol:.06})); tono(96, t+.28, .4, {vol:.05}); }); },
     error(){ fx(t => { tono(50, t, .38, {tipo:"sawtooth", vol:.07, slide:-8}); tono(57, t, .3, {tipo:"square", vol:.03, slide:-6}); }); },
@@ -671,7 +696,7 @@ function horca(err, {animar=false, estado="jugando", mini=false}={}){
     if (err >= 1 && !mini) fig += cara(err, muerto ? "muerto" : "jugando");
   }
   const cuerda = salvado ? `<path d="M140 20 Q143 28 140 36 M140 36 L136 41 M140 36 L144 40"/>` : `<path d="M140 20 Q143 36 140 52"/>`;
-  return `<svg class="horca ${muerto?"dead":""} ${salvado?"saved":""}" viewBox="0 0 200 240" role="img" aria-label="${salvado ? "Ahorcado salvado" : `Ahorcado: ${err} de ${MAX_FALLOS} fallos`}">
+  return `<svg class="horca ${mini?"mini":""} ${muerto?"dead":""} ${salvado?"saved":""}" viewBox="0 0 200 240" role="img" aria-label="${salvado ? "Ahorcado salvado" : `Ahorcado: ${err} de ${MAX_FALLOS} fallos`}">
     <path class="ground" d="M6 229 Q100 233 194 228"/>
     <g class="wood"><path d="M14 226 Q80 222 156 227"/><path d="M50 228 Q47 120 52 18"/><path d="M46 22 Q100 17 144 21"/><path d="M50 58 Q66 40 86 20"/>${cuerda}</g>
     ${mini ? "" : `<g class="wood2"><path d="M56 226 Q54 130 57 26"/><path d="M52 27 Q100 23 136 26"/></g>`}
@@ -701,10 +726,16 @@ function confeti(){
 
 
 /* ---------- Palabras clave para las pistas ---------- */
-const CLAVES = ["En mi opinión","Considero que","considero que","Pienso que","Sostengo que","defiendo que","A mi juicio","Mi postura es","Por ejemplo","Además","En primer lugar","En segundo lugar","Asimismo","También","Diversos estudios señalan","Según diversas investigaciones","Por un lado","Por otro lado","Es cierto que","Es verdad que","Sin embargo","No obstante","Aun así","Pero","pero","Hay quienes","Algunas personas","Algunos profesores piensan","Algunos adultos sostienen","Quienes están en contra","Quienes no están de acuerdo","Se podría objetar","Se podría pensar","En conclusión","En resumen","En definitiva","Por todo lo anterior","Por estas razones","Así,","Hoy","Cada día","Cada año","Vivimos","Muchos estudiantes","Muchos adolescentes"];
-function marcarClaves(t){
+const CLAVES = {
+  intro:["Hoy","Cada día","Cada año","Vivimos","Muchos estudiantes","Muchos adolescentes","Al terminar","En los descansos"],
+  tesis:["En mi opinión","Considero que","considero que","Pienso que","Sostengo que","defiendo que","A mi juicio","Mi postura es"],
+  arg:["Por ejemplo","Además","En primer lugar","En segundo lugar","Asimismo","También","Diversos estudios señalan","Según diversas investigaciones","Por un lado","Por otro lado","Como dice","Como escribió","Se atribuye"],
+  contra:["Es cierto que","Es verdad que","Sin embargo","No obstante","Aun así","Pero","pero","Hay quienes","Algunas personas","algunos piensan","Algunos profesores piensan","Algunos adultos sostienen","Quienes están en contra","Quienes no están de acuerdo","Se podría objetar","Se podría pensar"],
+  concl:["En conclusión","En resumen","En definitiva","Por todo lo anterior","Por estas razones","Así,"]
+};
+function marcarClaves(t, k){
   let h = esc(t);
-  CLAVES.forEach(c => { const e = esc(c); const re = new RegExp("(^|[\\s¿¡(])(" + e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "g"); h = h.replace(re, (m, a, b) => a + "\u0001" + b + "\u0002"); });
+  (CLAVES[k] || []).forEach(c => { const e = esc(c); const re = new RegExp("(^|[\\s¿¡(])(" + e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "g"); h = h.replace(re, (m, a, b) => a + "\u0001" + b + "\u0002"); });
   return h.replace(/\u0001/g, '<span class="clave">').replace(/\u0002/g, "</span>");
 }
 
@@ -742,19 +773,19 @@ function recordsHTML(lista, yo){
 
 /* ---------- Citas: lo que va entre comillas es de otra persona ---------- */
 const conCitas = h => h.replace(/“([^”]*)”/g, '<span class="cita">“$1”</span>');
+const USOS_CITA = [["apoyo","Para apoyar su propia opinión"],["contra","Para mostrar lo que piensa quien no está de acuerdo"],["resumen","Para resumir lo que ya dijo antes"]];
 function bonusCita(q){
-  const ops = shuffle([["autor", "Del autor del ensayo"], ["otro", "De " + q.c]]);
-  return `<div class="bonus" id="bonus"><h4>Bonus +5: ¿de quién son las palabras entre comillas?</h4>
-    <div class="row2">${ops.map(([v,t]) => `<button class="bq" data-v="${v}">${esc(t)}</button>`).join("")}</div><div id="bonusFb"></div></div>`;
+  return `<div class="bonus" id="bonus"><h4>Bonus +5: ¿para qué usa el autor las palabras entre comillas?</h4>
+    <div class="row2">${shuffle(USOS_CITA.slice()).map(([v,t]) => `<button class="bq" data-v="${v}">${esc(t)}</button>`).join("")}</div><div id="bonusFb"></div></div>`;
 }
 function responderBonus(q, b){
   if (S.bonusListo) return;
   S.bonusListo = true;
-  const ok = b.dataset.v === "otro", eq = S.equipos[S.turno];
-  document.querySelectorAll(".bq").forEach(x => { x.disabled = true; if (x.dataset.v === "otro") x.classList.add("right"); else if (x === b) x.classList.add("wrong"); });
+  const correcta = q.k === "contra" ? "contra" : "apoyo", ok = b.dataset.v === correcta, eq = S.equipos[S.turno];
+  document.querySelectorAll(".bq").forEach(x => { x.disabled = true; if (x.dataset.v === correcta) x.classList.add("right"); else if (x === b) x.classList.add("wrong"); });
   if (ok) { eq.pts += 5; Sonido.acierto(); } else Sonido.error();
-  const uso = q.k === "contra" ? "mostrar lo que piensan quienes no están de acuerdo, y después responderles" : "apoyar su tesis con la voz de alguien reconocido";
-  $("#bonusFb").innerHTML = `<p>${ok ? "<b>¡Bien! +5.</b> " : "<b>No.</b> "}Las comillas indican que esas palabras son de ${esc(q.c)}, no del autor del ensayo. El autor las usa para ${uso}.</p>`;
+  const uso = correcta === "contra" ? "mostrar lo que piensan quienes no están de acuerdo y después responderles" : "respaldar su tesis con la voz de alguien más";
+  $("#bonusFb").innerHTML = `<p>${ok ? "<b>¡Bien! +5.</b> " : "<b>No.</b> "}Las comillas indican que esas palabras son de ${esc(q.c)}, no del autor. Aquí las usa para ${uso}.</p>`;
   $("#scores").innerHTML = scoresHTML();
   publicarVivo();
 }
@@ -863,6 +894,11 @@ function inicio(){
   };
   $("#playO").onclick = () => { cfg.jugador = $("#playerName").value.trim(); startOrdena(); };
   $("#vCrear").onclick = elegirSala;
+  let salaHost = ""; try { salaHost = sessionStorage.getItem("cz-host") || ""; } catch {}
+  if (salaHost) {
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = `Retomar sala ${salaHost}`;
+    b.onclick = () => retomarSala(salaHost); $("#vCrear").parentNode.prepend(b);
+  }
   $("#vUnir").onclick = () => unirseSala();
   window.scrollTo(0,0);
 }
@@ -887,7 +923,7 @@ function guia(){
     <p class="note" style="margin-top:6px">ojo: los argumentos y el contraargumento forman el desarrollo (el cuerpo) del ensayo</p>
     <h2 style="margin-top:34px">Tema extra: <span class="hl" style="${cvar("pon")}">la ponencia</span></h2>
     <p>Una ponencia es una <b>exposición oral preparada</b> en la que una persona, el <b>ponente</b>, presenta un tema ante un público para informarlo o convencerlo. Se hace en congresos, foros, simposios y en clase. En los eventos, un <b>moderador</b> presenta a los ponentes, cuida el tiempo y organiza las preguntas.</p>
-    <p>Se parece al ensayo porque tiene introducción, desarrollo y conclusión. La diferencia es que el ensayo se escribe para leerse y la ponencia se dice en voz alta frente a otras personas.</p>
+    <p>Se parece al ensayo porque tiene introducción, desarrollo y conclusión. La diferencia es que el ensayo se escribe para leerse y la ponencia se presenta en voz alta frente a otras personas. En congresos y eventos académicos, la ponencia también suele tener una versión escrita que el ponente prepara antes y luego expone.</p>
     ${[["Introducción","Saluda, presenta el tema y di el objetivo: qué vas a explicar y por qué importa.",["Buenos días…","Hoy les voy a hablar de…","El objetivo es…"]],
        ["Desarrollo","Explica las ideas en orden, con datos, ejemplos y apoyos visuales. Si usas ideas de otra persona, di de quién son.",["En primer lugar…","Según…","Como muestra esta gráfica…"]],
        ["Conclusión","Resume las ideas principales, deja un mensaje final y agradece.",["Para cerrar…","En resumen…","Muchas gracias por su atención"]],
@@ -906,6 +942,7 @@ function guia(){
 const POOL = [];
 ENSAYOS.forEach(e => e.f.forEach(([k,t,w,c]) => POOL.push({k,t,w,c,tema:e.tema})));
 // Si empieza con «…», el fragmento va en la hoja y lo demás es la pregunta de abajo
+SIN_PISTAS.forEach(([tema,k,t,w]) => POOL.push({k,t,w,tema,dif:true}));
 PONENCIA.forEach(([t,ops,w]) => { const m = t.match(/^«(.+)» (.+)$/); POOL.push({k:"pon", t: m ? m[1] : t, pq: m ? m[2] : "", ops, ok:0, w, tema:"La ponencia"}); });
 // Arma una partida como lista de posiciones en POOL, para poder compartirla en vivo
 function armarCola(n){
@@ -914,27 +951,49 @@ function armarCola(n){
 }
 function colaEnsayo(n){
   if (n <= 0) return [];
-  const idx = POOL.map((_, i) => i).filter(i => POOL[i].k !== "pon");
-  // Variedad: una vuelta con cada parte antes de repetir
-  const porParte = ORDEN_PARTES.map(k => shuffle(idx.filter(i => POOL[i].k === k)));
-  let cola = [];
-  while (cola.length < n) {
-    const vuelta = shuffle(porParte.map(arr => arr.shift()).filter(i => i !== undefined));
-    if (!vuelta.length) break;
-    cola.push(...vuelta);
-  }
-  cola = cola.slice(0, n);
-  // Que en cada partida aparezca al menos una cita entre comillas
+  // Al azar, sin vueltas fijas: nunca dos de la misma parte seguidas y sin abusar de una sola parte
+  const idx = shuffle(POOL.map((_, i) => i).filter(i => POOL[i].k !== "pon"));
+  const maxParte = Math.ceil(n / 5) + 1, maxDif = n <= 5 ? 1 : n <= 10 ? 3 : n;
+  const cuenta = {}, cola = []; let dif = 0;
+  for (let estricto = 1; estricto >= 0 && cola.length < n; estricto--)
+    for (const i of idx) {
+      if (cola.length >= n) break;
+      const q = POOL[i];
+      if (cola.includes(i) || (cola.length && POOL[cola[cola.length - 1]].k === q.k)) continue;
+      if (estricto && ((cuenta[q.k] || 0) >= maxParte || (q.dif && dif >= maxDif))) continue;
+      cola.push(i); cuenta[q.k] = (cuenta[q.k] || 0) + 1; if (q.dif) dif++;
+    }
+  // Que aparezca al menos una cita entre comillas (reemplaza un recorte de la misma parte)
   if (!cola.some(i => POOL[i].c)) {
-    const cita = shuffle(idx.filter(i => POOL[i].c))[0], j = cola.findIndex(i => POOL[i].k === POOL[cita].k);
-    cola[j >= 0 ? j : cola.length - 1] = cita;
+    const citas = idx.filter(i => POOL[i].c);
+    let j = cola.findIndex(i => ["arg","contra"].includes(POOL[i].k)), cita;
+    if (j >= 0) cita = citas.find(i => POOL[i].k === POOL[cola[j]].k);
+    else for (j = 0; j < cola.length && cita === undefined; j++) {
+      const vec = [cola[j - 1], cola[j + 1]].filter(x => x !== undefined).map(x => POOL[x].k);
+      cita = citas.find(i => !vec.includes(POOL[i].k));
+      if (cita !== undefined) j--;
+    }
+    if (cita !== undefined && j >= 0 && j < cola.length) cola[j] = cita;
   }
   return cola;
 }
+// Huella del banco de preguntas: si el proyector y un celular tienen versiones distintas, los números de pregunta no coinciden
+const VERSION_PREGUNTAS = (() => { let h = 0; const t = JSON.stringify([POOL.map(q => q.t), DIFICILES]); for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); })();
 function startClasifica(vivo){
-  const cola = (vivo ? vivo.orden : armarCola(cfg.rondas)).map(i => POOL[i]);
-  const equipos = (!vivo && cfg.equipos) ? cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>({nombre:(n||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false})) : [{nombre:(vivo ? vivo.nombre : cfg.jugador) || "Tú", pts:0, ok:0, n:0, err:0, out:false}];
+  const enEquipos = !vivo && cfg.equipos;
+  // Por equipos, la cantidad de recortes se ajusta a un múltiplo del número de equipos para que todos jueguen las mismas veces
+  const n = enEquipos ? Math.max(cfg.nEquipos, Math.round(cfg.rondas / cfg.nEquipos) * cfg.nEquipos) : cfg.rondas;
+  const cola = (vivo ? vivo.orden : armarCola(n)).map(i => POOL[i]);
+  const equipos = enEquipos ? cfg.nombres.slice(0,cfg.nEquipos).map((nm,i)=>({nombre:(nm||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false, racha:0})) : [{nombre:(vivo ? vivo.nombre : cfg.jugador) || "Tú", pts:0, ok:0, n:0, err:0, out:false, racha:0}];
   S = { cola, i:0, equipos, turno:0, racha:0, respondido:false, fallos:[], vivo: vivo || null, stats:Object.fromEntries([...ORDEN_PARTES, "pon"].map(k=>[k,{ok:0,n:0}])) };
+  // Volvió a entrar a una partida en curso: retoma su puntaje y sigue desde donde iba
+  const prev = vivo && vivo.previo;
+  if (prev) {
+    Object.assign(equipos[0], { pts:prev.pts||0, ok:prev.ok||0, n:prev.n||0, err:prev.err||0, out:!!prev.out });
+    S.ptsPublicados = prev.pts || 0;
+    if (prev.terminado || prev.out || (prev.n||0) >= cola.length) { S.i = cola.length - 1; return final(); }
+    S.i = prev.n || 0;
+  }
   ronda();
 }
 
@@ -960,6 +1019,7 @@ const PREGUNTAS_ENSAYO = ["¿A qué parte del ensayo corresponde el fragmento an
 function ronda(){
   stopTimer();
   const q = S.cola[S.i], eq = S.equipos[S.turno];
+  S.racha = eq.racha || 0;
   S.respondido = false;
   const esPon = q.k === "pon";
   const opts = esPon
@@ -1004,7 +1064,7 @@ function usarPista(){
   const q = S.cola[S.i];
   const correcta = q.k === "pon" ? String(q.ok) : q.k;
   shuffle([...document.querySelectorAll(".ans")].filter(b => b.dataset.k !== correcta)).slice(0, 2).forEach(b => { b.disabled = true; b.classList.add("out"); });
-  if (q.k !== "pon") $("#quote").innerHTML = conCitas(marcarClaves(q.t));
+  if (q.k !== "pon") $("#quote").innerHTML = conCitas(marcarClaves(q.t, q.k));
   $("#pista").disabled = true;
 }
 const vivos = () => S.equipos.filter(e => !e.out);
@@ -1017,13 +1077,13 @@ function responder(k){
   eq.n++; S.stats[q.k].n++;
   let ganados = 0;
   if (ok) {
-    S.racha++; eq.ok++; S.stats[q.k].ok++;
+    eq.racha = (eq.racha || 0) + 1; S.racha = eq.racha; eq.ok++; S.stats[q.k].ok++;
     ganados = 10 + (cfg.tiempo ? Math.round(S.restante / cfg.tiempo * 5) : 0) + (S.racha >= 3 ? 5 : 0);
     if (S.pista) ganados = Math.ceil(ganados / 2);
     eq.pts += ganados;
     Sonido.acierto();
   } else {
-    S.racha = 0; eq.err++;
+    eq.racha = 0; S.racha = 0; eq.err++;
     S.fallos.push({ q, k, quien: eq.nombre });
     if (eq.err >= MAX_FALLOS) eq.out = true;
     $("#gallows").innerHTML = horca(eq.err, {animar:true}) + vidasHTML(eq.err);
@@ -1054,6 +1114,8 @@ function responder(k){
     <div class="cta"><button class="btn go small" id="next">${fin?"Ver resultados":esPon?"Siguiente pregunta":"Siguiente recorte"}</button></div>
   </div>`;
   $("#next").onclick = siguiente;
+  // En proyector la explicación va justo debajo del recorte, para que se vean juntos sin bajar
+  if (matchMedia("(min-width:900px)").matches && $(".main .pregunta")) $(".main").insertBefore($("#fb"), $(".main .pregunta"));
   S.bonusListo = false;
   document.querySelectorAll(".bq").forEach(b => b.onclick = () => responderBonus(q, b));
   $("#next").focus({preventScroll:true});
@@ -1083,6 +1145,7 @@ function repasoHTML(){
 
 function final(){
   stopTimer();
+  S.fin = true;
   let cabecera, gano = false;
   if (cfg.equipos) {
     const rank = S.equipos.slice().sort((a,b)=>(a.out-b.out) || (b.pts-a.pts) || (a.err-b.err));
@@ -1166,6 +1229,7 @@ function salirVivo(){
   if (!VIVO) return;
   VIVO.off.forEach(f => { try { f(); } catch {} });
   if (VIVO.rol === "jugador" && VIVO.yo) VIVO.yo.update({ conectado:false }).catch(() => {});
+  if (VIVO.rol === "host") { VIVO.ref.update({ estado:"cerrada" }).catch(() => {}); try { sessionStorage.removeItem("cz-host"); } catch {} }
   VIVO = null;
 }
 function escuchar(ref, fn){ const cb = ref.on("value", fn); VIVO.off.push(() => ref.off("value", cb)); }
@@ -1216,14 +1280,34 @@ async function crearSala(){
       code = Array.from({length:4}, () => LETRAS[Math.floor(Math.random()*LETRAS.length)]).join("");
       ref = db.ref("salas/" + code);
       const snap = await ref.get();
-      if (!snap.exists() || Date.now() - (snap.val().creada || 0) > 6 * 3600e3) break;
+      if (!snap.exists()) break;
     }
-    await ref.set({ estado:"espera", creada:TS(), tema:cfg.tema, rondas:cfg.rondas, tiempo:cfg.tiempo, orden:armarCola(cfg.rondas) });
-    VIVO = { rol:"host", code, ref, jugadores:{}, estado:"espera", pantalla:null, off:[], celebrado:false };
-    escuchar(ref.child("estado"), s => { VIVO.estado = s.val() || "espera"; pintarHost(); });
-    escuchar(ref.child("jugadores"), s => { VIVO.jugadores = s.val() || {}; pintarHost(); });
-    escuchar(ref.child("desempate"), s => { VIVO.des = s.val(); if (VIVO.estado === "desempate") pintarHost(); });
+    await ref.set({ estado:"espera", creada:TS(), version:VERSION_PREGUNTAS, tema:cfg.tema, rondas:cfg.rondas, tiempo:cfg.tiempo, orden:armarCola(cfg.rondas) });
+    conectarHost(code, ref);
   } catch (e) { pantallaMsg("No se pudo crear la sala", errorVivo(e)); }
+}
+function conectarHost(code, ref, retomada = false){
+  VIVO = { rol:"host", code, ref, jugadores:{}, estado:null, pantalla:null, off:[], celebrado:false, desUsadas:[], retomada };
+  try { sessionStorage.setItem("cz-host", code); } catch {}
+  escuchar(ref.child("estado"), s => { VIVO.estado = s.val() || "espera"; pintarHost(); });
+  escuchar(ref.child("jugadores"), s => { VIVO.jugadores = s.val() || {}; pintarHost(); });
+  escuchar(ref.child("desempate"), s => { VIVO.des = s.val(); if (VIVO.estado === "desempate") pintarHost(); });
+  VIVO.desTick = setInterval(revisarDesempate, 250);
+  VIVO.off.push(() => clearInterval(VIVO.desTick));
+}
+/* Si el proyector recargó la página, puede volver a tomar el control de su sala */
+async function retomarSala(code){
+  salirVivo(); stopTimer(); S = null;
+  pantallaMsg("Retomando la sala…", "Un momento.", false);
+  try {
+    const db = await fb(), ref = db.ref("salas/" + code), sala = (await ref.get()).val();
+    if (!sala || sala.estado === "cerrada" || Date.now() - (sala.creada || 0) > 6 * 3600e3) {
+      try { sessionStorage.removeItem("cz-host"); } catch {}
+      return pantallaMsg("No se pudo retomar", "Esa sala ya no está disponible. Crea una nueva.");
+    }
+    cfg.tema = sala.tema || "ensayo"; cfg.rondas = sala.rondas || 10; cfg.tiempo = sala.tiempo || 0;
+    conectarHost(code, ref, true);
+  } catch (e) { pantallaMsg("No se pudo retomar", errorVivo(e)); }
 }
 function urlSala(){ return URL_JUEGO + "?sala=" + VIVO.code; }
 /* Voz del proyector: anuncia rachas, cambios de líder y ahorcados */
@@ -1319,9 +1403,10 @@ function pintarHost(){
       </section>`;
       pintarQR($("#qrSala"), 96, urlSala());
       $("#vFin").onclick = cerrarPartida;
-      VIVO.cerrando = false; VIVO.resolviendo = 0; VIVO.desUsadas = [];
+      VIVO.cerrando = false; VIVO.resolviendo = 0;
       if ($("#vVoz")) $("#vVoz").onclick = e => { Voz.set(!Voz.on); e.currentTarget.textContent = Voz.on ? "Voz: sí" : "Voz: no"; e.currentTarget.setAttribute("aria-pressed", Voz.on); };
-      VIVO.voz = null; Voz.decir("¡Que empiece el juego! Mucha suerte a todos.", true);
+      VIVO.voz = null;
+      if (VIVO.retomada) VIVO.retomada = false; else Voz.decir("¡Que empiece el juego! Mucha suerte a todos.", true);
     } else {
       const [p1, p2, p3] = js;
       const col = (j, n, c, h) => j ? `<div><span>${esc(j.nombre)}</span><small>${j.pts||0} pts</small><div class="step" style="--c:var(${c});height:${h}px">${n}</div></div>` : `<div></div>`;
@@ -1351,17 +1436,42 @@ function pintarHost(){
     return;
   }
   const total = (VIVO.rondasActual || cfg.rondas);
-  $("#vList").innerHTML = js.map((j,i) => `<div class="vrow ${j.out?"out":""} ${j.conectado===false?"off":""} ${i===0&&!j.out?"top":""}">
-    <span class="pos">${i+1}</span>${horca(j.err||0,{mini:true})}<span class="nm">${esc(j.nombre)}</span>
-    <span class="bar"><i style="width:${Math.min(100,(j.n||0)/total*100)}%"></i></span>
-    <span class="estado">${j.out ? "ahorcado" : j.terminado ? "terminó" : `${j.n||0}/${total}`}</span><span class="pts">${j.pts||0}</span></div>`).join("");
+  pintarTabla(js, total);
   if (est === "jugando") {
-    const enJuego = js.filter(j => !j.out && !j.terminado).length;
+    const enJuego = js.filter(j => !j.out && !j.terminado && j.conectado !== false).length;
     $("#vCount").textContent = `${js.length} jugando · ${enJuego} sin terminar`;
     narrar(js);
     if (js.length && !enJuego) cerrarPartida();
   }
 }
+// Tabla del proyector: solo los 10 primeros, y cada fila se actualiza sin redibujar toda la tabla
+function pintarTabla(js, total){
+  const cont = $("#vList"); if (!cont) return;
+  const MAX = 10, vis = js.slice(0, MAX), vistos = new Set();
+  if (VIVO.filasDe !== cont) { VIVO.filas = {}; VIVO.filasDe = cont; cont.innerHTML = ""; }
+  vis.forEach((j, i) => {
+    vistos.add(j.id);
+    let f = VIVO.filas[j.id];
+    if (!f) {
+      f = document.createElement("div"); f._err = -1;
+      f.innerHTML = `<span class="pos"></span><span class="mh"></span><span class="nm"></span><span class="bar"><i></i></span><span class="estado"></span><span class="pts"></span>`;
+      VIVO.filas[j.id] = f;
+    }
+    f.className = `vrow ${j.out?"out":""} ${j.conectado===false?"off":""} ${i===0&&!j.out?"top":""}`;
+    f.querySelector(".pos").textContent = i + 1;
+    if (f._err !== (j.err||0)) { f._err = j.err||0; f.querySelector(".mh").innerHTML = horca(j.err||0, {mini:true}); }
+    f.querySelector(".nm").textContent = j.nombre || "";
+    f.querySelector(".bar i").style.width = Math.min(100, (j.n||0) / total * 100) + "%";
+    f.querySelector(".estado").textContent = j.out ? "ahorcado" : j.terminado ? "terminó" : `${j.n||0}/${total}`;
+    f.querySelector(".pts").textContent = j.pts || 0;
+    cont.appendChild(f);
+  });
+  Object.keys(VIVO.filas).forEach(id => { if (!vistos.has(id)) { VIVO.filas[id].remove(); delete VIVO.filas[id]; } });
+  let mas = cont.querySelector(".vmas");
+  if (js.length > MAX) { if (!mas) { mas = document.createElement("p"); mas.className = "vmas note"; } mas.textContent = `y ${js.length - MAX} más jugando`; cont.appendChild(mas); }
+  else if (mas) mas.remove();
+}
+
 /* Muerte súbita: si hay empate en el primer lugar, solo los empatados responden una pregunta difícil */
 function cerrarPartida(){
   if (!VIVO || VIVO.cerrando) return;
@@ -1374,15 +1484,12 @@ function cerrarPartida(){
 const nombreDe = id => ((VIVO && VIVO.jugadores[id]) || {}).nombre || "alguien";
 function iniciarDesempate(ids, ronda, pts){
   const lista = DIFICILES[cfg.tema] || DIFICILES.ensayo;
+  VIVO.desUsadas = VIVO.desUsadas || [];
   let libres = lista.map((_, i) => i).filter(i => !VIVO.desUsadas.includes(i));
   if (!libres.length) { VIVO.desUsadas = []; libres = lista.map((_, i) => i); }
   const q = shuffle(libres)[0]; VIVO.desUsadas.push(q);
   VIVO.ref.update({ estado:"desempate", desempate:{ ids:Object.fromEntries(ids.map(i => [i, true])), orden:ids, tema:cfg.tema in DIFICILES ? cfg.tema : "ensayo", q, ronda, pts, limite:Date.now() + (DES_SEG + 3) * 1000 } });
   Voz.decir(ronda === 1 ? `¡Empate! Muerte súbita entre ${ids.map(nombreDe).join(" y ")}.` : "¡Nadie acertó! Va otra pregunta.", true);
-  if (!VIVO.desTick) {
-    VIVO.desTick = setInterval(revisarDesempate, 250);
-    VIVO.off.push(() => { clearInterval(VIVO.desTick); });
-  }
 }
 function revisarDesempate(){
   const d = VIVO && VIVO.des;
@@ -1447,15 +1554,23 @@ function unirseSala(codigo = ""){
       const db = await fb(), ref = db.ref("salas/" + code), snap = await ref.get();
       if (!snap.exists()) return aviso("No hay ninguna sala con ese código. Revisa las letras.");
       const sala = snap.val();
+      if (sala.estado === "cerrada") return aviso("Esa sala ya se cerró. Mira el código nuevo en el proyector.");
       if (sala.estado === "fin") return aviso("Esa partida ya terminó. Espera a que el proyector empiece otra.");
+      if (sala.version && sala.version !== VERSION_PREGUNTAS) { aviso("Tu página tiene una versión distinta a la del proyector. Recárgala y vuelve a entrar."); $("#jBtn").textContent = "Recargar"; $("#jBtn").onclick = e => { e.preventDefault(); location.reload(); }; return; }
       let pid; try { pid = sessionStorage.getItem("cz-pid"); } catch {}
       if (!pid) { pid = Math.random().toString(36).slice(2, 10); try { sessionStorage.setItem("cz-pid", pid); } catch {} }
-      const repetido = Object.entries(sala.jugadores || {}).some(([id, j]) => id !== pid && j.conectado !== false && (j.nombre || "").toLowerCase() === nombre.toLowerCase());
-      if (repetido) return aviso("Ese nombre ya está en la sala. Agrega tu apellido o una inicial.");
-      const yo = ref.child("jugadores/" + pid);
-      await yo.set({ nombre, pts:0, ok:0, n:0, err:0, out:false, i:0, terminado:false, conectado:true, actualizado:TS() });
-      yo.child("conectado").onDisconnect().set(false);
-      VIVO = { rol:"jugador", code, ref, yo, pid, nombre, jugadores:{}, estado:null, off:[] };
+      const jugadores = sala.jugadores || {}, mismoNombre = ([, j]) => (j.nombre || "").toLowerCase() === nombre.toLowerCase();
+      // Si alguien con ese nombre se desconectó, es la misma persona que vuelve: retoma su lugar
+      if (!jugadores[pid]) { const suyo = Object.entries(jugadores).find(e => mismoNombre(e) && e[1].conectado === false); if (suyo) { pid = suyo[0]; try { sessionStorage.setItem("cz-pid", pid); } catch {} } }
+      if (Object.entries(jugadores).some(e => e[0] !== pid && e[1].conectado !== false && mismoNombre(e))) return aviso("Ese nombre ya está en la sala. Agrega tu apellido o una inicial.");
+      const yo = ref.child("jugadores/" + pid), previo = jugadores[pid];
+      if (previo) await yo.update({ nombre, conectado:true, actualizado:TS() });
+      else await yo.set({ nombre, pts:0, ok:0, n:0, err:0, out:false, i:0, terminado:false, conectado:true, actualizado:TS() });
+      VIVO = { rol:"jugador", code, ref, yo, pid, nombre, jugadores:{}, estado:null, off:[], previo: previo && sala.estado === "jugando" ? previo : null };
+      // Cada vez que vuelve la conexión (pantalla bloqueada, mala señal), vuelve a marcarse como conectado
+      escuchar(db.ref(".info/connected"), s => { if (s.val() === true && VIVO) { yo.child("conectado").onDisconnect().set(false); yo.update({ conectado:true }).catch(() => {}); } });
+      // En la sala, 30 celulares con música a la vez tapan al narrador
+      if (Sonido.st.musica) Sonido.pausarMusica();
       escuchar(ref.child("jugadores"), s => { if (!VIVO) return; VIVO.jugadores = s.val() || {}; rankJugador(); });
       escuchar(ref.child("desempate"), s => { if (!VIVO) return; VIVO.des = s.val(); if (VIVO.estado === "desempate") desempateJugador(); });
       escuchar(ref.child("estado"), async s => {
@@ -1465,15 +1580,18 @@ function unirseSala(codigo = ""){
         else if (VIVO.estado === "jugando" && antes !== "jugando") {
           const sala = (await ref.get()).val();
           cfg.equipos = false; cfg.tiempo = sala.tiempo || 0; cfg.rondas = sala.rondas || 10;
-          startClasifica({ orden: sala.orden, nombre });
+          if (sala.version && sala.version !== VERSION_PREGUNTAS) return pantallaMsg("Recarga la página", "Tu página tiene una versión distinta a la del proyector. Recárgala y vuelve a entrar con el mismo nombre.");
+          const previo = VIVO.previo; VIVO.previo = null;
+          startClasifica({ orden: sala.orden, nombre, previo });
         } else if (VIVO.estado === "desempate") desempateJugador();
         else if (VIVO.estado === "fin") {
           const d = VIVO.des;
           if (d && d.ids && d.ids[VIVO.pid] && d.ganador) { stopTimer();
             pantallaMsg(d.ganador === VIVO.pid ? "¡Ganaste la muerte súbita!" : "Perdiste la muerte súbita", d.ganador === VIVO.pid ? "Quedaste en el primer lugar. Mira el podio en el proyector." : `Ganó ${esc(nombreDe(d.ganador))}. ¡Estuviste muy cerca! Mira el podio en el proyector.`);
             if (d.ganador === VIVO.pid) { Sonido.victoria(); confeti(); } }
+          else if (S && S.vivo && !S.fin && !VIVO.desPintado) final();
           else if (!(S && S.vivo) || VIVO.desPintado) pantallaMsg("La partida terminó", "Mira el proyector para ver el podio.");
-        }
+        } else if (VIVO.estado === "cerrada") { stopTimer(); S = null; const v = VIVO; salirVivo(); v && pantallaMsg("La sala se cerró", "El proyector cerró la sala. ¡Gracias por jugar!"); }
       });
     } catch (e) { aviso(errorVivo(e)); }
   });
@@ -1618,18 +1736,21 @@ document.addEventListener("keydown", e => {
   if (!S || !$("#answers") || e.target.matches("input")) return;
   if (!S.respondido && /^[1-5]$/.test(e.key)) { const b = document.querySelectorAll(".ans")[+e.key-1]; if (b && !b.disabled) responder(b.dataset.k); }
   else if (!S.respondido && (e.key === "p" || e.key === "P")) usarPista();
-  else if (S.respondido && e.key === "Enter" && document.activeElement?.id !== "next") { e.preventDefault(); siguiente(); }
+  else if (S.respondido && e.key === "Enter" && document.activeElement?.id !== "next" && !document.activeElement?.classList.contains("bq")) { e.preventDefault(); siguiente(); }
 });
-$("#goHome").onclick = inicio;
 { // botón "Menú principal": visible fuera del inicio; en plena partida pide un segundo toque para no salir por accidente
   const btn = $("#goMenu"), txt = btn.querySelector("span"), ETQ = txt.innerHTML; let armado = null;
-  const enPartida = () => !!app.querySelector(".stage") && !app.querySelector(".result");
+  const enPartida = () => (VIVO && VIVO.estado !== "fin") || (!!app.querySelector(".stage") && !app.querySelector(".result"));
   btn.onclick = () => {
     if (!enPartida() || armado) { clearTimeout(armado); armado = null; txt.innerHTML = ETQ; inicio(); window.scrollTo(0, 0); return; }
     txt.textContent = "¿Salir? Toca otra vez"; btn.style.borderColor = "var(--red)";
     armado = setTimeout(() => { armado = null; txt.innerHTML = ETQ; btn.style.borderColor = ""; }, 3000);
   };
-  new MutationObserver(() => { btn.hidden = !!app.querySelector(".hero"); if (!armado) btn.style.borderColor = ""; }).observe(app, { childList:true });
+  $("#goHome").onclick = () => btn.onclick();
+  // En la sala en vivo la Guía borraría la partida (y serviría para copiarse), así que se oculta
+  new MutationObserver(() => { btn.hidden = !!app.querySelector(".hero"); $("#goGuide").hidden = !!VIVO; if (!armado) btn.style.borderColor = ""; }).observe(app, { childList:true });
+  // Avisar antes de recargar o cerrar la pestaña en plena sala
+  addEventListener("beforeunload", e => { if (VIVO && VIVO.estado !== "fin" && VIVO.estado !== "cerrada") { e.preventDefault(); e.returnValue = ""; } });
 }
 $("#goGuide").onclick = guia;
 const salaURL = new URLSearchParams(location.search).get("sala");
