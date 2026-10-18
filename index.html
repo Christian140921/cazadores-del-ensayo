@@ -284,6 +284,7 @@ button.strip:hover{transform:translateX(4px)}
 .vrow.out{opacity:.55} .vrow.out .nm{text-decoration:line-through;color:var(--red)}
 .vrow.off .nm{opacity:.6}
 .mini-join{display:flex;align-items:center;gap:14px}
+@media (min-width:700px) and (max-height:820px){ .board{gap:5px} .vrow{font-size:23px;padding:1px 14px 1px 8px} .vrow svg{width:26px;height:32px} .vrow .pos,.vrow .pts{font-size:21px} .vrow .estado{font-size:18px} .mini-join .qr img,.mini-join .qr canvas{width:80px;height:80px} }
 .mini-join .qr img,.mini-join .qr canvas{width:96px;height:96px}
 .podio3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end;max-width:680px;width:100%}
 .podio3>div{display:grid;justify-items:center;gap:4px;text-align:center;font-family:var(--f-hand);font-weight:700;font-size:28px;line-height:1.05;min-width:0;overflow-wrap:anywhere}
@@ -380,17 +381,17 @@ const ORDEN_PARTES = ["intro","tesis","arg","contra","concl"];
 const SIN_PISTAS = [
   ["El celular en clase","tesis","El celular no debería estar prohibido en clase; lo que hace falta son reglas claras sobre cuándo y para qué se usa.","No dice «en mi opinión», pero es la postura que el resto del ensayo va a defender: es la tesis."],
   ["El celular en clase","concl","Al final, la pregunta no es si el celular entra al salón, sino si aprendemos a usarlo con responsabilidad.","Retoma la postura del autor y deja una reflexión para cerrar, aunque no empiece con «En conclusión»."],
-  ["Reciclaje en el colegio","arg","Una botella de plástico tarda cientos de años en descomponerse; reciclada, en cambio, puede convertirse en una camiseta o en una silla.","Trae un hecho que apoya la idea de reciclar. No tiene «además» ni «por ejemplo», pero cumple la función de un argumento."],
+  ["Reciclaje en el colegio","arg","Una botella de plástico tarda cientos de años en descomponerse; reciclada, puede convertirse en una camiseta o en una silla. Separar la basura en el colegio sí cambia algo.","Trae un dato y lo usa para defender que reciclar en el colegio vale la pena. No es una introducción: ya está apoyando la postura del autor, así que es un argumento."],
   ["Reciclaje en el colegio","contra","¿Y si reciclar le quita tiempo a las clases? La experiencia de otros colegios muestra que cinco minutos por curso bastan.","Plantea la objeción de quien no está de acuerdo, en forma de pregunta, y luego la responde: es un contraargumento."],
   ["Leer por gusto","intro","En la biblioteca del colegio hay libros que nadie ha pedido prestados en años.","Abre el tema con una situación concreta y todavía no da ninguna opinión: es la introducción."],
-  ["Leer por gusto","concl","Un libro no compite con una pantalla: nos da algo que ella no puede darnos, tiempo para pensar por nuestra cuenta. Vale la pena hacerle un espacio.","Cierra con una reflexión y una invitación a leer, retomando la postura del autor: es la conclusión."],
+  ["Leer por gusto","concl","Hemos visto que leer por gusto ayuda a concentrarse, a imaginar y a pensar por nuestra cuenta. Un libro no compite con una pantalla: vale la pena hacerle un espacio.","Recoge las razones que ya se dieron (concentrarse, imaginar, pensar) y cierra con una invitación: es la conclusión, no la tesis."],
   ["Más educación física","arg","Los estudiantes que hacen deporte con regularidad duermen mejor y llegan más descansados a clase.","Da una razón a favor de más educación física: es un argumento, aunque no tenga conector."],
   ["Más educación física","intro","Suena el timbre del descanso y la mitad del curso se queda sentada mirando el celular.","Pinta una escena cotidiana para presentar el problema. El autor aún no opina: es la introducción."],
   ["Las redes sociales","contra","Prohibir las redes a los menores parece una solución sencilla. El problema es que lo prohibido se usa a escondidas y sin nadie que oriente.","Presenta la postura contraria (prohibirlas) y muestra por qué no basta: es un contraargumento."],
   ["El uniforme escolar","arg","Con uniforme, nadie llega al salón preguntándose si su ropa es lo bastante buena para que no se burlen.","Muestra un beneficio del uniforme que apoya la tesis: es un argumento."],
   ["El uniforme escolar","intro","Cada enero, en las tiendas del centro se forman filas de familias que compran sacos, jardineras y zapatos negros.","Describe una escena para presentar el tema y todavía no hay opinión: es la introducción."],
   ["Los videojuegos","tesis","Los videojuegos, jugados con medida, pueden enseñar tanto como muchas actividades que los adultos sí aprueban.","Es la idea que el autor va a defender, sin «considero que»: es la tesis."],
-  ["Las tareas para la casa","concl","Menos tareas no significa estudiar menos: significa estudiar mejor y llegar al día siguiente con ganas de aprender.","Resume la postura del ensayo en una frase final que deja una idea para recordar: es la conclusión."],
+  ["Las tareas para la casa","concl","Después de todo lo dicho, la idea queda clara: menos tareas no significa estudiar menos, sino estudiar mejor y llegar al día siguiente con ganas de aprender.","«Después de todo lo dicho» muestra que retoma lo que ya se explicó y cierra con una idea para recordar: es la conclusión, no la tesis."],
   ["Comida sana en el colegio","arg","Un estudiante que almuerza fruta, arroz y proteína se concentra mejor en la tarde que uno que solo come paquetes y gaseosa.","Compara dos casos para apoyar la tesis de la comida sana: es un argumento."],
   ["Aprender otro idioma","contra","Hoy cualquier celular traduce en segundos, ¿para qué estudiar inglés entonces? Porque una aplicación no puede hacer amigos ni entender un chiste por nosotros.","Pone en boca de otros una objeción (el traductor) y la responde: es un contraargumento."],
   ["La música en el colegio","tesis","La clase de música merece tantas horas como la de matemáticas.","Es una opinión discutible que el ensayo va a defender: es la tesis, aunque no diga «a mi juicio»."]
@@ -420,8 +421,8 @@ const PONENCIA = [
   ["¿Qué postura conviene durante una ponencia?", ["Erguida y tranquila, con las manos acompañando","Quieta detrás de la mesa, con las manos juntas","Mirando la pantalla para seguir las diapositivas","Caminando todo el tiempo para mostrar energía"], "La postura también comunica: abierta, tranquila y de frente al público transmite seguridad."],
   ["Si en tu ponencia usas una idea o un dato de otra persona, ¿qué debes hacer?", ["Decir de quién es: «Según…»","Ponerla en la diapositiva sin nombrarla","Decirla con tus palabras sin nombrar al autor","Nombrar la fuente solo si alguien lo pregunta"], "En voz alta se nombra la fuente, así el público sabe que la idea es de otra persona. Decirla con otras palabras no la vuelve tuya."],
   ["Alguien del público te hace una pregunta que no sabes responder. ¿Qué haces?", ["Reconocer que no lo sabes y ofrecer averiguarlo","Responder algo parecido aunque no sea exacto","Pedirle al moderador que pase a otra pregunta","Decir que eso no hacía parte de tu tema"], "Reconocer con respeto que no se sabe algo, y ofrecer averiguarlo, da más credibilidad que improvisar una respuesta."],
-  ["¿Qué debes hacer con el tiempo que te dan para la ponencia?", ["Respetarlo y repartirlo entre las partes","Usarlo casi todo en el desarrollo","Terminar antes para dejar más preguntas","Extenderlo si el público está interesado"], "Respetar el tiempo es respetar al público y a los demás ponentes. Cada parte necesita su espacio."],
-  ["¿Dónde se suelen presentar ponencias?", ["En congresos, foros y simposios","En debates y mesas redondas","En entrevistas y conversatorios","En noticieros y programas de radio"], "La ponencia es típica de eventos académicos como congresos, foros y simposios, aunque en clase también se hacen."],
+  ["¿Qué debes hacer con el tiempo que te dan para la ponencia?", ["Respetarlo y repartirlo entre las partes","Alargar la introducción para entrar en confianza","Saltarse la conclusión si se acaba el tiempo","Extenderlo si el público está interesado"], "Respetar el tiempo es respetar al público y a los demás ponentes. Cada parte necesita su espacio."],
+  ["¿Dónde se suelen presentar ponencias?", ["En congresos, foros y simposios","En debates y mesas redondas","En entrevistas y ruedas de prensa","En noticieros y programas de radio"], "La ponencia es típica de eventos académicos como congresos, foros y simposios, aunque en clase también se hacen."],
   ["¿Cuál es el propósito de una ponencia?", ["Informar o convencer al público sobre un tema","Debatir con el público hasta llegar a un acuerdo","Mostrar todo lo que el ponente sabe del tema","Entretener al público con anécdotas personales"], "El ponente comparte lo que investigó para que el público aprenda o cambie de opinión."],
   ["¿Qué apoyo visual ayuda más en una ponencia?", ["Una gráfica sencilla que explique un dato","Una tabla con todos los datos encontrados","Una diapositiva con el texto de la ponencia","Un video que repita lo que dice el ponente"], "Un buen apoyo visual aclara una idea de un vistazo, sin llenar la pantalla."]
 ];
@@ -894,7 +895,7 @@ function inicio(){
   };
   $("#playO").onclick = () => { cfg.jugador = $("#playerName").value.trim(); startOrdena(); };
   $("#vCrear").onclick = elegirSala;
-  let salaHost = ""; try { salaHost = sessionStorage.getItem("cz-host") || ""; } catch {}
+  let salaHost = ""; try { const g = JSON.parse(localStorage.getItem("cz-host") || "null"); if (g && Date.now() - g.t < 6 * 3600e3) salaHost = g.code; } catch {}
   if (salaHost) {
     const b = document.createElement("button"); b.className = "btn"; b.textContent = `Retomar sala ${salaHost}`;
     b.onclick = () => retomarSala(salaHost); $("#vCrear").parentNode.prepend(b);
@@ -982,7 +983,7 @@ const VERSION_PREGUNTAS = (() => { let h = 0; const t = JSON.stringify([POOL.map
 function startClasifica(vivo){
   const enEquipos = !vivo && cfg.equipos;
   // Por equipos, la cantidad de recortes se ajusta a un múltiplo del número de equipos para que todos jueguen las mismas veces
-  const n = enEquipos ? Math.max(cfg.nEquipos, Math.round(cfg.rondas / cfg.nEquipos) * cfg.nEquipos) : cfg.rondas;
+  const n = enEquipos ? Math.max(cfg.nEquipos, Math.ceil(cfg.rondas / cfg.nEquipos) * cfg.nEquipos) : cfg.rondas;
   const cola = (vivo ? vivo.orden : armarCola(n)).map(i => POOL[i]);
   const equipos = enEquipos ? cfg.nombres.slice(0,cfg.nEquipos).map((nm,i)=>({nombre:(nm||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false, racha:0})) : [{nombre:(vivo ? vivo.nombre : cfg.jugador) || "Tú", pts:0, ok:0, n:0, err:0, out:false, racha:0}];
   S = { cola, i:0, equipos, turno:0, racha:0, respondido:false, fallos:[], vivo: vivo || null, stats:Object.fromEntries([...ORDEN_PARTES, "pon"].map(k=>[k,{ok:0,n:0}])) };
@@ -1229,7 +1230,7 @@ function salirVivo(){
   if (!VIVO) return;
   VIVO.off.forEach(f => { try { f(); } catch {} });
   if (VIVO.rol === "jugador" && VIVO.yo) VIVO.yo.update({ conectado:false }).catch(() => {});
-  if (VIVO.rol === "host") { VIVO.ref.update({ estado:"cerrada" }).catch(() => {}); try { sessionStorage.removeItem("cz-host"); } catch {} }
+  if (VIVO.rol === "host") { VIVO.ref.update({ estado:"cerrada" }).catch(() => {}); try { localStorage.removeItem("cz-host"); } catch {} }
   VIVO = null;
 }
 function escuchar(ref, fn){ const cb = ref.on("value", fn); VIVO.off.push(() => ref.off("value", cb)); }
@@ -1288,12 +1289,13 @@ async function crearSala(){
 }
 function conectarHost(code, ref, retomada = false){
   VIVO = { rol:"host", code, ref, jugadores:{}, estado:null, pantalla:null, off:[], celebrado:false, desUsadas:[], retomada };
-  try { sessionStorage.setItem("cz-host", code); } catch {}
+  try { localStorage.setItem("cz-host", JSON.stringify({ code, t:Date.now() })); } catch {}
   escuchar(ref.child("estado"), s => { VIVO.estado = s.val() || "espera"; pintarHost(); });
   escuchar(ref.child("jugadores"), s => { VIVO.jugadores = s.val() || {}; pintarHost(); });
   escuchar(ref.child("desempate"), s => { VIVO.des = s.val(); if (VIVO.estado === "desempate") pintarHost(); });
   VIVO.desTick = setInterval(revisarDesempate, 250);
-  VIVO.off.push(() => clearInterval(VIVO.desTick));
+  VIVO.finTick = setInterval(() => revisarFin(), 5000);
+  VIVO.off.push(() => { clearInterval(VIVO.desTick); clearInterval(VIVO.finTick); });
 }
 /* Si el proyector recargó la página, puede volver a tomar el control de su sala */
 async function retomarSala(code){
@@ -1302,11 +1304,12 @@ async function retomarSala(code){
   try {
     const db = await fb(), ref = db.ref("salas/" + code), sala = (await ref.get()).val();
     if (!sala || sala.estado === "cerrada" || Date.now() - (sala.creada || 0) > 6 * 3600e3) {
-      try { sessionStorage.removeItem("cz-host"); } catch {}
+      try { localStorage.removeItem("cz-host"); } catch {}
       return pantallaMsg("No se pudo retomar", "Esa sala ya no está disponible. Crea una nueva.");
     }
     cfg.tema = sala.tema || "ensayo"; cfg.rondas = sala.rondas || 10; cfg.tiempo = sala.tiempo || 0;
     conectarHost(code, ref, true);
+    VIVO.celebrado = sala.estado === "fin";
   } catch (e) { pantallaMsg("No se pudo retomar", errorVivo(e)); }
 }
 function urlSala(){ return URL_JUEGO + "?sala=" + VIVO.code; }
@@ -1438,16 +1441,24 @@ function pintarHost(){
   const total = (VIVO.rondasActual || cfg.rondas);
   pintarTabla(js, total);
   if (est === "jugando") {
-    const enJuego = js.filter(j => !j.out && !j.terminado && j.conectado !== false).length;
-    $("#vCount").textContent = `${js.length} jugando · ${enJuego} sin terminar`;
+    $("#vCount").textContent = `${js.length} jugando · ${faltan(js)} sin terminar`;
     narrar(js);
-    if (js.length && !enJuego) cerrarPartida();
+    revisarFin(js);
   }
+}
+// Quien lleva más de 60 s desconectado ya no frena el final; un celular bloqueado un momento sí se espera
+const AUSENTE_MS = 60000;
+const ausente = j => j.conectado === false && Date.now() - (j.actualizado || 0) > AUSENTE_MS;
+const faltan = js => js.filter(j => !j.out && !j.terminado && !ausente(j)).length;
+function revisarFin(js){
+  if (!VIVO || VIVO.rol !== "host" || VIVO.estado !== "jugando") return;
+  js = js || Object.values(VIVO.jugadores);
+  if (js.length && !faltan(js)) cerrarPartida();
 }
 // Tabla del proyector: solo los 10 primeros, y cada fila se actualiza sin redibujar toda la tabla
 function pintarTabla(js, total){
   const cont = $("#vList"); if (!cont) return;
-  const MAX = 10, vis = js.slice(0, MAX), vistos = new Set();
+  const MAX = innerHeight < 800 ? 8 : 10, vis = js.slice(0, MAX), vistos = new Set();
   if (VIVO.filasDe !== cont) { VIVO.filas = {}; VIVO.filasDe = cont; cont.innerHTML = ""; }
   vis.forEach((j, i) => {
     vistos.add(j.id);
@@ -1557,18 +1568,19 @@ function unirseSala(codigo = ""){
       if (sala.estado === "cerrada") return aviso("Esa sala ya se cerró. Mira el código nuevo en el proyector.");
       if (sala.estado === "fin") return aviso("Esa partida ya terminó. Espera a que el proyector empiece otra.");
       if (sala.version && sala.version !== VERSION_PREGUNTAS) { aviso("Tu página tiene una versión distinta a la del proyector. Recárgala y vuelve a entrar."); $("#jBtn").textContent = "Recargar"; $("#jBtn").onclick = e => { e.preventDefault(); location.reload(); }; return; }
-      let pid; try { pid = sessionStorage.getItem("cz-pid"); } catch {}
-      if (!pid) { pid = Math.random().toString(36).slice(2, 10); try { sessionStorage.setItem("cz-pid", pid); } catch {} }
       const jugadores = sala.jugadores || {}, mismoNombre = ([, j]) => (j.nombre || "").toLowerCase() === nombre.toLowerCase();
-      // Si alguien con ese nombre se desconectó, es la misma persona que vuelve: retoma su lugar
-      if (!jugadores[pid]) { const suyo = Object.entries(jugadores).find(e => mismoNombre(e) && e[1].conectado === false); if (suyo) { pid = suyo[0]; try { sessionStorage.setItem("cz-pid", pid); } catch {} } }
-      if (Object.entries(jugadores).some(e => e[0] !== pid && e[1].conectado !== false && mismoNombre(e))) return aviso("Ese nombre ya está en la sala. Agrega tu apellido o una inicial.");
+      // Solo se retoma un puesto desde el mismo celular: misma pestaña (sessionStorage) o la misma sala abierta antes en este navegador (localStorage)
+      let pid; try { pid = sessionStorage.getItem("cz-pid"); } catch {}
+      if (!pid) { try { const g = JSON.parse(localStorage.getItem("cz-sala") || "null"); if (g && g.code === code && jugadores[g.pid] && jugadores[g.pid].conectado === false && mismoNombre([g.pid, jugadores[g.pid]])) pid = g.pid; } catch {} }
+      if (!pid) pid = Math.random().toString(36).slice(2, 10);
+      if (Object.entries(jugadores).some(e => e[0] !== pid && mismoNombre(e))) return aviso("Ese nombre ya está en la sala. Agrega tu apellido o una inicial.");
+      try { sessionStorage.setItem("cz-pid", pid); localStorage.setItem("cz-sala", JSON.stringify({ code, pid })); } catch {}
       const yo = ref.child("jugadores/" + pid), previo = jugadores[pid];
       if (previo) await yo.update({ nombre, conectado:true, actualizado:TS() });
       else await yo.set({ nombre, pts:0, ok:0, n:0, err:0, out:false, i:0, terminado:false, conectado:true, actualizado:TS() });
       VIVO = { rol:"jugador", code, ref, yo, pid, nombre, jugadores:{}, estado:null, off:[], previo: previo && sala.estado === "jugando" ? previo : null };
       // Cada vez que vuelve la conexión (pantalla bloqueada, mala señal), vuelve a marcarse como conectado
-      escuchar(db.ref(".info/connected"), s => { if (s.val() === true && VIVO) { yo.child("conectado").onDisconnect().set(false); yo.update({ conectado:true }).catch(() => {}); } });
+      escuchar(db.ref(".info/connected"), s => { if (s.val() === true && VIVO) { yo.onDisconnect().update({ conectado:false, actualizado:TS() }); yo.update({ conectado:true }).catch(() => {}); } });
       // En la sala, 30 celulares con música a la vez tapan al narrador
       if (Sonido.st.musica) Sonido.pausarMusica();
       escuchar(ref.child("jugadores"), s => { if (!VIVO) return; VIVO.jugadores = s.val() || {}; rankJugador(); });
@@ -1740,7 +1752,7 @@ document.addEventListener("keydown", e => {
 });
 { // botón "Menú principal": visible fuera del inicio; en plena partida pide un segundo toque para no salir por accidente
   const btn = $("#goMenu"), txt = btn.querySelector("span"), ETQ = txt.innerHTML; let armado = null;
-  const enPartida = () => (VIVO && VIVO.estado !== "fin") || (!!app.querySelector(".stage") && !app.querySelector(".result"));
+  const enPartida = () => (VIVO && (VIVO.rol === "host" || VIVO.estado !== "fin")) || (!!app.querySelector(".stage") && !app.querySelector(".result"));
   btn.onclick = () => {
     if (!enPartida() || armado) { clearTimeout(armado); armado = null; txt.innerHTML = ETQ; inicio(); window.scrollTo(0, 0); return; }
     txt.textContent = "¿Salir? Toca otra vez"; btn.style.borderColor = "var(--red)";
