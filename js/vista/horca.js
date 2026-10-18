@@ -1,7 +1,6 @@
 // Vista: el ahorcado dibujado en SVG.
 
 /* ---------- El ahorcado dibujado ---------- */
-const MAX_FALLOS = 6;
 const CUERPO = [
   `<circle cx="140" cy="72" r="20" pathLength="100"/>`,
   `<path d="M140 92 Q138 122 141 152" pathLength="100"/>`,

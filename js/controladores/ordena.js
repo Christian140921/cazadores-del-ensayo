@@ -9,7 +9,7 @@ function startOrdena(){
   const e = ENSAYOS[idx];
   const items = shuffle(e.f.map(([k,t],i)=>({k,t,i})));
   const nuevosEquipos = () => cfg.equipos
-    ? cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>({nombre:(n||"").trim()||`Equipo ${i+1}`, pts:0, err:0, out:false}))
+    ? equiposDeCfg()
     : [{nombre: cfg.jugador.trim() || "Tú", pts:0, err:0, out:false}];
   const O = { orden:[], equipos:nuevosEquipos(), turno:0, malo:-1, nuevoErr:false, celebrado:false };
   const vivosO = () => O.equipos.filter(x => !x.out);
@@ -17,8 +17,8 @@ function startOrdena(){
   const pintar = () => {
     const eq = O.equipos[O.turno];
     const perdio = vivosO().length === 0, completo = O.orden.length === items.length, fin = perdio || completo;
-    const rank = O.equipos.slice().sort((a,b)=>(a.out-b.out) || (b.pts-a.pts) || (a.err-b.err));
-    const ganador = rank[0], empate = cfg.equipos && rank.length > 1 && rank[1].out === ganador.out && rank[1].pts === ganador.pts && rank[1].err === ganador.err;
+    const rank = ordenarEquipos(O.equipos);
+    const ganador = rank[0], empate = cfg.equipos && empatados(ganador, rank[1]);
     const msg = fin ? (completo ? "Así queda el ensayo, de principio a fin." : (cfg.equipos ? "Todos los equipos quedaron ahorcados. Este era el orden correcto." : "Quedaste ahorcado. Este era el orden correcto."))
       : O.aviso ? `${esc(O.aviso)} ¿Cuál va en el lugar ${O.orden.length+1}?`
       : O.orden.length === 0 ? "¿Cuál párrafo va primero?" : `Bien. ¿Cuál va en el lugar ${O.orden.length+1}?`;

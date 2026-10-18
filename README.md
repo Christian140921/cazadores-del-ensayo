@@ -8,7 +8,8 @@ Página publicada: https://christian140921.github.io/cazadores-del-ensayo/
 ## Cómo está organizado
 
 Es una página estática: no necesita compilar nada. `index.html` carga los estilos y los scripts en este orden,
-de lo más básico a lo que arma las pantallas (cada capa solo usa lo que se cargó antes):
+de lo más básico a lo que arma las pantallas. Todos los scripts comparten el ámbito global (no son módulos ES, para que
+el juego también abra con doble clic), así que el orden de carga importa: al cargar, cada archivo solo usa lo que ya se cargó.
 
 ```
 index.html            estructura fija de la página (barra superior, contenedor #app)
@@ -34,6 +35,12 @@ herramientas/
 
 Si cambias preguntas, todos los celulares deben recargar la página: el juego compara una huella del banco de preguntas
 entre el proyector y cada celular, y avisa si no coinciden.
+
+## Publicar un cambio
+
+En `index.html` cada archivo lleva una marca `?v=fecha`. Al subir un cambio, cambia esa marca en todas las líneas
+(por ejemplo, a la fecha del día): así los celulares bajan todos los archivos nuevos juntos y no mezclan versiones.
+No subas cambios el mismo día de la clase.
 
 ## Probar en tu computador
 

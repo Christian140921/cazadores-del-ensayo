@@ -13,8 +13,8 @@ def css(m):
 def js(m):
     return "<script>\n" + (raiz / m.group(1)).read_text(encoding="utf-8") + "</script>"
 
-html = re.sub(r'<link rel="stylesheet" href="(css/[^"]+)">', css, html)
-html = re.sub(r'<script src="(js/[^"]+)"></script>', js, html)
+html = re.sub(r'<link rel="stylesheet" href="(css/[^"?]+)(?:\?v=[^"]*)?">', css, html)
+html = re.sub(r'<script src="(js/[^"?]+)(?:\?v=[^"]*)?"></script>', js, html)
 salida = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "cazadores-del-ensayo.html")
 salida.write_text(html, encoding="utf-8")
 print(f"Listo: {salida} ({len(html) // 1024} KB)")

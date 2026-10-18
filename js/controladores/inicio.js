@@ -83,8 +83,7 @@ function inicio(){
   const teams = () => { $("#teams").innerHTML = cfg.nombres.slice(0,cfg.nEquipos).map((n,i)=>`<input id="team${i}" aria-label="Nombre del equipo ${i+1}" value="${esc(n)}" maxlength="18">`).join("");
     $("#teams").querySelectorAll("input").forEach((inp,i)=>inp.addEventListener("input",()=>cfg.nombres[i]=inp.value)); };
   teams();
-  const seg = (id, fn) => $(id).addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return;
-    Sonido.tap(); $(id).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b)); fn(+b.dataset.v); });
+  const seg = (id, fn) => botonesSegmentados(id, v => fn(+v));
   seg("#segModo", v => { cfg.equipos = !!v; $("#rowEquipos").hidden = !v; $("#rowNombre").hidden = !!v; });
   $("#playerName").addEventListener("input", e => { cfg.jugador = e.target.value; $("#nombreAviso").hidden = true; });
   seg("#segN", v => { cfg.nEquipos = v; teams(); });

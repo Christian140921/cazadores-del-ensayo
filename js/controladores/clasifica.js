@@ -20,7 +20,7 @@ function startClasifica(vivo){
   // Por equipos, la cantidad de recortes se ajusta a un múltiplo del número de equipos para que todos jueguen las mismas veces
   const n = enEquipos ? Math.max(cfg.nEquipos, Math.ceil(cfg.rondas / cfg.nEquipos) * cfg.nEquipos) : cfg.rondas;
   const cola = (vivo ? vivo.orden : armarCola(n)).map(i => POOL[i]);
-  const equipos = enEquipos ? cfg.nombres.slice(0,cfg.nEquipos).map((nm,i)=>({nombre:(nm||"").trim()||`Equipo ${i+1}`, pts:0, ok:0, n:0, err:0, out:false, racha:0})) : [{nombre:(vivo ? vivo.nombre : cfg.jugador) || "Tú", pts:0, ok:0, n:0, err:0, out:false, racha:0}];
+  const equipos = enEquipos ? equiposDeCfg({ ok:0, n:0, racha:0 }) : [{nombre:(vivo ? vivo.nombre : cfg.jugador) || "Tú", pts:0, ok:0, n:0, err:0, out:false, racha:0}];
   S = { cola, i:0, equipos, turno:0, racha:0, respondido:false, fallos:[], vivo: vivo || null, stats:Object.fromEntries([...ORDEN_PARTES, "pon"].map(k=>[k,{ok:0,n:0}])) };
   // Volvió a entrar a una partida en curso: retoma su puntaje y sigue desde donde iba
   const prev = vivo && vivo.previo;
@@ -63,7 +63,7 @@ function ronda(){
     <div class="stage">
       <div class="main">
         <div class="sheet clip"><div class="tema">${esPon ? `tema: <span class="hl" style="${cvar("pon")}">la ponencia</span>` : `del ensayo «${esc(q.tema)}»`}</div>
-          <blockquote id="quote">${conCitas(esc(q.pq ? "«" + q.t + "»" : q.t))}</blockquote></div>
+          <blockquote id="quote">${recorteHTML(q)}</blockquote></div>
         <p class="pregunta">${esPon ? (q.pq ? esc(q.pq) : "Elige la respuesta correcta:") : PREGUNTAS_ENSAYO[S.i % PREGUNTAS_ENSAYO.length]}</p>
         <div class="answers ${esPon ? "pon" : ""}" id="answers">${opts}</div>
         <div class="tools-row"><button class="pista" id="pista"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Pista: quita 2 opciones (vale la mitad)</button></div>
@@ -127,7 +127,7 @@ function responder(k){
     else b.classList.add("dim");
   });
   const quote = $("#quote");
-  quote.innerHTML = `<span class="hl sweep off" style="${cvar(q.k)}">${conCitas(esc(q.pq ? "«" + q.t + "»" : q.t))}</span>`;
+  quote.innerHTML = `<span class="hl sweep off" style="${cvar(q.k)}">${recorteHTML(q)}</span>`;
   requestAnimationFrame(() => requestAnimationFrame(() => quote.firstChild.classList.remove("off")));
   const p = PARTES[q.k];
   let titulo = ok ? (S.racha >= 3 ? `¡Correcto! +${ganados} (racha de ${S.racha})` : `¡Correcto! +${ganados}`)
@@ -163,7 +163,7 @@ function siguiente(){
 function repasoHTML(){
   if (!S.fallos.length) return "";
   return `<div class="sheet repaso"><h3>Repasa tus errores</h3>${S.fallos.map(({q,k,quien}) => `<article>
-    <blockquote><span class="hl" style="${cvar(q.k)}">${conCitas(esc(q.pq ? "«" + q.t + "» " + q.pq : q.t))}</span></blockquote>
+    <blockquote><span class="hl" style="${cvar(q.k)}">${recorteHTML(q, true)}</span></blockquote>
     <div class="meta">${cfg.equipos ? esc(quien) + ": " : ""}${q.k === "pon"
       ? `${k ? `<s>${esc(q.ops[k])}</s> → ` : "se acabó el tiempo → "}<b>${esc(q.ops[q.ok])}</b>`
       : `${k ? `<s>${PARTES[k].nombre}</s> → ` : "se acabó el tiempo → "}<b>${PARTES[q.k].nombre}</b>`}</div>
@@ -174,9 +174,9 @@ function final(){
   S.fin = true;
   let cabecera, gano = false;
   if (cfg.equipos) {
-    const rank = S.equipos.slice().sort((a,b)=>(a.out-b.out) || (b.pts-a.pts) || (a.err-b.err));
+    const rank = ordenarEquipos(S.equipos);
     const g = rank[0];
-    const empate = rank.length > 1 && rank[1].out === g.out && rank[1].pts === g.pts && rank[1].err === g.err;
+    const empate = empatados(g, rank[1]);
     gano = !g.out;
     const titulo = g.out ? "¡Todos ahorcados!" : empate ? "¡Empate!" : `¡Gana ${esc(g.nombre)}!`;
     cabecera = `<div class="result"><div>${horca(g.err, {estado: g.out ? "muerto" : "salvado"})}</div><div>

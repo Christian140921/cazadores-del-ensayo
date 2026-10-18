@@ -16,8 +16,7 @@ function elegirSala(){
     </div>
     <div class="cta"><button class="btn go" id="sCrear">Crear sala</button><button class="btn" id="sVolver">Volver</button></div>
   </div></section>`;
-  const marcar = (id, fn) => $(id).addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
-    Sonido.tap(); $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); fn(b.dataset.v); });
+  const marcar = botonesSegmentados;
   marcar("#temas2", v => cfg.tema = v);
   marcar("#sR", v => cfg.rondas = +v);
   marcar("#sT", v => cfg.tiempo = +v);
@@ -112,7 +111,7 @@ function pintarHost(){
           <span class="note" style="font-size:18px">Si suena robótica, prueba otra. En Microsoft Edge salen voces "Natural" que suenan casi humanas.</span></div>` : ""}
       </section>`;
       pintarQR($("#qrSala"), 220, urlSala());
-      $("#vStart").onclick = () => VIVO.ref.update({ estado:"jugando", inicio:TS() });
+      $("#vStart").onclick = () => guardarSala({ estado:"jugando", inicio:TS() }).catch(() => {});
       if (Voz.ok) {
         const llenar = () => { const sel = $("#vozSel"); if (!sel) return;
           sel.innerHTML = Voz.lista.length ? Voz.lista.map(v => `<option ${v === Voz.actual ? "selected" : ""}>${esc(v.name)}</option>`).join("") : `<option>voz del navegador</option>`; };
@@ -148,7 +147,7 @@ function pintarHost(){
         const upd = { estado:"espera", tema:cfg.tema, rondas:cfg.rondas, tiempo:cfg.tiempo, orden:armarCola(cfg.rondas) };
         Object.keys(VIVO.jugadores).forEach(id => Object.assign(upd, { [`jugadores/${id}/pts`]:0, [`jugadores/${id}/ok`]:0, [`jugadores/${id}/n`]:0, [`jugadores/${id}/err`]:0, [`jugadores/${id}/out`]:false, [`jugadores/${id}/i`]:0, [`jugadores/${id}/terminado`]:false, [`jugadores/${id}/alcanzado`]:null, [`jugadores/${id}/racha`]:0, [`jugadores/${id}/dg`]:null }));
         upd.desempate = null;
-        VIVO.celebrado = false; VIVO.ref.update(upd);
+        VIVO.celebrado = false; guardarSala(upd).catch(() => {});
       };
       $("#vSalir").onclick = inicio;
       const faltaDg = VIVO.des && VIVO.des.ganador && p1 && p1.id !== VIVO.des.ganador;
@@ -163,7 +162,7 @@ function pintarHost(){
     $("#vList").innerHTML = conectados.map((j,i) => `<span style="--c:var(${cols[i%5]});--r:${(i*37%7)-3}deg">${esc(j.nombre)}</span>`).join("");
     return;
   }
-  const total = (VIVO.rondasActual || cfg.rondas);
+  const total = cfg.rondas;
   pintarTabla(js, total);
   if (est === "jugando") {
     $("#vCount").textContent = `${js.length} jugando · ${faltan(js)} sin terminar`;
@@ -210,7 +209,7 @@ function cerrarPartida(){
   const js = rankingVivo(VIVO.jugadores), top = js[0];
   const empatados = top && !top.out && (top.pts || 0) > 0 ? js.filter(j => !j.out && j.conectado !== false && (j.pts || 0) === top.pts) : [];
   if (empatados.length >= 2) iniciarDesempate(empatados.map(j => j.id), 1, top.pts);
-  else VIVO.ref.update({ estado:"fin" });
+  else guardarSala({ estado:"fin" }).catch(() => {});
 }
 function iniciarDesempate(ids, ronda, pts){
   const lista = DIFICILES[cfg.tema] || DIFICILES.ensayo;
@@ -218,7 +217,7 @@ function iniciarDesempate(ids, ronda, pts){
   let libres = lista.map((_, i) => i).filter(i => !VIVO.desUsadas.includes(i));
   if (!libres.length) { VIVO.desUsadas = []; libres = lista.map((_, i) => i); }
   const q = shuffle(libres)[0]; VIVO.desUsadas.push(q);
-  VIVO.ref.update({ estado:"desempate", desempate:{ ids:Object.fromEntries(ids.map(i => [i, true])), orden:ids, tema:cfg.tema in DIFICILES ? cfg.tema : "ensayo", q, ronda, pts, limite:Date.now() + (DES_SEG + 3) * 1000 } });
+  guardarSala({ estado:"desempate", desempate:{ ids:Object.fromEntries(ids.map(i => [i, true])), orden:ids, tema:cfg.tema in DIFICILES ? cfg.tema : "ensayo", q, ronda, pts, limite:Date.now() + (DES_SEG + 3) * 1000 } }).catch(() => {});
   Voz.decir(ronda === 1 ? `¡Empate! Muerte súbita entre ${ids.map(nombreDe).join(" y ")}.` : "¡Nadie acertó! Va otra pregunta.", true);
 }
 function revisarDesempate(){
@@ -234,12 +233,12 @@ function resolverDesempate(d, resp){
   VIVO.resolviendo = d.ronda;
   const aciertos = resp.filter(([, x]) => x.ok).sort((a, b) => (a[1].t || 0) - (b[1].t || 0));
   const lista = DIFICILES[d.tema];
-  if (!aciertos.length && d.ronda < 3 && lista.length > VIVO.desUsadas.length) { setTimeout(() => iniciarDesempate(d.orden, d.ronda + 1, d.pts), 2500); return; }
+  if (!aciertos.length && d.ronda < 3 && lista.length > VIVO.desUsadas.length) { despues(2500, () => iniciarDesempate(d.orden, d.ronda + 1, d.pts)); return; }
   // Gana quien acertó primero; si nadie acertó en 3 rondas, se mantiene el orden de la tabla
   const gan = aciertos.length ? aciertos[0][0] : d.orden[0];
-  VIVO.ref.child("desempate").update({ ganador:gan });
+  guardarSala({ ganador:gan }, VIVO.ref.child("desempate")).catch(() => {});
   Voz.decir(`¡${nombreDe(gan)} gana la muerte súbita!`, true);
-  setTimeout(() => { if (VIVO) VIVO.ref.update({ [`jugadores/${gan}/dg`]:1 }).then(() => VIVO && VIVO.ref.update({ estado:"fin" })); }, 5500);
+  despues(5500, () => guardarSala({ [`jugadores/${gan}/dg`]:1 }).then(() => guardarSala({ estado:"fin" })).catch(() => {}));
 }
 function pintarDesempateHost(){
   const d = VIVO.des; if (!d) return;

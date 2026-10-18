@@ -13,6 +13,8 @@ function marcarClaves(t, k){
   return h.replace(/\u0001/g, '<span class="clave">').replace(/\u0002/g, "</span>");
 }
 /* ---------- Citas: lo que va entre comillas es de otra persona ---------- */
+// Texto del recorte; en la ponencia va entre «» y, si se pide, seguido de su pregunta
+const recorteHTML = (q, conPregunta = false) => conCitas(esc(q.pq ? "«" + q.t + "»" + (conPregunta ? " " + q.pq : "") : q.t));
 const conCitas = h => h.replace(/“([^”]*)”/g, '<span class="cita">“$1”</span>');
 function pintarQR(el, tam, texto = URL_JUEGO){
   if (!el) return;
@@ -35,6 +37,12 @@ function recordsHTML(lista, yo){
   if (!lista.length) return `<p style="margin:0;color:var(--soft)">Todavía no hay récords. ¡El primero puede ser el tuyo!</p>`;
   return `<ol>${lista.slice(0,5).map((r,i)=>`<li class="${yo && r.id===yo ? "me" : ""}"><span class="pos">${i+1}.</span><span>${esc(r.nombre)}</span><span class="p">${r.pts} pts · ${r.ok}/${r.n}</span></li>`).join("")}</ol>`;
 }
+// Grupo de botones donde solo uno queda marcado; fn recibe el data-v del botón tocado (texto)
+function botonesSegmentados(id, fn){
+  $(id).addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+    Sonido.tap(); $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); fn(b.dataset.v); });
+}
+// titulo y texto se insertan como HTML: escapa con esc() cualquier dato que escriba un jugador
 function pantallaMsg(titulo, texto, boton = true){
   app.innerHTML = `<section class="final"><div class="sheet" style="max-width:620px"><h2 style="font-family:var(--f-marker);font-size:36px">${titulo}</h2><p>${texto}</p>${boton ? `<div class="cta"><button class="btn" id="vHome">Volver al inicio</button></div>` : ""}</div></section>`;
   if (boton) $("#vHome").onclick = inicio;
