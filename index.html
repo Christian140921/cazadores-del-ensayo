@@ -1160,12 +1160,15 @@ function final(){
       <div class="podium">${rank.map((e,i)=>`<div class="${e.out?"out":""}">${horca(e.err,{mini:true})}<span>${i+1}. ${esc(e.nombre)}${e.out?" (ahorcado)":""}</span><em>${e.pts} pts · ${e.ok}/${e.n}</em></div>`).join("")}</div></div></div>`;
   } else {
     const e = S.equipos[0];
-    gano = !e.out;
-    const msg = e.out ? "Te faltaron recortes por resolver. Repasa la guía y vuelve a intentarlo."
+    // El proyector cerró la partida antes de que este jugador llegara al final
+    const cortada = !e.out && e.n < S.cola.length;
+    gano = !e.out && !cortada;
+    const msg = cortada ? `Respondiste ${e.n} de ${S.cola.length} recortes antes de que se cerrara la partida. Mira el proyector para ver el podio.`
+      : e.out ? "Te faltaron recortes por resolver. Repasa la guía y vuelve a intentarlo."
       : e.err === 0 ? "Perfecto: no se dibujó ni una sola línea del muñeco."
       : `Llegaste al final con ${e.err} ${e.err===1?"fallo":"fallos"}. El muñeco se salvó por poco.`;
-    cabecera = `<div class="result"><div>${horca(e.err, {estado: e.out ? "muerto" : "salvado"})}</div><div>
-      <h2 class="${gano?"win":"lose"}">${e.out ? "¡Ahorcado!" : "¡Lo salvaste!"}</h2>
+    cabecera = `<div class="result"><div>${horca(e.err, cortada ? {} : {estado: e.out ? "muerto" : "salvado"})}</div><div>
+      <h2 class="${cortada ? "" : gano ? "win" : "lose"}">${cortada ? "La partida terminó" : e.out ? "¡Ahorcado!" : "¡Lo salvaste!"}</h2>
       <div class="sum">${e.ok} de ${e.n} correctas · ${e.pts} puntos</div>
       <p>${msg}</p></div></div>
       <div class="sheet records" id="recBox"><h3>Mejores puntajes</h3><div id="recList"></div></div>`;
