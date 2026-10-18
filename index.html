@@ -1295,6 +1295,7 @@ function conectarHost(code, ref, retomada = false){
   escuchar(ref.child("desempate"), s => { VIVO.des = s.val(); if (VIVO.estado === "desempate") pintarHost(); });
   VIVO.desTick = setInterval(revisarDesempate, 250);
   VIVO.finTick = setInterval(() => revisarFin(), 5000);
+  if (ref.root) escuchar(ref.root.child(".info/serverTimeOffset"), s => { VIVO.desfase = s.val() || 0; });
   VIVO.off.push(() => { clearInterval(VIVO.desTick); clearInterval(VIVO.finTick); });
 }
 /* Si el proyector recargó la página, puede volver a tomar el control de su sala */
@@ -1371,8 +1372,9 @@ function pintarHost(){
   if (!VIVO || VIVO.rol !== "host") return;
   const est = VIVO.estado, js = rankingVivo(VIVO.jugadores);
   if (est === "desempate") { VIVO.pantalla = est; return pintarDesempateHost(); }
-  if (VIVO.pantalla !== est) {
-    VIVO.pantalla = est;
+  const clave = est === "fin" ? "fin:" + js.slice(0, 3).map(j => j.id + (j.dg ? "*" : "")).join(",") : est;
+  if (VIVO.pantalla !== clave) {
+    VIVO.pantalla = clave;
     if (est === "espera") {
       app.innerHTML = `<section class="vivo">
         <div class="sheet"><div class="sala-top"><div>
@@ -1427,7 +1429,8 @@ function pintarHost(){
         VIVO.celebrado = false; VIVO.ref.update(upd);
       };
       $("#vSalir").onclick = inicio;
-      if (!VIVO.celebrado) { VIVO.celebrado = true; Sonido.victoria(); confeti(); if (p1) setTimeout(() => Voz.decir(`¡${p1.nombre} gana la partida con ${p1.pts || 0} puntos!${p2 ? ` Segundo lugar para ${p2.nombre}.` : ""}${p3 ? ` Y tercero, ${p3.nombre}.` : ""}`, true), 900); }
+      const faltaDg = VIVO.des && VIVO.des.ganador && p1 && p1.id !== VIVO.des.ganador;
+      if (!VIVO.celebrado && !faltaDg) { VIVO.celebrado = true; Sonido.victoria(); confeti(); if (p1) setTimeout(() => Voz.decir(`¡${p1.nombre} gana la partida con ${p1.pts || 0} puntos!${p2 ? ` Segundo lugar para ${p2.nombre}.` : ""}${p3 ? ` Y tercero, ${p3.nombre}.` : ""}`, true), 900); }
     }
   }
   const conectados = js.filter(j => j.conectado !== false);
@@ -1448,7 +1451,7 @@ function pintarHost(){
 }
 // Quien lleva más de 60 s desconectado ya no frena el final; un celular bloqueado un momento sí se espera
 const AUSENTE_MS = 60000;
-const ausente = j => j.conectado === false && Date.now() - (j.actualizado || 0) > AUSENTE_MS;
+const ausente = j => j.conectado === false && Date.now() + ((VIVO && VIVO.desfase) || 0) - (j.actualizado || 0) > AUSENTE_MS;
 const faltan = js => js.filter(j => !j.out && !j.terminado && !ausente(j)).length;
 function revisarFin(js){
   if (!VIVO || VIVO.rol !== "host" || VIVO.estado !== "jugando") return;
@@ -1520,7 +1523,7 @@ function resolverDesempate(d, resp){
   const gan = aciertos.length ? aciertos[0][0] : d.orden[0];
   VIVO.ref.child("desempate").update({ ganador:gan });
   Voz.decir(`¡${nombreDe(gan)} gana la muerte súbita!`, true);
-  setTimeout(() => { if (VIVO) VIVO.ref.update({ [`jugadores/${gan}/dg`]:1, estado:"fin" }); }, 5500);
+  setTimeout(() => { if (VIVO) VIVO.ref.update({ [`jugadores/${gan}/dg`]:1 }).then(() => VIVO && VIVO.ref.update({ estado:"fin" })); }, 5500);
 }
 const partesPregunta = t => { const m = t.match(/^«(.+)» (.+)$/); return m ? { frag:m[1], preg:m[2] } : { frag:"", preg:t }; };
 function pintarDesempateHost(){
@@ -1573,7 +1576,7 @@ function unirseSala(codigo = ""){
       let pid; try { pid = sessionStorage.getItem("cz-pid"); } catch {}
       if (!pid) { try { const g = JSON.parse(localStorage.getItem("cz-sala") || "null"); if (g && g.code === code && jugadores[g.pid] && jugadores[g.pid].conectado === false && mismoNombre([g.pid, jugadores[g.pid]])) pid = g.pid; } catch {} }
       if (!pid) pid = Math.random().toString(36).slice(2, 10);
-      if (Object.entries(jugadores).some(e => e[0] !== pid && mismoNombre(e))) return aviso("Ese nombre ya está en la sala. Agrega tu apellido o una inicial.");
+      if (Object.entries(jugadores).some(e => e[0] !== pid && mismoNombre(e))) return aviso("Ese nombre ya está en la sala. Agrega tu apellido o una inicial. Si eras tú en otra pestaña, ciérrala y espera un momento.");
       try { sessionStorage.setItem("cz-pid", pid); localStorage.setItem("cz-sala", JSON.stringify({ code, pid })); } catch {}
       const yo = ref.child("jugadores/" + pid), previo = jugadores[pid];
       if (previo) await yo.update({ nombre, conectado:true, actualizado:TS() });
